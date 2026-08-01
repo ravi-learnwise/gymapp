@@ -8,6 +8,7 @@ Gym Management System MVP — hosted CRM-style web app for gym owners, managers,
 |----------|---------|
 | [specifications-mvp-v1.md](./specifications-mvp-v1.md) | MVP feature requirements |
 | [DEVELOPMENT.md](./DEVELOPMENT.md) | Stack, phases, RBAC, dev commands — **start here for context** |
+| [docs/TESTING.md](./docs/TESTING.md) | Automated testing (Jest, Vitest, Playwright) |
 | [docs/uat-checklists/](./docs/uat-checklists/) | Manual UAT per phase |
 
 ## Quick start

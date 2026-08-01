@@ -22,7 +22,7 @@ Hosted **CRM-style gym management** web app for **Owner**, **Manager**, and **Tr
 | Auth (Phase 1) | JWT (access + refresh), bcrypt |
 | Web server (UAT/prod) | Nginx → static React + `/api` proxy |
 | Process manager | PM2 |
-| Testing | Manual UAT checklists per phase (automated tests on `test-automation` branch) |
+| Testing | Jest (unit + API) + Vitest + Playwright — see [docs/TESTING.md](./docs/TESTING.md) |
 | Cloud target | AWS EC2 + MySQL (RDS or on-instance) |
 
 **Not used:** Tomcat (Java-only), PostgreSQL (MySQL preferred), automated test suite for MVP.
@@ -86,7 +86,8 @@ Build **strictly in sequence**. Do not scaffold future modules early.
 - Frontend screens complete
 - Swagger updated
 - No TypeScript errors; `pnpm build` succeeds
-- Manual UAT checklist passed
+- Manual UAT checklist passed (or automated equivalent for covered flows)
+- `pnpm test` passes for modules with automated coverage
 - Deployable via Nginx + PM2 after each phase
 
 ## RBAC matrix (proposed)
