@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.test
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+backend/prisma/*.db
+
+# PM2
+.pm2/
+
+# Vite
+frontend/.vite/
+
+# Coverage / test artifacts
+coverage/
+test-results/
+playwright-report/
+blob-report/

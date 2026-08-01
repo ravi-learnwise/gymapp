@@ -1,0 +1,382 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  TRAINER
+}
+
+enum LeadSource {
+  WALK_IN
+  REFERRAL
+  SOCIAL_MEDIA
+  ADVERTISEMENT
+  CORPORATE
+  ONLINE_SEARCH
+  OTHER
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  FOLLOW_UP
+  TRIAL
+  CONVERTED
+  LOST
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PAID
+  PARTIAL
+  PENDING
+}
+
+enum PaymentMode {
+  CASH
+  UPI
+  CARD
+  BANK_TRANSFER
+  CHEQUE
+  OTHER
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  role          UserRole
+  firstName     String?
+  lastName      String?
+  phone         String?
+  isActive      Boolean   @default(true)
+  resetToken    String?
+  resetTokenExp DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  enquiryNotes         EnquiryNote[]
+  enquiryStatusChanges EnquiryStatusHistory[]
+  enquiryReminders     EnquiryReminder[]
+  enquiriesCreated     Enquiry[]              @relation("EnquiryCreatedBy")
+  enrollmentsCreated   Enrollment[]           @relation("EnrollmentCreatedBy")
+  membershipsAsTrainer Membership[]           @relation("MembershipTrainer")
+  paymentsRecorded     PaymentTransaction[]   @relation("PaymentRecordedBy")
+  paymentReminders     PaymentReminder[]      @relation("PaymentReminderCreatedBy")
+
+  @@map("users")
+}
+
+model GymConfig {
+  id                String   @id @default(uuid())
+  name              String   @default("My Gym")
+  address           String?  @db.Text
+  gstNumber         String?
+  logoUrl           String?
+  attendanceEnabled Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("gym_config")
+}
+
+model Program {
+  id          String            @id @default(uuid())
+  name        String
+  description String?           @db.Text
+  isActive    Boolean           @default(true)
+  durations   ProgramDuration[]
+  enquiries   Enquiry[]
+  memberships Membership[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@map("programs")
+}
+
+model ProgramDuration {
+  id          String       @id @default(uuid())
+  programId   String
+  program     Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
+  label       String
+  months      Int
+  price       Decimal      @db.Decimal(10, 2)
+  isActive    Boolean      @default(true)
+  memberships Membership[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("program_durations")
+}
+
+model DiscountCategory {
+  id          String    @id @default(uuid())
+  name        String
+  description String?   @db.Text
+  percentage  Decimal?  @db.Decimal(5, 2)
+  isActive    Boolean   @default(true)
+  enquiries   Enquiry[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("discount_categories")
+}
+
+model OfferCategory {
+  id          String    @id @default(uuid())
+  name        String
+  description String?   @db.Text
+  isActive    Boolean   @default(true)
+  enquiries   Enquiry[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("offer_categories")
+}
+
+model Enquiry {
+  id                   String        @id @default(uuid())
+  enquiryNumber        String        @unique
+  fullName             String
+  age                  Int?
+  gender               Gender?
+  profession           String?
+  familyDetails        String?       @db.Text
+  mobileNumber         String
+  alternateContact     String?
+  email                String?
+  address              String?       @db.Text
+  dateOfEnquiry        DateTime      @default(now())
+  preferredContactTime String?
+  leadSource           LeadSource
+  offeredProgramId     String?
+  offeredProgram       Program?          @relation(fields: [offeredProgramId], references: [id], onDelete: SetNull)
+  offeredDiscountId    String?
+  offeredDiscount      DiscountCategory? @relation(fields: [offeredDiscountId], references: [id], onDelete: SetNull)
+  offerCategoryId      String?
+  offerCategory        OfferCategory?    @relation(fields: [offerCategoryId], references: [id], onDelete: SetNull)
+  offerValidTill       DateTime?
+  status               EnquiryStatus @default(NEW)
+  createdById          String?
+  createdBy            User?         @relation("EnquiryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  notes                EnquiryNote[]
+  statusHistory        EnquiryStatusHistory[]
+  reminders            EnquiryReminder[]
+  enrollment           Enrollment?
+  member               Member?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([status])
+  @@index([leadSource])
+  @@index([dateOfEnquiry])
+  @@index([mobileNumber])
+  @@index([fullName])
+  @@map("enquiries")
+}
+
+model EnquiryNote {
+  id          String   @id @default(uuid())
+  enquiryId   String
+  enquiry     Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  content     String   @db.Text
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now())
+
+  @@index([enquiryId])
+  @@map("enquiry_notes")
+}
+
+model EnquiryStatusHistory {
+  id          String         @id @default(uuid())
+  enquiryId   String
+  enquiry     Enquiry        @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  fromStatus  EnquiryStatus?
+  toStatus    EnquiryStatus
+  changedById String
+  changedBy   User           @relation(fields: [changedById], references: [id], onDelete: Restrict)
+  createdAt   DateTime       @default(now())
+
+  @@index([enquiryId])
+  @@map("enquiry_status_history")
+}
+
+model EnquiryReminder {
+  id          String   @id @default(uuid())
+  enquiryId   String
+  enquiry     Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  remindAt    DateTime
+  note        String?  @db.Text
+  completed   Boolean  @default(false)
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now())
+
+  @@index([enquiryId])
+  @@index([remindAt])
+  @@map("enquiry_reminders")
+}
+
+model Member {
+  id                  String       @id @default(uuid())
+  memberNumber        String       @unique
+  fullName            String
+  mobileNumber        String
+  alternateContact    String?
+  email               String?
+  address             String?      @db.Text
+  gender              Gender?
+  profession          String?
+  familyDetails       String?      @db.Text
+  dateOfBirth         DateTime?
+  height              Decimal?     @db.Decimal(5, 2)
+  weight              Decimal?     @db.Decimal(5, 2)
+  bmi                 Decimal?     @db.Decimal(4, 1)
+  medicalHistory      String?      @db.Text
+  allergies           String?      @db.Text
+  dietType            String?
+  sportsParticipation String?      @db.Text
+  fitnessGoals        String?      @db.Text
+  isActive            Boolean      @default(true)
+  sourceEnquiryId     String?      @unique
+  sourceEnquiry       Enquiry?     @relation(fields: [sourceEnquiryId], references: [id], onDelete: SetNull)
+  enrollment          Enrollment?
+  memberships         Membership[]
+  paymentCommitments  PaymentCommitment[]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  @@index([mobileNumber])
+  @@index([fullName])
+  @@map("members")
+}
+
+model Membership {
+  id                String           @id @default(uuid())
+  memberId          String
+  member            Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  programId         String
+  program           Program          @relation(fields: [programId], references: [id], onDelete: Restrict)
+  programDurationId String
+  programDuration   ProgramDuration  @relation(fields: [programDurationId], references: [id], onDelete: Restrict)
+  trainerId         String?
+  trainer           User?            @relation("MembershipTrainer", fields: [trainerId], references: [id], onDelete: SetNull)
+  isTrial           Boolean          @default(false)
+  startDate         DateTime
+  endDate           DateTime
+  status            MembershipStatus @default(ACTIVE)
+  enrollment        Enrollment?
+  paymentCommitment PaymentCommitment?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([memberId])
+  @@index([trainerId])
+  @@index([status])
+  @@map("memberships")
+}
+
+model Enrollment {
+  id               String     @id @default(uuid())
+  enrollmentNumber String     @unique
+  enquiryId        String     @unique
+  enquiry          Enquiry    @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
+  memberId         String     @unique
+  member           Member     @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  membershipId     String     @unique
+  membership       Membership @relation(fields: [membershipId], references: [id], onDelete: Restrict)
+  enrolledById     String
+  enrolledBy       User       @relation("EnrollmentCreatedBy", fields: [enrolledById], references: [id], onDelete: Restrict)
+  enrolledAt       DateTime   @default(now())
+
+  @@map("enrollments")
+}
+
+model PaymentCommitment {
+  id              String               @id @default(uuid())
+  membershipId    String               @unique
+  membership      Membership           @relation(fields: [membershipId], references: [id], onDelete: Restrict)
+  memberId        String
+  member          Member               @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  totalFee        Decimal              @db.Decimal(10, 2)
+  discountAmount  Decimal              @default(0) @db.Decimal(10, 2)
+  finalAmount     Decimal              @db.Decimal(10, 2)
+  amountPaid      Decimal              @default(0) @db.Decimal(10, 2)
+  pendingAmount   Decimal              @db.Decimal(10, 2)
+  gstPercent      Decimal?             @db.Decimal(5, 2)
+  gstAmount       Decimal              @default(0) @db.Decimal(10, 2)
+  status          PaymentStatus        @default(PENDING)
+  commitmentDate  DateTime?
+  commitmentNotes String?              @db.Text
+  transactions    PaymentTransaction[]
+  reminders       PaymentReminder[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+  @@index([pendingAmount])
+  @@map("payment_commitments")
+}
+
+model PaymentTransaction {
+  id            String            @id @default(uuid())
+  commitmentId  String
+  commitment    PaymentCommitment @relation(fields: [commitmentId], references: [id], onDelete: Cascade)
+  receiptNumber String            @unique
+  amount        Decimal           @db.Decimal(10, 2)
+  paymentMode   PaymentMode
+  paymentDate   DateTime          @default(now())
+  notes         String?           @db.Text
+  recordedById  String
+  recordedBy    User              @relation("PaymentRecordedBy", fields: [recordedById], references: [id], onDelete: Restrict)
+  createdAt     DateTime          @default(now())
+
+  @@index([commitmentId])
+  @@map("payment_transactions")
+}
+
+model PaymentReminder {
+  id            String            @id @default(uuid())
+  commitmentId  String
+  commitment    PaymentCommitment @relation(fields: [commitmentId], references: [id], onDelete: Cascade)
+  remindAt      DateTime
+  note          String?           @db.Text
+  completed     Boolean           @default(false)
+  createdById   String
+  createdBy     User              @relation("PaymentReminderCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt     DateTime          @default(now())
+
+  @@index([commitmentId])
+  @@index([remindAt])
+  @@map("payment_reminders")
+}
+
+model SchemaVersion {
+  id        Int      @id @default(1)
+  version   String   @default("phase-4")
+  updatedAt DateTime @updatedAt
+
+  @@map("_schema_version")
+}
