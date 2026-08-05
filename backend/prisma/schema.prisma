@@ -83,6 +83,8 @@ model User {
   membershipsAsTrainer Membership[]           @relation("MembershipTrainer")
   paymentsRecorded     PaymentTransaction[]   @relation("PaymentRecordedBy")
   paymentReminders     PaymentReminder[]      @relation("PaymentReminderCreatedBy")
+  fitnessAssessments   FitnessAssessment[]    @relation("AssessmentAssessedBy")
+  attendanceRecords    AttendanceRecord[]     @relation("AttendanceRecordedBy")
 
   @@map("users")
 }
@@ -264,6 +266,8 @@ model Member {
   enrollment          Enrollment?
   memberships         Membership[]
   paymentCommitments  PaymentCommitment[]
+  fitnessAssessments  FitnessAssessment[]
+  attendanceRecords   AttendanceRecord[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -373,9 +377,53 @@ model PaymentReminder {
   @@map("payment_reminders")
 }
 
+model FitnessAssessment {
+  id             String   @id @default(uuid())
+  memberId       String
+  member         Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  height         Decimal? @db.Decimal(5, 2)
+  weight         Decimal? @db.Decimal(5, 2)
+  bmi            Decimal? @db.Decimal(4, 1)
+  bodyFat        Decimal? @db.Decimal(5, 2)
+  waist          Decimal? @db.Decimal(5, 2)
+  chest          Decimal? @db.Decimal(5, 2)
+  hip            Decimal? @db.Decimal(5, 2)
+  arm            Decimal? @db.Decimal(5, 2)
+  thigh          Decimal? @db.Decimal(5, 2)
+  medicalHistory String?  @db.Text
+  fitnessGoals   String?  @db.Text
+  notes          String?  @db.Text
+  assessedAt     DateTime @default(now())
+  assessedById   String
+  assessedBy     User     @relation("AssessmentAssessedBy", fields: [assessedById], references: [id], onDelete: Restrict)
+  createdAt      DateTime @default(now())
+
+  @@index([memberId])
+  @@index([assessedAt])
+  @@map("fitness_assessments")
+}
+
+model AttendanceRecord {
+  id             String    @id @default(uuid())
+  memberId       String
+  member         Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  checkIn        DateTime
+  checkOut       DateTime?
+  sessionMinutes Int?
+  batch          String?
+  recordedById   String
+  recordedBy     User      @relation("AttendanceRecordedBy", fields: [recordedById], references: [id], onDelete: Restrict)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([memberId])
+  @@index([checkIn])
+  @@map("attendance_records")
+}
+
 model SchemaVersion {
   id        Int      @id @default(1)
-  version   String   @default("phase-4")
+  version   String   @default("phase-7")
   updatedAt DateTime @updatedAt
 
   @@map("_schema_version")

@@ -8,6 +8,8 @@ Gym Management System MVP — hosted CRM-style web app for gym owners, managers,
 |----------|---------|
 | [specifications-mvp-v1.md](./specifications-mvp-v1.md) | MVP feature requirements |
 | [DEVELOPMENT.md](./DEVELOPMENT.md) | Stack, phases, RBAC, dev commands — **start here for context** |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) | Docker + AWS EC2 deployment |
+| [AGENTS.md](./AGENTS.md) | Cursor agent context |
 | [docs/uat-checklists/](./docs/uat-checklists/) | Manual UAT per phase |
 
 ## Quick start
@@ -50,9 +52,7 @@ origin  https://github.com/ravi-learnwise/gymapp.git
 
 ## Status
 
-**Phase 4 complete** — Payment commitments, receipts, reminders, config edit for Programs/Discounts/Offers.
-
-**Phase 5 next:** Fitness Assessment.
+**MVP Phases 0–7 complete** — Enquiry CRM, enrollment, payments, fitness assessments, attendance, dashboard & reports.
 
 ### Login (after `pnpm prisma:seed`)
 

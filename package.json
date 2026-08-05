@@ -9,7 +9,11 @@
     "frontend:dev": "pnpm --filter frontend dev",
     "prisma:generate": "pnpm exec prisma generate --schema backend/prisma/schema.prisma",
     "prisma:migrate": "pnpm exec prisma migrate dev --schema backend/prisma/schema.prisma",
-    "prisma:seed": "pnpm exec prisma db seed --schema backend/prisma/schema.prisma"
+    "prisma:seed": "pnpm exec prisma db seed --schema backend/prisma/schema.prisma",
+    "docker:build": "docker compose --env-file .env.production build",
+    "docker:up": "docker compose --env-file .env.production up -d --build",
+    "docker:down": "docker compose --env-file .env.production down",
+    "docker:logs": "docker compose --env-file .env.production logs -f"
   },
   "engines": {
     "node": ">=22"

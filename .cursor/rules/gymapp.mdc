@@ -1,0 +1,15 @@
+---
+description: GymApp project conventions for AI agents
+globs:
+alwaysApply: true
+---
+
+# GymApp
+
+- Read `AGENTS.md` and `DEVELOPMENT.md` before making changes.
+- MVP phases 0–4 complete on `main`; tests on `test-automation` branch.
+- Local dev: G:\vibe-coding\devkit, `pnpm dev`.
+- Production deploy: Docker Compose on AWS EC2 — see `docs/DEPLOYMENT.md`.
+- Never commit `.env`, `.env.production`, or secrets.
+- One phase at a time; match existing NestJS + React patterns.
+- Frontend API base is relative `/api` (Nginx proxy in production).

@@ -9,7 +9,19 @@ type GymConfig = {
   gstNumber: string | null;
   logoUrl: string | null;
   attendanceEnabled: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
+
+function gymConfigPatchBody(config: GymConfig) {
+  return {
+    name: config.name,
+    address: config.address,
+    gstNumber: config.gstNumber,
+    logoUrl: config.logoUrl,
+    attendanceEnabled: config.attendanceEnabled,
+  };
+}
 
 export default function GymConfigPage() {
   const { user } = useAuth();
@@ -27,7 +39,7 @@ export default function GymConfigPage() {
     try {
       const updated = await api<GymConfig>('/config/gym', {
         method: 'PATCH',
-        body: JSON.stringify(config),
+        body: JSON.stringify(gymConfigPatchBody(config)),
       });
       setConfig(updated);
       setMessage('Saved successfully');

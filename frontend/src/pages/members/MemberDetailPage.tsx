@@ -4,6 +4,7 @@ import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { GENDER_LABELS, type Gender } from '../../types/enquiry';
 import { trainerName, type Member } from '../../types/member';
+import MemberAssessmentsSection from '../assessment/MemberAssessmentsSection';
 import {
   formatCurrency,
   PAYMENT_STATUS_COLORS,
@@ -132,6 +133,8 @@ export default function MemberDetailPage() {
           </p>
         </div>
       )}
+
+      {id && <MemberAssessmentsSection memberId={id} canEdit={canEdit} />}
 
       {!canEdit && (
         <p className="mt-4 text-xs text-slate-400">Trainer view — read only</p>

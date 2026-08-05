@@ -1,0 +1,36 @@
+# Dependencies and build output (rebuilt in image)
+node_modules
+**/node_modules
+**/dist
+frontend/.vite
+
+# Git and IDE
+.git
+.gitignore
+.idea
+.vscode
+
+# Local env and secrets
+.env
+.env.*
+!.env.production.example
+!.env.example
+
+# Test artifacts
+coverage
+test-results
+playwright-report
+blob-report
+**/*.spec.ts
+**/*.e2e-spec.ts
+**/*.test.ts
+backend/test
+frontend/e2e
+docs/TESTING.md
+
+# Docs not needed in image
+docs/uat-checklists
+
+# OS
+.DS_Store
+Thumbs.db

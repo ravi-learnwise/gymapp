@@ -19,7 +19,7 @@ export class HealthService {
       status: database === 'connected' ? 'ok' : 'degraded',
       timestamp: new Date().toISOString(),
       database,
-      phase: 4,
+      phase: 7,
     };
   }
 }

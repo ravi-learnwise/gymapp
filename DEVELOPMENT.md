@@ -21,9 +21,9 @@ Hosted **CRM-style gym management** web app for **Owner**, **Manager**, and **Tr
 | ORM | Prisma + MySQL 8 |
 | Auth (Phase 1) | JWT (access + refresh), bcrypt |
 | Web server (UAT/prod) | Nginx → static React + `/api` proxy |
-| Process manager | PM2 |
+| Process manager | PM2 (local UAT) / Docker (AWS) |
 | Testing | Manual UAT checklists per phase (automated tests on `test-automation` branch) |
-| Cloud target | AWS EC2 + MySQL (RDS or on-instance) |
+| Cloud target | **AWS EC2 + Docker Compose** (MySQL container; RDS when subscribed) |
 
 **Not used:** Tomcat (Java-only), PostgreSQL (MySQL preferred), automated test suite for MVP.
 
@@ -53,10 +53,14 @@ gymapp/
 ├── backend/           NestJS API + Prisma
 ├── frontend/          React SPA
 ├── deploy/
+│   ├── docker/        Dockerfiles, nginx, entrypoint (AWS production)
 │   ├── nginx/         Local UAT config
-│   └── pm2/           Production process config
+│   └── pm2/           Local UAT process config
 ├── docs/
+│   ├── DEPLOYMENT.md  Docker + AWS EC2 guide
 │   └── uat-checklists/   Manual test checklists (per phase)
+├── docker-compose.yml
+├── AGENTS.md          Cursor / agent context
 ├── specifications-mvp-v1.md
 └── DEVELOPMENT.md     ← this file
 ```
@@ -87,7 +91,7 @@ Build **strictly in sequence**. Do not scaffold future modules early.
 - Swagger updated
 - No TypeScript errors; `pnpm build` succeeds
 - Manual UAT checklist passed
-- Deployable via Nginx + PM2 after each phase
+- Deployable via Docker Compose on EC2 (see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md))
 
 ## RBAC matrix (proposed)
 
@@ -130,12 +134,21 @@ pnpm dev
 | Swagger | http://localhost:3000/api/docs |
 | Health | http://localhost:3000/api/health |
 
-### UAT mode (mirrors EC2)
+### UAT mode (local, non-Docker)
 
 ```powershell
 pnpm build
 pm2 start deploy/pm2/ecosystem.config.js
 # nginx -c deploy/nginx/gymapp.local.conf  → http://localhost:8080
+```
+
+### Docker mode (mirrors AWS EC2)
+
+```powershell
+copy .env.production.example .env.production
+# Edit .env.production — set passwords and secrets
+docker compose --env-file .env.production up -d --build
+# → http://localhost  (see docs/DEPLOYMENT.md)
 ```
 
 ## Git
@@ -151,7 +164,9 @@ Portable git config: `G:\vibe-coding\devkit\git\gitconfig` (set by activate-dev.
 - **Phase 2:** Complete — Enquiry CRM (CRUD, workflow, notes, timeline, reminders, stats)
 - **Phase 3:** Complete — Enrollment wizard, member & membership creation, trainer member view
 - **Phase 4:** Complete — Payment commitments, receipts, reminders, config edit UI
-- **Phase 5:** Next — Fitness Assessment
+- **Phase 5:** Complete — Fitness assessment history, enrollment baseline assessment
+- **Phase 6:** Complete — Configurable attendance check-in/out, analytics
+- **Phase 7:** Complete — Owner/manager dashboard metrics, reports, renewal rate
 
 ## Default login accounts (after seed)
 
@@ -163,6 +178,15 @@ Portable git config: `G:\vibe-coding\devkit\git\gitconfig` (set by activate-dev.
 
 Run seed: `pnpm prisma:seed`
 
+## Deployment status
+
+| Mode | Status |
+|------|--------|
+| Local dev (`pnpm dev`) | Ready |
+| Local UAT (PM2 + Nginx) | Ready — `deploy/pm2`, `deploy/nginx` |
+| **Docker on AWS EC2** | **Ready** — see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
+| RDS MySQL | Deferred until paying subscribers |
+
 ## Cursor kickoff prompt (new chats)
 
-> Continue GymApp MVP. Read DEVELOPMENT.md and specifications-mvp-v1.md. Implement the next incomplete phase only. Stack: React + Tailwind + NestJS + Prisma + MySQL on G:\vibe-coding\devkit. Manual UAT only.
+> Continue GymApp MVP. Read AGENTS.md, DEVELOPMENT.md, and specifications-mvp-v1.md. Implement the next incomplete phase only. Local dev: G:\vibe-coding\devkit. Deploy: Docker — docs/DEPLOYMENT.md.

@@ -16,6 +16,8 @@ import EnquiryDetailPage from './pages/enquiries/EnquiryDetailPage';
 import EnrollmentWizardPage from './pages/enrollment/EnrollmentWizardPage';
 import MemberListPage from './pages/members/MemberListPage';
 import MemberDetailPage from './pages/members/MemberDetailPage';
+import AttendancePage from './pages/attendance/AttendancePage';
+import ReportsPage from './pages/reports/ReportsPage';
 import PaymentListPage from './pages/payments/PaymentListPage';
 import PaymentDetailPage from './pages/payments/PaymentDetailPage';
 
@@ -45,6 +47,8 @@ export default function App() {
             <Route path="/enrollments/new" element={<EnrollmentWizardPage />} />
             <Route path="/payments" element={<PaymentListPage />} />
             <Route path="/payments/:id" element={<PaymentDetailPage />} />
+            <Route path="/attendance" element={<AttendancePage />} />
+            <Route path="/reports" element={<ReportsPage />} />
           </Route>
 
           {/* Members — all roles (Trainer sees assigned only) */}

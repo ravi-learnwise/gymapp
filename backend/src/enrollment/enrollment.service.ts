@@ -12,6 +12,7 @@ import { CreateEnrollmentDto, MemberQueryDto, UpdateMemberDto } from './dto/enro
 import { addMonths, calculateBmi } from './bmi.util';
 import { PaymentService } from '../payment/payment.service';
 import { toNumber } from '../payment/payment.util';
+import { AssessmentService } from '../assessment/assessment.service';
 
 const memberInclude = {
   sourceEnquiry: { select: { id: true, enquiryNumber: true } },
@@ -38,6 +39,7 @@ export class EnrollmentService {
   constructor(
     private prisma: PrismaService,
     private paymentService: PaymentService,
+    private assessmentService: AssessmentService,
   ) {}
 
   async getPrefill(enquiryId: string) {
@@ -170,6 +172,18 @@ export class EnrollmentService {
           sourceEnquiryId: enquiry.id,
         },
       });
+
+      await this.assessmentService.createFromEnrollment(
+        member.id,
+        {
+          height: dto.height,
+          weight: dto.weight,
+          medicalHistory: dto.medicalHistory,
+          fitnessGoals: dto.fitnessGoals,
+        },
+        userId,
+        tx,
+      );
 
       const membership = await tx.membership.create({
         data: {

@@ -1,11 +1,15 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', roles: ['OWNER', 'MANAGER', 'TRAINER'] },
   { to: '/enquiries', label: 'Enquiries', roles: ['OWNER', 'MANAGER'] },
   { to: '/members', label: 'Members', roles: ['OWNER', 'MANAGER', 'TRAINER'] },
   { to: '/payments', label: 'Payments', roles: ['OWNER', 'MANAGER'] },
+  { to: '/attendance', label: 'Attendance', roles: ['OWNER', 'MANAGER'], requiresAttendance: true },
+  { to: '/reports', label: 'Reports', roles: ['OWNER', 'MANAGER'] },
   { to: '/config/gym', label: 'Gym Info', roles: ['OWNER', 'MANAGER'] },
   { to: '/config/programs', label: 'Programs', roles: ['OWNER', 'MANAGER'] },
   { to: '/config/discounts', label: 'Discounts', roles: ['OWNER', 'MANAGER'] },
@@ -17,9 +21,21 @@ const navItems = [
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [attendanceEnabled, setAttendanceEnabled] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === 'OWNER' || user?.role === 'MANAGER') {
+      api<{ enabled: boolean }>('/attendance/enabled')
+        .then((r) => setAttendanceEnabled(r.enabled))
+        .catch(() => setAttendanceEnabled(false));
+    }
+  }, [user]);
 
   const visibleNav = navItems.filter(
-    (item) => user && item.roles.includes(user.role),
+    (item) =>
+      user &&
+      item.roles.includes(user.role) &&
+      (!('requiresAttendance' in item && item.requiresAttendance) || attendanceEnabled),
   );
 
   const handleLogout = () => {
