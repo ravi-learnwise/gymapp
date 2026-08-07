@@ -161,7 +161,24 @@ export default function EnrollmentWizardPage() {
               <Field label="Address" value={enquiry.address} />
               <Field label="Lead Source" value={LEAD_SOURCE_LABELS[enquiry.leadSource]} />
               <Field label="Program Offered" value={enquiry.offeredProgram?.name} />
-              <Field label="Discount" value={enquiry.offeredDiscount?.name} />
+              <Field
+                label="Duration Offered"
+                value={
+                  enquiry.offeredProgramDuration
+                    ? `${enquiry.offeredProgramDuration.label} (${enquiry.offeredProgramDuration.months} mo)`
+                    : undefined
+                }
+              />
+              <Field
+                label="Discount"
+                value={
+                  enquiry.offeredFlatDiscount
+                    ? `₹${enquiry.offeredFlatDiscount} (flat)`
+                    : enquiry.offeredDiscount?.name
+                      ? `${enquiry.offeredDiscount.name}${enquiry.offeredDiscount.percentage ? ` (${enquiry.offeredDiscount.percentage}%)` : ''}`
+                      : undefined
+                }
+              />
               <Field label="Offer Category" value={enquiry.offerCategory?.name} />
             </dl>
           </section>
@@ -271,6 +288,16 @@ export default function EnrollmentWizardPage() {
               <Field label="Duration" value={selectedDuration?.label} />
               <Field label="Trial" value={program.isTrial ? 'Yes' : 'No'} />
               <Field label="Period" value={`${program.startDate} → ${endDate}`} />
+              <Field
+                label="Discount Applied"
+                value={
+                  enquiry.offeredFlatDiscount
+                    ? `₹${enquiry.offeredFlatDiscount} flat discount`
+                    : enquiry.offeredDiscount?.name
+                      ? `${enquiry.offeredDiscount.name}${enquiry.offeredDiscount.percentage ? ` (${enquiry.offeredDiscount.percentage}%)` : ''}`
+                      : 'None'
+                }
+              />
               <Field label="BMI" value={bmi?.toString()} />
             </dl>
             {error && <p className="mt-3 text-sm text-red-600">{error}</p>}

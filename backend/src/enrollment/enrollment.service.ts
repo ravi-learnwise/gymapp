@@ -53,6 +53,7 @@ export class EnrollmentService {
             durations: { where: { isActive: true }, orderBy: { months: 'asc' } },
           },
         },
+        offeredProgramDuration: { select: { id: true, label: true, months: true, price: true } },
         offeredDiscount: { select: { id: true, name: true, percentage: true } },
         offerCategory: { select: { id: true, name: true } },
         enrollment: { select: { id: true, enrollmentNumber: true } },
@@ -85,12 +86,19 @@ export class EnrollmentService {
         dateOfEnquiry: enquiry.dateOfEnquiry,
         status: enquiry.status,
         offeredProgram: enquiry.offeredProgram,
+        offeredProgramDuration: enquiry.offeredProgramDuration,
         offeredDiscount: enquiry.offeredDiscount,
+        offeredFlatDiscount: enquiry.offeredFlatDiscount
+          ? String(enquiry.offeredFlatDiscount)
+          : null,
         offerCategory: enquiry.offerCategory,
         offerValidTill: enquiry.offerValidTill,
       },
       suggestedProgramId: enquiry.offeredProgramId,
-      suggestedDurationId: enquiry.offeredProgram?.durations[0]?.id ?? null,
+      suggestedDurationId:
+        enquiry.offeredProgramDurationId ??
+        enquiry.offeredProgram?.durations[0]?.id ??
+        null,
     };
   }
 
@@ -110,7 +118,6 @@ export class EnrollmentService {
         offeredDiscount: { select: { percentage: true } },
       },
     });
-
     if (!enquiry) throw new NotFoundException('Enquiry not found');
     if (enquiry.enrollment) {
       throw new BadRequestException('Enquiry already enrolled');
@@ -200,12 +207,16 @@ export class EnrollmentService {
       const discountPercent = enquiry.offeredDiscount?.percentage
         ? toNumber(enquiry.offeredDiscount.percentage)
         : null;
+      const flatDiscount = enquiry.offeredFlatDiscount
+        ? toNumber(enquiry.offeredFlatDiscount)
+        : null;
       await this.paymentService.createCommitmentFromEnrollment(
         membership.id,
         member.id,
         toNumber(duration.price),
         discountPercent,
         tx,
+        flatDiscount,
       );
 
       const enrollment = await tx.enrollment.create({
@@ -323,6 +334,24 @@ export class EnrollmentService {
       ];
     }
 
+    if (query.membershipStatus) {
+      where.memberships = {
+        some: {
+          status: query.membershipStatus,
+          ...(user.role === UserRole.TRAINER ? { trainerId: user.id } : {}),
+        },
+      };
+    }
+
+    const memberSortFields: Record<string, keyof Prisma.MemberOrderByWithRelationInput> = {
+      fullName: 'fullName',
+      memberNumber: 'memberNumber',
+      mobileNumber: 'mobileNumber',
+      createdAt: 'createdAt',
+    };
+    const sortField = memberSortFields[query.sortBy ?? 'createdAt'] ?? 'createdAt';
+    const sortOrder = query.sortOrder ?? 'desc';
+
     const [items, total] = await Promise.all([
       this.prisma.member.findMany({
         where,
@@ -337,7 +366,7 @@ export class EnrollmentService {
             take: 1,
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { [sortField]: sortOrder },
         skip,
         take: limit,
       }),
@@ -398,6 +427,95 @@ export class EnrollmentService {
     ]);
 
     return { totalMembers, activeMemberships, recentEnrollments };
+  }
+
+  async getExpiringMemberships(query: { bucket?: '7' | '15' | '30' | 'beyond'; page?: number; limit?: number }) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const in7 = new Date(today);
+    in7.setDate(in7.getDate() + 7);
+    in7.setHours(23, 59, 59, 999);
+    const in15 = new Date(today);
+    in15.setDate(in15.getDate() + 15);
+    in15.setHours(23, 59, 59, 999);
+    const in30 = new Date(today);
+    in30.setDate(in30.getDate() + 30);
+    in30.setHours(23, 59, 59, 999);
+
+    const baseWhere: Prisma.MembershipWhereInput = {
+      status: 'ACTIVE',
+      endDate: { gte: today },
+    };
+
+    let listWhere: Prisma.MembershipWhereInput = { ...baseWhere };
+    if (query.bucket === '7') {
+      listWhere = { ...baseWhere, endDate: { gte: today, lte: in7 } };
+    } else if (query.bucket === '15') {
+      listWhere = { ...baseWhere, endDate: { gte: today, lte: in15 } };
+    } else if (query.bucket === '30') {
+      listWhere = { ...baseWhere, endDate: { gte: today, lte: in30 } };
+    } else if (query.bucket === 'beyond') {
+      listWhere = { ...baseWhere, endDate: { gt: in30 } };
+    }
+
+    const [within7, within15, within30, beyond30, items, total] = await Promise.all([
+      this.prisma.membership.count({
+        where: { status: 'ACTIVE', endDate: { gte: today, lte: in7 } },
+      }),
+      this.prisma.membership.count({
+        where: { status: 'ACTIVE', endDate: { gte: today, lte: in15 } },
+      }),
+      this.prisma.membership.count({
+        where: { status: 'ACTIVE', endDate: { gte: today, lte: in30 } },
+      }),
+      this.prisma.membership.count({
+        where: { status: 'ACTIVE', endDate: { gt: in30 } },
+      }),
+      this.prisma.membership.findMany({
+        where: listWhere,
+        include: {
+          member: { select: { id: true, memberNumber: true, fullName: true, mobileNumber: true } },
+          program: { select: { name: true } },
+          programDuration: { select: { label: true } },
+          trainer: { select: { firstName: true, lastName: true } },
+        },
+        orderBy: { endDate: 'asc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.membership.count({ where: listWhere }),
+    ]);
+
+    return {
+      summary: { within7, within15, within30, beyond30 },
+      items: items.map((m) => {
+        const end = new Date(m.endDate);
+        end.setHours(0, 0, 0, 0);
+        const daysRemaining = Math.ceil((end.getTime() - today.getTime()) / 86400000);
+        return {
+          membershipId: m.id,
+          memberId: m.memberId,
+          memberName: m.member.fullName,
+          memberNumber: m.member.memberNumber,
+          mobileNumber: m.member.mobileNumber,
+          program: m.program.name,
+          duration: m.programDuration.label,
+          endDate: m.endDate,
+          daysRemaining,
+          trainer: m.trainer
+            ? [m.trainer.firstName, m.trainer.lastName].filter(Boolean).join(' ')
+            : null,
+        };
+      }),
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   private async generateMemberNumber(): Promise<string> {

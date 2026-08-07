@@ -4,7 +4,7 @@ import { UserRole } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser, AuthUser } from '../common/decorators/current-user.decorator';
 import { EnrollmentService } from './enrollment.service';
-import { CreateEnrollmentDto, MemberQueryDto, UpdateMemberDto } from './dto/enrollment.dto';
+import { CreateEnrollmentDto, ExpiringMembershipQueryDto, MemberQueryDto, UpdateMemberDto } from './dto/enrollment.dto';
 
 @ApiTags('enrollments')
 @ApiBearerAuth()
@@ -46,6 +46,12 @@ export class EnrollmentController {
   @Roles(UserRole.OWNER, UserRole.MANAGER)
   findOneEnrollment(@Param('id') id: string) {
     return this.enrollmentService.findOneEnrollment(id);
+  }
+
+  @Get('memberships/expiring')
+  @Roles(UserRole.OWNER, UserRole.MANAGER)
+  getExpiringMemberships(@Query() query: ExpiringMembershipQueryDto) {
+    return this.enrollmentService.getExpiringMemberships(query);
   }
 
   @Get('members')

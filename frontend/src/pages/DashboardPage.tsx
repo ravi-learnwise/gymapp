@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
+import { monthToDateRange } from '../lib/date-range';
 import { PERIOD_LABELS, type DashboardSummary, type ReportPeriod } from '../types/dashboard';
+import type { EnquiryStats } from '../types/enquiry';
+import type { ExpiringMembershipResponse } from '../types/member';
 
 const PERIODS: ReportPeriod[] = ['daily', 'weekly', 'monthly', 'yearly'];
 
@@ -10,12 +13,23 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [period, setPeriod] = useState<ReportPeriod>('monthly');
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [enquiryStats, setEnquiryStats] = useState<EnquiryStats | null>(null);
+  const [expiring, setExpiring] = useState<ExpiringMembershipResponse | null>(null);
 
   useEffect(() => {
     if (user?.role === 'OWNER' || user?.role === 'MANAGER') {
       api<DashboardSummary>(`/dashboard/summary?period=${period}`)
         .then(setSummary)
         .catch(() => setSummary(null));
+
+      const mtd = monthToDateRange();
+      api<EnquiryStats>(`/enquiries/stats?dateFrom=${mtd.dateFrom}&dateTo=${mtd.dateTo}`)
+        .then(setEnquiryStats)
+        .catch(() => setEnquiryStats(null));
+
+      api<ExpiringMembershipResponse>('/memberships/expiring?limit=1')
+        .then(setExpiring)
+        .catch(() => setExpiring(null));
     }
   }, [user, period]);
 
@@ -66,10 +80,38 @@ export default function DashboardPage() {
         <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card title="Active Members" value={summary.activeMembers} />
-            <Card title="New Enquiries" value={summary.newEnquiries} />
-            <Card title="Conversion Rate" value={`${summary.conversionRate}%`} />
             <Card title="Pending Payments" value={summary.pendingPayments} />
+            {enquiryStats && (
+              <>
+                <Card title="New Enquiries (MTD)" value={enquiryStats.newEnquiries} />
+                <Card title="Converted (MTD)" value={enquiryStats.converted} />
+              </>
+            )}
           </div>
+
+          {enquiryStats && (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Card title="Lost (MTD)" value={enquiryStats.lost} />
+              <Card title="Open in Period" value={enquiryStats.openRemaining} note={`${enquiryStats.dateFrom} → ${enquiryStats.dateTo}`} />
+            </div>
+          )}
+
+          {expiring && (
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-slate-800">Membership Renewals</h3>
+                <Link to="/members/expiring" className="text-sm text-brand-600 hover:underline">
+                  View all →
+                </Link>
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-4">
+                <ExpiryCard label="Within 7 days" count={expiring.summary.within7} bucket="7" />
+                <ExpiryCard label="Within 15 days" count={expiring.summary.within15} bucket="15" />
+                <ExpiryCard label="Within 30 days" count={expiring.summary.within30} bucket="30" />
+                <ExpiryCard label="Beyond 30 days" count={expiring.summary.beyond30} bucket="beyond" />
+              </div>
+            </div>
+          )}
 
           {user?.role === 'OWNER' && summary.revenue != null && (
             <div className="mt-6">
@@ -177,6 +219,18 @@ function Card({
       <p className="mt-1 text-2xl font-bold text-slate-900">{value}</p>
       {note && <p className="mt-1 text-xs text-slate-400">{note}</p>}
     </div>
+  );
+}
+
+function ExpiryCard({ label, count, bucket }: { label: string; count: number; bucket: string }) {
+  return (
+    <Link
+      to={`/members/expiring?bucket=${bucket}`}
+      className={`rounded-xl border p-4 hover:border-brand-300 ${count > 0 && bucket === '7' ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white'}`}
+    >
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-1 text-2xl font-bold text-slate-900">{count}</p>
+    </Link>
   );
 }
 

@@ -16,10 +16,12 @@ import EnquiryDetailPage from './pages/enquiries/EnquiryDetailPage';
 import EnrollmentWizardPage from './pages/enrollment/EnrollmentWizardPage';
 import MemberListPage from './pages/members/MemberListPage';
 import MemberDetailPage from './pages/members/MemberDetailPage';
+import ExpiringMembershipsPage from './pages/members/ExpiringMembershipsPage';
 import AttendancePage from './pages/attendance/AttendancePage';
 import ReportsPage from './pages/reports/ReportsPage';
 import PaymentListPage from './pages/payments/PaymentListPage';
 import PaymentDetailPage from './pages/payments/PaymentDetailPage';
+import ReceiptPrintPage from './pages/payments/ReceiptPrintPage';
 
 export default function App() {
   return (
@@ -27,6 +29,10 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+      <Route element={<ProtectedRoute roles={['OWNER', 'MANAGER']} />}>
+        <Route path="/payments/:id/receipt/:transactionId/print" element={<ReceiptPrintPage />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AdminLayout />}>
@@ -54,6 +60,9 @@ export default function App() {
           {/* Members — all roles (Trainer sees assigned only) */}
           <Route path="/members" element={<MemberListPage />} />
           <Route path="/members/:id" element={<MemberDetailPage />} />
+          <Route element={<ProtectedRoute roles={['OWNER', 'MANAGER']} />}>
+            <Route path="/members/expiring" element={<ExpiringMembershipsPage />} />
+          </Route>
         </Route>
       </Route>
 

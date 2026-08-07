@@ -125,6 +125,7 @@ model ProgramDuration {
   price       Decimal      @db.Decimal(10, 2)
   isActive    Boolean      @default(true)
   memberships Membership[]
+  enquiries   Enquiry[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -171,11 +172,14 @@ model Enquiry {
   dateOfEnquiry        DateTime      @default(now())
   preferredContactTime String?
   leadSource           LeadSource
-  offeredProgramId     String?
-  offeredProgram       Program?          @relation(fields: [offeredProgramId], references: [id], onDelete: SetNull)
-  offeredDiscountId    String?
-  offeredDiscount      DiscountCategory? @relation(fields: [offeredDiscountId], references: [id], onDelete: SetNull)
-  offerCategoryId      String?
+  offeredProgramId         String?
+  offeredProgram           Program?          @relation(fields: [offeredProgramId], references: [id], onDelete: SetNull)
+  offeredProgramDurationId String?
+  offeredProgramDuration   ProgramDuration?  @relation(fields: [offeredProgramDurationId], references: [id], onDelete: SetNull)
+  offeredDiscountId        String?
+  offeredDiscount          DiscountCategory? @relation(fields: [offeredDiscountId], references: [id], onDelete: SetNull)
+  offeredFlatDiscount      Decimal?          @db.Decimal(10, 2)
+  offerCategoryId          String?
   offerCategory        OfferCategory?    @relation(fields: [offerCategoryId], references: [id], onDelete: SetNull)
   offerValidTill       DateTime?
   status               EnquiryStatus @default(NEW)

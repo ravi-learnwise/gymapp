@@ -8,13 +8,11 @@ import {
   PAYMENT_STATUS_LABELS,
   type PaymentDetail,
   type PaymentMode,
-  type Receipt,
 } from '../../types/payment';
 
 export default function PaymentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [payment, setPayment] = useState<PaymentDetail | null>(null);
-  const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [message, setMessage] = useState('');
   const [payForm, setPayForm] = useState({ amount: '', paymentMode: 'CASH' as PaymentMode, notes: '' });
   const [editForm, setEditForm] = useState({ discountAmount: '', gstPercent: '', commitmentNotes: '', commitmentDate: '' });
@@ -84,12 +82,9 @@ export default function PaymentDetailPage() {
     load();
   };
 
-  const viewReceipt = async (transactionId: string) => {
-    const data = await api<Receipt>(`/payments/${id}/receipt/${transactionId}`);
-    setReceipt(data);
+  const openReceipt = (transactionId: string) => {
+    window.open(`/payments/${id}/receipt/${transactionId}/print`, '_blank', 'noopener,noreferrer');
   };
-
-  const printReceipt = () => window.print();
 
   return (
     <div className="max-w-4xl">
@@ -174,7 +169,7 @@ export default function PaymentDetailPage() {
                 <td>{PAYMENT_MODE_LABELS[t.paymentMode]}</td>
                 <td>{formatCurrency(t.amount)}</td>
                 <td>
-                  <button onClick={() => viewReceipt(t.id)} className="text-brand-600 hover:underline">View Receipt</button>
+                  <button onClick={() => openReceipt(t.id)} className="text-brand-600 hover:underline">Open Receipt</button>
                 </td>
               </tr>
             ))}
@@ -205,37 +200,6 @@ export default function PaymentDetailPage() {
           </form>
         )}
       </div>
-
-      {receipt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 print:relative print:inset-auto print:bg-transparent print:p-0">
-          <div className="max-h-[90vh] w-full max-w-md overflow-auto rounded-xl bg-white p-6 shadow-xl print:max-h-none print:shadow-none">
-            <div className="text-center">
-              <h3 className="text-lg font-bold">{receipt.gym.name}</h3>
-              {receipt.gym.address && <p className="text-xs text-slate-500">{receipt.gym.address}</p>}
-              {receipt.gym.gstNumber && <p className="text-xs text-slate-500">GST: {receipt.gym.gstNumber}</p>}
-            </div>
-            <hr className="my-4" />
-            <p className="text-center font-semibold">Payment Receipt</p>
-            <p className="text-center text-sm text-slate-500">{receipt.receiptNumber}</p>
-            <dl className="mt-4 space-y-1 text-sm">
-              <Row label="Member" value={`${receipt.member.fullName} (${receipt.member.memberNumber})`} />
-              <Row label="Program" value={receipt.program} />
-              <Row label="Date" value={new Date(receipt.paymentDate).toLocaleString()} />
-              <Row label="Mode" value={PAYMENT_MODE_LABELS[receipt.paymentMode]} />
-              <Row label="Amount Paid" value={formatCurrency(receipt.amount)} />
-              <Row label="Total Fee" value={formatCurrency(receipt.totalFee)} />
-              <Row label="Discount" value={formatCurrency(receipt.discountAmount)} />
-              <Row label="Final Amount" value={formatCurrency(receipt.finalAmount)} />
-              <Row label="Balance" value={formatCurrency(receipt.pendingAmount)} />
-              {Number(receipt.gstAmount) > 0 && <Row label="GST" value={formatCurrency(receipt.gstAmount)} />}
-            </dl>
-            <div className="mt-6 flex justify-end gap-2 print:hidden">
-              <button onClick={() => setReceipt(null)} className="rounded-lg border px-4 py-2 text-sm">Close</button>
-              <button onClick={printReceipt} className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">Print</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

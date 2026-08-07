@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../lib/api';
+import PasswordInput from '../components/PasswordInput';
 
 export default function ResetPasswordPage() {
   const [params] = useSearchParams();
@@ -38,14 +39,13 @@ export default function ResetPasswordPage() {
         <h1 className="text-xl font-bold">Reset password</h1>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <input
-            type="password"
+          <PasswordInput
+            id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
             placeholder="New password (min 6 chars)"
             required
             minLength={6}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
           <button
             type="submit"

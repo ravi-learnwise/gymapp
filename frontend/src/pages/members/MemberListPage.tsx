@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import DataTable, { type DataTableColumn } from '../../components/DataTable/DataTable';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { trainerName, type Member } from '../../types/member';
@@ -8,23 +9,108 @@ type ListResponse = { items: Member[]; total: number; page: number; pages: numbe
 
 export default function MemberListPage() {
   const { user } = useAuth();
+  const [params, setParams] = useSearchParams();
   const [data, setData] = useState<ListResponse | null>(null);
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState(params.get('search') || '');
+  const membershipStatus = params.get('membershipStatus') || '';
+  const page = Number(params.get('page') || '1');
+  const sortBy = params.get('sortBy') || 'createdAt';
+  const sortOrder = (params.get('sortOrder') || 'desc') as 'asc' | 'desc';
 
-  const load = () => {
-    const params = new URLSearchParams({ page: String(page), limit: '20' });
-    if (search.trim()) params.set('search', search.trim());
-    api<ListResponse>(`/members?${params}`).then(setData);
+  useEffect(() => {
+    const qs = new URLSearchParams(params);
+    qs.set('limit', '20');
+    if (!qs.has('page')) qs.set('page', '1');
+    api<ListResponse>(`/members?${qs}`).then(setData);
+  }, [params]);
+
+  const applySearch = () => {
+    const qs = new URLSearchParams(params);
+    if (search.trim()) qs.set('search', search.trim());
+    else qs.delete('search');
+    qs.set('page', '1');
+    setParams(qs);
   };
 
-  useEffect(() => { load(); }, [page]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    load();
+  const updateParams = (updates: Record<string, string>) => {
+    const qs = new URLSearchParams(params);
+    Object.entries(updates).forEach(([k, v]) => {
+      if (v) qs.set(k, v);
+      else qs.delete(k);
+    });
+    setParams(qs);
   };
+
+  const columns = useMemo<DataTableColumn<Member>[]>(
+    () => [
+      {
+        id: 'fullName',
+        accessorKey: 'fullName',
+        header: 'Name',
+        meta: { fixed: true, label: 'Name' },
+        enableSorting: true,
+        cell: ({ row }) => (
+          <Link to={`/members/${row.original.id}`} className="font-medium text-brand-600 hover:underline">
+            {row.original.fullName}
+          </Link>
+        ),
+      },
+      {
+        id: 'memberNumber',
+        accessorKey: 'memberNumber',
+        header: 'Member ID',
+        meta: { fixed: true, label: 'Member ID' },
+        enableSorting: true,
+        cell: ({ row }) => (
+          <Link to={`/members/${row.original.id}`} className="text-brand-600 hover:underline">
+            {row.original.memberNumber}
+          </Link>
+        ),
+      },
+      {
+        id: 'mobileNumber',
+        accessorKey: 'mobileNumber',
+        header: 'Mobile',
+        meta: { label: 'Mobile' },
+        enableSorting: true,
+      },
+      {
+        id: 'program',
+        header: 'Program',
+        meta: { label: 'Program' },
+        cell: ({ row }) => row.original.memberships?.[0]?.program.name ?? '—',
+      },
+      {
+        id: 'trainer',
+        header: 'Trainer',
+        meta: { label: 'Trainer' },
+        cell: ({ row }) => trainerName(row.original.memberships?.[0]?.trainer),
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        meta: { label: 'Status' },
+        cell: ({ row }) => {
+          const status = row.original.memberships?.[0]?.status;
+          return (
+            <span className={`rounded-full px-2 py-0.5 text-xs ${status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'}`}>
+              {status ?? '—'}
+            </span>
+          );
+        },
+      },
+      {
+        id: 'validTill',
+        header: 'Valid till',
+        meta: { label: 'Valid till' },
+        cell: ({ row }) => {
+          const end = row.original.memberships?.[0]?.endDate;
+          return end ? new Date(end).toLocaleDateString() : '—';
+        },
+      },
+    ],
+    [],
+  );
 
   return (
     <div>
@@ -35,78 +121,50 @@ export default function MemberListPage() {
             {user?.role === 'TRAINER' ? 'Members assigned to you' : 'All gym members'}
           </p>
         </div>
+        {(user?.role === 'OWNER' || user?.role === 'MANAGER') && (
+          <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+            Expiring memberships →
+          </Link>
+        )}
       </div>
 
-      <form onSubmit={handleSearch} className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, mobile, member ID…"
           className="flex-1 rounded-lg border px-3 py-2 text-sm"
+          onKeyDown={(e) => e.key === 'Enter' && applySearch()}
         />
-        <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+        <select
+          value={membershipStatus}
+          onChange={(e) => updateParams({ membershipStatus: e.target.value, page: '1' })}
+          className="rounded-lg border px-3 py-2 text-sm"
+        >
+          <option value="">All statuses</option>
+          <option value="ACTIVE">Active</option>
+          <option value="EXPIRED">Expired</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
           Search
         </button>
-      </form>
+      </div>
 
-      {!data ? (
-        <p className="mt-6 text-slate-500">Loading…</p>
-      ) : (
-        <>
-          <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
-            <table className="w-full text-sm">
-              <thead className="border-b bg-slate-50 text-left text-slate-600">
-                <tr>
-                  <th className="px-4 py-3">Member ID</th>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Mobile</th>
-                  <th className="px-4 py-3">Program</th>
-                  <th className="px-4 py-3">Trainer</th>
-                  <th className="px-4 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((m) => {
-                  const membership = m.memberships?.[0];
-                  return (
-                    <tr key={m.id} className="border-b last:border-0 hover:bg-slate-50">
-                      <td className="px-4 py-3">
-                        <Link to={`/members/${m.id}`} className="font-medium text-brand-600 hover:underline">
-                          {m.memberNumber}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">{m.fullName}</td>
-                      <td className="px-4 py-3">{m.mobileNumber}</td>
-                      <td className="px-4 py-3">{membership?.program.name ?? '—'}</td>
-                      <td className="px-4 py-3">{trainerName(membership?.trainer)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-2 py-0.5 text-xs ${membership?.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'}`}>
-                          {membership?.status ?? '—'}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {data.items.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
-                      No members found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {data.pages > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="rounded border px-3 py-1 text-sm disabled:opacity-40">Prev</button>
-              <span className="text-sm text-slate-500">Page {page} of {data.pages}</span>
-              <button disabled={page >= data.pages} onClick={() => setPage((p) => p + 1)} className="rounded border px-3 py-1 text-sm disabled:opacity-40">Next</button>
-            </div>
-          )}
-        </>
-      )}
+      <div className="mt-4">
+        <DataTable
+          tableKey="members"
+          columns={columns}
+          data={data?.items ?? []}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={(col, order) => updateParams({ sortBy: col, sortOrder: order, page: '1' })}
+          page={data?.page}
+          pages={data?.pages}
+          onPageChange={(p) => updateParams({ page: String(p) })}
+          emptyMessage={data ? 'No members found' : 'Loading…'}
+        />
+      </div>
     </div>
   );
 }

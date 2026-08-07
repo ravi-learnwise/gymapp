@@ -1,6 +1,8 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../lib/api';
+import { monthToDateRange } from '../../lib/date-range';
+import { enquiryFormSchema } from '../../lib/validation/enquiry';
 import {
   GENDER_LABELS,
   LEAD_SOURCE_LABELS,
@@ -8,7 +10,8 @@ import {
   type LeadSource,
 } from '../../types/enquiry';
 
-type Program = { id: string; name: string };
+type ProgramDuration = { id: string; label: string; months: number; price: string; isActive: boolean };
+type Program = { id: string; name: string; durations: ProgramDuration[] };
 type Discount = { id: string; name: string };
 type Offer = { id: string; name: string };
 
@@ -22,10 +25,13 @@ const emptyForm = {
   alternateContact: '',
   email: '',
   address: '',
+  dateOfEnquiry: new Date().toISOString().slice(0, 10),
   preferredContactTime: '',
   leadSource: 'WALK_IN' as LeadSource,
   offeredProgramId: '',
+  offeredProgramDurationId: '',
   offeredDiscountId: '',
+  offeredFlatDiscount: '',
   offerCategoryId: '',
   offerValidTill: '',
   initialNote: '',
@@ -39,6 +45,7 @@ export default function EnquiryFormPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -50,24 +57,29 @@ export default function EnquiryFormPage() {
 
   useEffect(() => {
     if (id) {
-      api<typeof form & { id: string; status: string }>(`/enquiries/${id}`).then((e) => {
+      api<Record<string, unknown>>(`/enquiries/${id}`).then((e) => {
         setForm({
-          fullName: e.fullName || '',
+          fullName: (e.fullName as string) || '',
           age: e.age?.toString() || '',
-          gender: (e as { gender?: Gender }).gender || '',
-          profession: (e as { profession?: string }).profession || '',
-          familyDetails: (e as { familyDetails?: string }).familyDetails || '',
-          mobileNumber: e.mobileNumber || '',
-          alternateContact: (e as { alternateContact?: string }).alternateContact || '',
-          email: (e as { email?: string }).email || '',
-          address: (e as { address?: string }).address || '',
-          preferredContactTime: (e as { preferredContactTime?: string }).preferredContactTime || '',
-          leadSource: (e as { leadSource: LeadSource }).leadSource,
-          offeredProgramId: (e as { offeredProgram?: { id: string } }).offeredProgram?.id || '',
-          offeredDiscountId: (e as { offeredDiscount?: { id: string } }).offeredDiscount?.id || '',
-          offerCategoryId: (e as { offerCategory?: { id: string } }).offerCategory?.id || '',
-          offerValidTill: (e as { offerValidTill?: string }).offerValidTill
-            ? (e as { offerValidTill: string }).offerValidTill.slice(0, 10)
+          gender: (e.gender as Gender) || '',
+          profession: (e.profession as string) || '',
+          familyDetails: (e.familyDetails as string) || '',
+          mobileNumber: (e.mobileNumber as string) || '',
+          alternateContact: (e.alternateContact as string) || '',
+          email: (e.email as string) || '',
+          address: (e.address as string) || '',
+          dateOfEnquiry: e.dateOfEnquiry
+            ? new Date(e.dateOfEnquiry as string).toISOString().slice(0, 10)
+            : monthToDateRange().dateFrom,
+          preferredContactTime: (e.preferredContactTime as string) || '',
+          leadSource: e.leadSource as LeadSource,
+          offeredProgramId: (e.offeredProgram as { id: string })?.id || '',
+          offeredProgramDurationId: (e.offeredProgramDuration as { id: string })?.id || '',
+          offeredDiscountId: (e.offeredDiscount as { id: string })?.id || '',
+          offeredFlatDiscount: e.offeredFlatDiscount != null ? String(e.offeredFlatDiscount) : '',
+          offerCategoryId: (e.offerCategory as { id: string })?.id || '',
+          offerValidTill: e.offerValidTill
+            ? new Date(e.offerValidTill as string).toISOString().slice(0, 10)
             : '',
           initialNote: '',
         });
@@ -75,23 +87,50 @@ export default function EnquiryFormPage() {
     }
   }, [id]);
 
-  const set = (key: keyof typeof form, value: string) =>
-    setForm((f) => ({ ...f, [key]: value }));
+  const durations = useMemo(() => {
+    const program = programs.find((p) => p.id === form.offeredProgramId);
+    return program?.durations.filter((d) => d.isActive) ?? [];
+  }, [programs, form.offeredProgramId]);
+
+  const set = (key: keyof typeof form, value: string) => {
+    setForm((f) => {
+      const next = { ...f, [key]: value };
+      if (key === 'offeredProgramId') next.offeredProgramDurationId = '';
+      if (key === 'offeredDiscountId' && value) next.offeredFlatDiscount = '';
+      if (key === 'offeredFlatDiscount' && value) next.offeredDiscountId = '';
+      return next;
+    });
+    setFieldErrors((errs) => ({ ...errs, [key]: '' }));
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    const parsed = enquiryFormSchema.safeParse(form);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      parsed.error.issues.forEach((issue) => {
+        const key = issue.path[0]?.toString() ?? '_form';
+        errs[key] = issue.message;
+      });
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
+    setLoading(true);
+
     const body = {
-      ...form,
-      age: form.age ? parseInt(form.age, 10) : undefined,
-      gender: form.gender || undefined,
-      offeredProgramId: form.offeredProgramId || undefined,
-      offeredDiscountId: form.offeredDiscountId || undefined,
-      offerCategoryId: form.offerCategoryId || undefined,
-      offerValidTill: form.offerValidTill || undefined,
-      initialNote: !isEdit ? form.initialNote : undefined,
+      ...parsed.data,
+      gender: parsed.data.gender || undefined,
+      offeredProgramId: parsed.data.offeredProgramId || undefined,
+      offeredProgramDurationId: parsed.data.offeredProgramDurationId || undefined,
+      offeredDiscountId: parsed.data.offeredDiscountId || undefined,
+      offeredFlatDiscount: parsed.data.offeredFlatDiscount,
+      offerCategoryId: parsed.data.offerCategoryId || undefined,
+      offerValidTill: parsed.data.offerValidTill || undefined,
+      initialNote: !isEdit ? parsed.data.initialNote : undefined,
     };
+
     try {
       if (isEdit) {
         const { initialNote: _, ...updateBody } = body;
@@ -118,14 +157,16 @@ export default function EnquiryFormPage() {
     required = false,
   ) => (
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="mb-1 block text-sm font-medium text-slate-700">
+        {label}{required && ' *'}
+      </label>
       <input
         type={type}
         value={form[key]}
         onChange={(e) => set(key, e.target.value)}
-        required={required}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+        className={`w-full rounded-lg border px-3 py-2 text-sm ${fieldErrors[key] ? 'border-red-400' : 'border-slate-300'}`}
       />
+      {fieldErrors[key] && <p className="mt-1 text-xs text-red-600">{fieldErrors[key]}</p>}
     </div>
   );
 
@@ -140,8 +181,21 @@ export default function EnquiryFormPage() {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {field('Full Name *', 'fullName', 'text', true)}
-          {field('Mobile Number *', 'mobileNumber', 'tel', true)}
+          {field('Full Name', 'fullName', 'text', true)}
+          {field('Mobile Number', 'mobileNumber', 'tel', true)}
+          {field('Date of Enquiry', 'dateOfEnquiry', 'date', true)}
+          <div>
+            <label className="mb-1 block text-sm font-medium">Lead Source *</label>
+            <select
+              value={form.leadSource}
+              onChange={(e) => set('leadSource', e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              {(Object.keys(LEAD_SOURCE_LABELS) as LeadSource[]).map((s) => (
+                <option key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</option>
+              ))}
+            </select>
+          </div>
           {field('Age', 'age', 'number')}
           <div>
             <label className="mb-1 block text-sm font-medium">Gender</label>
@@ -183,19 +237,6 @@ export default function EnquiryFormPage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium">Lead Source *</label>
-            <select
-              value={form.leadSource}
-              onChange={(e) => set('leadSource', e.target.value)}
-              required
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              {(Object.keys(LEAD_SOURCE_LABELS) as LeadSource[]).map((s) => (
-                <option key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</option>
-              ))}
-            </select>
-          </div>
-          <div>
             <label className="mb-1 block text-sm font-medium">Offered Program</label>
             <select
               value={form.offeredProgramId}
@@ -203,17 +244,34 @@ export default function EnquiryFormPage() {
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             >
               <option value="">—</option>
-              {programs.map((p) => (
+              {programs.filter((p) => p.durations.some((d) => d.isActive)).map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Offered Discount</label>
+            <label className="mb-1 block text-sm font-medium">Program Duration</label>
+            <select
+              value={form.offeredProgramDurationId}
+              onChange={(e) => set('offeredProgramDurationId', e.target.value)}
+              disabled={!form.offeredProgramId}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
+            >
+              <option value="">—</option>
+              {durations.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label} — ₹{Number(d.price).toLocaleString('en-IN')}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Discount Category (%)</label>
             <select
               value={form.offeredDiscountId}
               onChange={(e) => set('offeredDiscountId', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              disabled={Boolean(form.offeredFlatDiscount)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
             >
               <option value="">—</option>
               {discounts.map((d) => (
@@ -221,6 +279,7 @@ export default function EnquiryFormPage() {
               ))}
             </select>
           </div>
+          {field('Flat Discount (₹)', 'offeredFlatDiscount', 'number')}
           <div>
             <label className="mb-1 block text-sm font-medium">Offer Category</label>
             <select

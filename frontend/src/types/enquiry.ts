@@ -80,7 +80,9 @@ export type Enquiry = {
   status: EnquiryStatus;
   offerValidTill: string | null;
   offeredProgram?: { id: string; name: string } | null;
+  offeredProgramDuration?: { id: string; label: string; months: number; price: string } | null;
   offeredDiscount?: { id: string; name: string; percentage: string | null } | null;
+  offeredFlatDiscount?: string | null;
   offerCategory?: { id: string; name: string } | null;
   createdBy?: { id: string; email: string; firstName: string | null; lastName: string | null } | null;
 };
@@ -110,10 +112,10 @@ export type EnquiryDetail = Enquiry & {
 };
 
 export type EnquiryStats = {
-  total: number;
-  byStatus: Record<string, number>;
+  dateFrom: string;
+  dateTo: string;
+  newEnquiries: number;
   converted: number;
   lost: number;
-  conversionRate: number;
-  open: number;
+  openRemaining: number;
 };

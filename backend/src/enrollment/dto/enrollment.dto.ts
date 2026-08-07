@@ -2,6 +2,7 @@ import {
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -10,7 +11,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { Gender } from '@prisma/client';
+import { Gender, MembershipStatus } from '@prisma/client';
 
 export class CreateEnrollmentDto {
   @ApiProperty()
@@ -104,6 +105,42 @@ export class MemberQueryDto {
   @IsString()
   @MinLength(1)
   search?: string;
+
+  @ApiPropertyOptional({ enum: MembershipStatus })
+  @IsOptional()
+  @IsEnum(MembershipStatus)
+  membershipStatus?: MembershipStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sortBy?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc';
+}
+
+export class ExpiringMembershipQueryDto {
+  @ApiPropertyOptional({ enum: ['7', '15', '30', 'beyond'] })
+  @IsOptional()
+  @IsIn(['7', '15', '30', 'beyond'])
+  bucket?: '7' | '15' | '30' | 'beyond';
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limit?: number;
 }
 
 export class UpdateMemberDto {

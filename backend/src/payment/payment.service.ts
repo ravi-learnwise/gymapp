@@ -67,6 +67,17 @@ export class PaymentService {
       };
     }
 
+    const paymentSortFields: Record<string, keyof Prisma.PaymentCommitmentOrderByWithRelationInput> = {
+      status: 'status',
+      finalAmount: 'finalAmount',
+      amountPaid: 'amountPaid',
+      pendingAmount: 'pendingAmount',
+      commitmentDate: 'commitmentDate',
+      createdAt: 'createdAt',
+    };
+    const sortField = paymentSortFields[query.sortBy ?? 'commitmentDate'] ?? 'commitmentDate';
+    const sortOrder = query.sortOrder ?? 'desc';
+
     const [items, total] = await Promise.all([
       this.prisma.paymentCommitment.findMany({
         where,
@@ -74,7 +85,7 @@ export class PaymentService {
           member: { select: { id: true, memberNumber: true, fullName: true, mobileNumber: true } },
           membership: { include: { program: { select: { name: true } } } },
         },
-        orderBy: [{ status: 'asc' }, { commitmentDate: 'desc' }],
+        orderBy: { [sortField]: sortOrder },
         skip,
         take: limit,
       }),
@@ -185,11 +196,14 @@ export class PaymentService {
     totalFee: number,
     discountPercent: number | null,
     tx: Prisma.TransactionClient,
+    flatDiscountAmount?: number | null,
   ) {
-    const discountAmount =
-      discountPercent && discountPercent > 0
-        ? Math.round(totalFee * (discountPercent / 100) * 100) / 100
-        : 0;
+    let discountAmount = 0;
+    if (flatDiscountAmount != null && flatDiscountAmount > 0) {
+      discountAmount = flatDiscountAmount;
+    } else if (discountPercent && discountPercent > 0) {
+      discountAmount = Math.round(totalFee * (discountPercent / 100) * 100) / 100;
+    }
     const { finalAmount, gstAmount } = computePaymentAmounts(totalFee, discountAmount);
 
     return tx.paymentCommitment.create({

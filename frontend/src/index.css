@@ -11,3 +11,28 @@
 body {
   @apply min-h-screen bg-slate-50 text-slate-900 antialiased;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print-page,
+  .receipt-print-page * {
+    visibility: visible;
+  }
+
+  .receipt-print-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .receipt-slip {
+    box-shadow: none !important;
+    max-width: 100% !important;
+  }
+}

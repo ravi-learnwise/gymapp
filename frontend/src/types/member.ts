@@ -65,12 +65,36 @@ export type EnrollmentPrefill = {
       name: string;
       durations: { id: string; label: string; months: number; price: string }[];
     } | null;
+    offeredProgramDuration?: { id: string; label: string; months: number; price: string } | null;
     offeredDiscount?: { id: string; name: string; percentage?: string | null } | null;
+    offeredFlatDiscount?: string | null;
     offerCategory?: { id: string; name: string } | null;
     offerValidTill?: string | null;
   };
   suggestedProgramId?: string | null;
   suggestedDurationId?: string | null;
+};
+
+export type ExpiringMembershipItem = {
+  membershipId: string;
+  memberId: string;
+  memberName: string;
+  memberNumber: string;
+  mobileNumber: string;
+  program: string;
+  duration: string;
+  endDate: string;
+  daysRemaining: number;
+  trainer: string | null;
+};
+
+export type ExpiringMembershipResponse = {
+  summary: { within7: number; within15: number; within30: number; beyond30: number };
+  items: ExpiringMembershipItem[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
 };
 
 export type Trainer = {
