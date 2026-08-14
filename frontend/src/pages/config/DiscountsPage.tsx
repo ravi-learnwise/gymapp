@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import IconAction from '../../components/ui/IconAction';
 
 type Discount = {
   id: string;
@@ -59,7 +60,7 @@ export default function DiscountsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Discount Categories</h2>
+      <h2 className="text-2xl">Discount Categories</h2>
       {!readOnly && (
         <form onSubmit={add} className="mt-4 flex gap-2">
           <input
@@ -100,9 +101,9 @@ export default function DiscountsPage() {
                   {!d.isActive && <span className="text-xs text-red-500">Inactive</span>}
                 </div>
                 {!readOnly && d.isActive && (
-                  <div className="flex shrink-0 gap-2">
-                    <button onClick={() => startEdit(d)} className="text-sm text-brand-600 hover:underline">Edit</button>
-                    <button onClick={() => deactivate(d.id)} className="text-sm text-red-600 hover:underline">Deactivate</button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <IconAction variant="edit" onClick={() => startEdit(d)} />
+                    <IconAction variant="deactivate" onClick={() => deactivate(d.id)} />
                   </div>
                 )}
               </div>

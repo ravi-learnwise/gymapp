@@ -70,7 +70,7 @@ export default function AttendancePage() {
   if (!enabled) {
     return (
       <div className="max-w-lg rounded-xl border border-amber-200 bg-amber-50 p-6">
-        <h2 className="text-xl font-bold text-amber-900">Attendance Disabled</h2>
+        <h2 className="text-xl text-amber-900">Attendance Disabled</h2>
         <p className="mt-2 text-sm text-amber-800">
           Enable attendance tracking in{' '}
           <Link to="/config/gym" className="font-medium underline">
@@ -84,7 +84,7 @@ export default function AttendancePage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-slate-900">Attendance</h2>
+      <h2 className="text-2xl text-slate-900">Attendance</h2>
       <p className="mt-1 text-slate-500">Record check-ins and check-outs for today</p>
 
       <form onSubmit={handleCheckIn} className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4">

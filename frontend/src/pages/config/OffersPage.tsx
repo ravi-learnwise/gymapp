@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import IconAction from '../../components/ui/IconAction';
 
 type Offer = {
   id: string;
@@ -53,7 +54,7 @@ export default function OffersPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Offer Categories</h2>
+      <h2 className="text-2xl">Offer Categories</h2>
       {!readOnly && (
         <form onSubmit={add} className="mt-4 flex gap-2">
           <input
@@ -90,9 +91,9 @@ export default function OffersPage() {
                   {!o.isActive && <span className="text-xs text-red-500">Inactive</span>}
                 </div>
                 {!readOnly && o.isActive && (
-                  <div className="flex shrink-0 gap-2">
-                    <button onClick={() => startEdit(o)} className="text-sm text-brand-600 hover:underline">Edit</button>
-                    <button onClick={() => deactivate(o.id)} className="text-sm text-red-600 hover:underline">Deactivate</button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <IconAction variant="edit" onClick={() => startEdit(o)} />
+                    <IconAction variant="deactivate" onClick={() => deactivate(o.id)} />
                   </div>
                 )}
               </div>

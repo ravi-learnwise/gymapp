@@ -94,7 +94,7 @@ export default function ExpiringMembershipsPage() {
   return (
     <div>
       <Link to="/dashboard" className="text-sm text-brand-600 hover:underline">← Dashboard</Link>
-      <h2 className="mt-2 text-2xl font-bold">Expiring Memberships</h2>
+      <h2 className="mt-2 text-2xl">Expiring Memberships</h2>
       <p className="text-sm text-slate-500">Active memberships approaching renewal date</p>
 
       {data && (
@@ -109,7 +109,7 @@ export default function ExpiringMembershipsPage() {
               }`}
             >
               <p className="text-xs text-slate-500">{b.label}</p>
-              <p className="text-xl font-bold">
+              <p className="text-xl">
                 {b.key === '7' && data.summary.within7}
                 {b.key === '15' && data.summary.within15}
                 {b.key === '30' && data.summary.within30}

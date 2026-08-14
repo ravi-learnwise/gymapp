@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import IconAction from '../../components/ui/IconAction';
 
 type Duration = {
   id: string;
@@ -107,7 +108,7 @@ export default function ProgramsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Membership Programs</h2>
+      <h2 className="text-2xl">Membership Programs</h2>
       {!readOnly && (
         <form onSubmit={addProgram} className="mt-4 flex gap-2">
           <input
@@ -151,10 +152,10 @@ export default function ProgramsPage() {
                   {!p.isActive && <span className="text-xs text-red-500">Inactive</span>}
                 </div>
                 {!readOnly && (
-                  <div className="flex shrink-0 gap-2">
-                    <button onClick={() => startEdit(p)} className="text-sm text-brand-600 hover:underline">Edit</button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <IconAction variant="edit" onClick={() => startEdit(p)} />
                     {p.isActive && (
-                      <button onClick={() => deactivateProgram(p.id)} className="text-sm text-red-600 hover:underline">Deactivate</button>
+                      <IconAction variant="deactivate" onClick={() => deactivateProgram(p.id)} />
                     )}
                   </div>
                 )}
@@ -195,9 +196,11 @@ export default function ProgramsPage() {
                         <td>{d.months}</td>
                         <td>{Number(d.price).toLocaleString()}</td>
                         {!readOnly && d.isActive && (
-                          <td className="space-x-2 text-right">
-                            <button onClick={() => startEditDuration(d)} className="text-brand-600 hover:underline">Edit</button>
-                            <button onClick={() => deactivateDuration(d.id)} className="text-red-600 hover:underline">Remove</button>
+                          <td className="text-right">
+                            <div className="inline-flex items-center justify-end gap-1">
+                              <IconAction variant="edit" onClick={() => startEditDuration(d)} />
+                              <IconAction variant="remove" onClick={() => deactivateDuration(d.id)} />
+                            </div>
                           </td>
                         )}
                       </>

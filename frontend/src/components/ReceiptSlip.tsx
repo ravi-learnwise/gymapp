@@ -4,7 +4,7 @@ export default function ReceiptSlip({ receipt }: { receipt: Receipt }) {
   return (
     <div id="receipt-slip" className="receipt-slip mx-auto max-w-md bg-white p-8 text-slate-900">
       <div className="text-center">
-        <h1 className="text-lg font-bold">{receipt.gym.name}</h1>
+        <h1 className="text-lg">{receipt.gym.name}</h1>
         {receipt.gym.address && <p className="mt-1 text-xs text-slate-500">{receipt.gym.address}</p>}
         {receipt.gym.gstNumber && <p className="text-xs text-slate-500">GST: {receipt.gym.gstNumber}</p>}
       </div>

@@ -30,7 +30,7 @@ export default function UsersPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">User Management</h2>
+      <h2 className="text-2xl">User Management</h2>
       <form onSubmit={create} className="mt-4 grid max-w-lg gap-3 rounded-xl border border-slate-200 bg-white p-4">
         <h3 className="font-medium">Add user</h3>
         <input
@@ -110,7 +110,7 @@ export function ProfilePage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">My Profile</h2>
+      <h2 className="text-2xl">My Profile</h2>
       <p className="text-sm text-slate-500">{user?.email} · {user?.role}</p>
       {message && <p className="mt-2 text-sm text-green-600">{message}</p>}
 

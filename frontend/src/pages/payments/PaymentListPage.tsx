@@ -128,7 +128,7 @@ export default function PaymentListPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Payments</h2>
+      <h2 className="text-2xl">Payments</h2>
       <p className="text-sm text-slate-500">Payment commitments and outstanding balances</p>
 
       {stats && (
@@ -193,7 +193,7 @@ function StatCard({ label, value, highlight }: { label: string; value: string | 
   return (
     <div className={`rounded-xl border p-4 ${highlight ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white'}`}>
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-xl font-bold">{value}</p>
+      <p className="mt-1 text-xl">{value}</p>
     </div>
   );
 }

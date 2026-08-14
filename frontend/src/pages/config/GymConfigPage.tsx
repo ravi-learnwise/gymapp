@@ -52,7 +52,7 @@ export default function GymConfigPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Gym Information</h2>
+      <h2 className="text-2xl">Gym Information</h2>
       {readOnly && (
         <p className="mt-1 text-sm text-amber-600">Read-only (Manager access)</p>
       )}

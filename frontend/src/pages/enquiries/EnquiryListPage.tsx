@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import DataTable, { type DataTableColumn } from '../../components/DataTable/DataTable';
 import { api } from '../../lib/api';
@@ -138,16 +139,14 @@ export default function EnquiryListPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Enquiries</h2>
-          <p className="text-sm text-slate-500">CRM — capture and convert leads</p>
+          <h2 className="text-2xl text-slate-900">Enquiries</h2>
+          <p className="text-sm font-medium text-slate-500">CRM — capture and convert leads</p>
         </div>
-        <Link
-          to="/enquiries/new"
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-        >
-          + New Enquiry
+        <Link to="/enquiries/new" className="btn btn-primary">
+          <Plus className="h-4 w-4" />
+          New Enquiry
         </Link>
       </div>
 
@@ -229,7 +228,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
       <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-xl font-bold text-slate-900">{value}</p>
+      <p className="text-xl text-slate-900">{value}</p>
     </div>
   );
 }

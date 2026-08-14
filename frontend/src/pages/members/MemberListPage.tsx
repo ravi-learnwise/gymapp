@@ -116,7 +116,7 @@ export default function MemberListPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">Members</h2>
+          <h2 className="text-2xl">Members</h2>
           <p className="text-sm text-slate-500">
             {user?.role === 'TRAINER' ? 'Members assigned to you' : 'All gym members'}
           </p>

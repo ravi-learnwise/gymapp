@@ -36,7 +36,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-bold">Reset password</h1>
+        <h1 className="text-xl">Reset password</h1>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <PasswordInput

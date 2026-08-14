@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Dumbbell, UserRound } from 'lucide-react';
 import { api } from '../../lib/api';
 import { monthToDateRange } from '../../lib/date-range';
 import { enquiryFormSchema } from '../../lib/validation/enquiry';
@@ -150,6 +151,9 @@ export default function EnquiryFormPage() {
     }
   };
 
+  const inputClass = (key: keyof typeof form) =>
+    `${fieldErrors[key] ? 'border-red-400 focus:border-red-500 focus:ring-red-500/25' : ''}`;
+
   const field = (
     label: string,
     key: keyof typeof form,
@@ -157,165 +161,211 @@ export default function EnquiryFormPage() {
     required = false,
   ) => (
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700">
+      <label className="mb-1.5 block text-sm font-bold text-slate-700">
         {label}{required && ' *'}
       </label>
       <input
         type={type}
         value={form[key]}
         onChange={(e) => set(key, e.target.value)}
-        className={`w-full rounded-lg border px-3 py-2 text-sm ${fieldErrors[key] ? 'border-red-400' : 'border-slate-300'}`}
+        className={`input-field ${inputClass(key)}`}
       />
-      {fieldErrors[key] && <p className="mt-1 text-xs text-red-600">{fieldErrors[key]}</p>}
+      {fieldErrors[key] && <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors[key]}</p>}
     </div>
   );
 
   return (
-    <div className="max-w-2xl">
-      <Link to={isEdit ? `/enquiries/${id}` : '/enquiries'} className="text-sm text-brand-600 hover:underline">
-        ← Back
+    <div className="w-full">
+      <Link
+        to={isEdit ? `/enquiries/${id}` : '/enquiries'}
+        className="btn-link text-sm"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
       </Link>
-      <h2 className="mt-2 text-2xl font-bold">{isEdit ? 'Edit Enquiry' : 'New Enquiry'}</h2>
+      <h2 className="mt-2 text-2xl text-slate-900">
+        {isEdit ? 'Edit Enquiry' : 'New Enquiry'}
+      </h2>
+      <p className="mt-1 text-sm font-medium text-slate-500">
+        Capture lead information and program interest in one place.
+      </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-xl border border-slate-200 bg-white p-6">
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          {field('Full Name', 'fullName', 'text', true)}
-          {field('Mobile Number', 'mobileNumber', 'tel', true)}
-          {field('Date of Enquiry', 'dateOfEnquiry', 'date', true)}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Lead Source *</label>
-            <select
-              value={form.leadSource}
-              onChange={(e) => set('leadSource', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              {(Object.keys(LEAD_SOURCE_LABELS) as LeadSource[]).map((s) => (
-                <option key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</option>
-              ))}
-            </select>
-          </div>
-          {field('Age', 'age', 'number')}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Gender</label>
-            <select
-              value={form.gender}
-              onChange={(e) => set('gender', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              <option value="">—</option>
-              {(Object.keys(GENDER_LABELS) as Gender[]).map((g) => (
-                <option key={g} value={g}>{GENDER_LABELS[g]}</option>
-              ))}
-            </select>
-          </div>
-          {field('Email', 'email', 'email')}
-          {field('Alternate Contact', 'alternateContact', 'tel')}
-          {field('Profession', 'profession')}
-          {field('Preferred Contact Time', 'preferredContactTime')}
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">Address</label>
-          <textarea
-            value={form.address}
-            onChange={(e) => set('address', e.target.value)}
-            rows={2}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium">Family Details</label>
-          <textarea
-            value={form.familyDetails}
-            onChange={(e) => set('familyDetails', e.target.value)}
-            rows={2}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Offered Program</label>
-            <select
-              value={form.offeredProgramId}
-              onChange={(e) => set('offeredProgramId', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              <option value="">—</option>
-              {programs.filter((p) => p.durations.some((d) => d.isActive)).map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Program Duration</label>
-            <select
-              value={form.offeredProgramDurationId}
-              onChange={(e) => set('offeredProgramDurationId', e.target.value)}
-              disabled={!form.offeredProgramId}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
-            >
-              <option value="">—</option>
-              {durations.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.label} — ₹{Number(d.price).toLocaleString('en-IN')}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Discount Category (%)</label>
-            <select
-              value={form.offeredDiscountId}
-              onChange={(e) => set('offeredDiscountId', e.target.value)}
-              disabled={Boolean(form.offeredFlatDiscount)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
-            >
-              <option value="">—</option>
-              {discounts.map((d) => (
-                <option key={d.id} value={d.id}>{d.name}</option>
-              ))}
-            </select>
-          </div>
-          {field('Flat Discount (₹)', 'offeredFlatDiscount', 'number')}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Offer Category</label>
-            <select
-              value={form.offerCategoryId}
-              onChange={(e) => set('offerCategoryId', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              <option value="">—</option>
-              {offers.map((o) => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
-            </select>
-          </div>
-          {field('Offer Valid Till', 'offerValidTill', 'date')}
-        </div>
-
-        {!isEdit && (
-          <div>
-            <label className="mb-1 block text-sm font-medium">Initial Note</label>
-            <textarea
-              value={form.initialNote}
-              onChange={(e) => set('initialNote', e.target.value)}
-              rows={3}
-              placeholder="First conversation notes…"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="mt-6 w-full space-y-6">
+        {error && (
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            {error}
+          </p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {loading ? 'Saving…' : isEdit ? 'Update Enquiry' : 'Create Enquiry'}
-        </button>
+        <div className="grid w-full gap-6 lg:grid-cols-2">
+          {/* ── Personal Details ── */}
+          <section className="rounded-2xl border border-stone-200/80 bg-gradient-to-br from-sky-50/50 via-white to-amber-50/30 p-5 sm:p-6">
+            <div className="mb-5 flex items-center gap-3 border-b border-stone-200/80 pb-4">
+              <div className="rounded-xl bg-sky-200/50 p-2.5 text-sky-700">
+                <UserRound className="h-5 w-5" strokeWidth={2.25} />
+              </div>
+              <div>
+                <h3 className="text-lg text-slate-900">Personal Details</h3>
+                <p className="text-xs font-medium text-slate-500">Contact and demographic information</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {field('Full Name', 'fullName', 'text', true)}
+              {field('Mobile Number', 'mobileNumber', 'tel', true)}
+              {field('Date of Enquiry', 'dateOfEnquiry', 'date', true)}
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Lead Source *</label>
+                <select
+                  value={form.leadSource}
+                  onChange={(e) => set('leadSource', e.target.value)}
+                  className="select-field w-full"
+                >
+                  {(Object.keys(LEAD_SOURCE_LABELS) as LeadSource[]).map((s) => (
+                    <option key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</option>
+                  ))}
+                </select>
+              </div>
+              {field('Age', 'age', 'number')}
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Gender</label>
+                <select
+                  value={form.gender}
+                  onChange={(e) => set('gender', e.target.value)}
+                  className="select-field w-full"
+                >
+                  <option value="">—</option>
+                  {(Object.keys(GENDER_LABELS) as Gender[]).map((g) => (
+                    <option key={g} value={g}>{GENDER_LABELS[g]}</option>
+                  ))}
+                </select>
+              </div>
+              {field('Email', 'email', 'email')}
+              {field('Alternate Contact', 'alternateContact', 'tel')}
+              {field('Profession', 'profession')}
+              {field('Preferred Contact Time', 'preferredContactTime')}
+            </div>
+
+            <div className="mt-4 grid gap-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Address</label>
+                <textarea
+                  value={form.address}
+                  onChange={(e) => set('address', e.target.value)}
+                  rows={2}
+                  className="input-field resize-y"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Family Details</label>
+                <textarea
+                  value={form.familyDetails}
+                  onChange={(e) => set('familyDetails', e.target.value)}
+                  rows={2}
+                  className="input-field resize-y"
+                />
+              </div>
+              {!isEdit && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">Initial Note</label>
+                  <textarea
+                    value={form.initialNote}
+                    onChange={(e) => set('initialNote', e.target.value)}
+                    rows={3}
+                    placeholder="First conversation notes…"
+                    className="input-field resize-y"
+                  />
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ── Program Details ── */}
+          <section className="rounded-2xl border border-stone-200/80 bg-gradient-to-br from-amber-50/50 via-white to-orange-50/30 p-5 sm:p-6">
+            <div className="mb-5 flex items-center gap-3 border-b border-stone-200/80 pb-4">
+              <div className="rounded-xl bg-amber-200/50 p-2.5 text-amber-800">
+                <Dumbbell className="h-5 w-5" strokeWidth={2.25} />
+              </div>
+              <div>
+                <h3 className="text-lg text-slate-900">Program Details</h3>
+                <p className="text-xs font-medium text-slate-500">Program, pricing, discounts and offers</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Offered Program</label>
+                <select
+                  value={form.offeredProgramId}
+                  onChange={(e) => set('offeredProgramId', e.target.value)}
+                  className="select-field w-full"
+                >
+                  <option value="">— Select program —</option>
+                  {programs.filter((p) => p.durations.some((d) => d.isActive)).map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Program Duration</label>
+                <select
+                  value={form.offeredProgramDurationId}
+                  onChange={(e) => set('offeredProgramDurationId', e.target.value)}
+                  disabled={!form.offeredProgramId}
+                  className="select-field w-full disabled:cursor-not-allowed disabled:bg-stone-100"
+                >
+                  <option value="">— Select duration —</option>
+                  {durations.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.label} — ₹{Number(d.price).toLocaleString('en-IN')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Discount Category (%)</label>
+                <select
+                  value={form.offeredDiscountId}
+                  onChange={(e) => set('offeredDiscountId', e.target.value)}
+                  disabled={Boolean(form.offeredFlatDiscount)}
+                  className="select-field w-full disabled:cursor-not-allowed disabled:bg-stone-100"
+                >
+                  <option value="">—</option>
+                  {discounts.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              {field('Flat Discount (₹)', 'offeredFlatDiscount', 'number')}
+              <div>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Offer Category</label>
+                <select
+                  value={form.offerCategoryId}
+                  onChange={(e) => set('offerCategoryId', e.target.value)}
+                  className="select-field w-full"
+                >
+                  <option value="">—</option>
+                  {offers.map((o) => (
+                    <option key={o.id} value={o.id}>{o.name}</option>
+                  ))}
+                </select>
+              </div>
+              {field('Offer Valid Till', 'offerValidTill', 'date')}
+            </div>
+          </section>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 border-t border-stone-200/80 pt-5">
+          <button type="submit" disabled={loading} className="btn btn-primary">
+            {loading ? 'Saving…' : isEdit ? 'Update Enquiry' : 'Create Enquiry'}
+          </button>
+          <Link
+            to={isEdit ? `/enquiries/${id}` : '/enquiries'}
+            className="btn btn-secondary"
+          >
+            Cancel
+          </Link>
+        </div>
       </form>
     </div>
   );

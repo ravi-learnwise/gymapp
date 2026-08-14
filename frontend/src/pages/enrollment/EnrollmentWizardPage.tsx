@@ -124,7 +124,7 @@ export default function EnrollmentWizardPage() {
       <Link to={`/enquiries/${enquiryId}`} className="text-sm text-brand-600 hover:underline">
         ← Back to Enquiry
       </Link>
-      <h2 className="mt-2 text-2xl font-bold">Enrollment Wizard</h2>
+      <h2 className="mt-2 text-2xl">Enrollment Wizard</h2>
       <p className="text-sm text-slate-500">
         {enquiry.enquiryNumber} · {enquiry.fullName}
       </p>

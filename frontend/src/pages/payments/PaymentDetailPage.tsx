@@ -92,7 +92,7 @@ export default function PaymentDetailPage() {
 
       <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold">{payment.member.fullName}</h2>
+          <h2 className="text-2xl">{payment.member.fullName}</h2>
           <p className="text-sm text-slate-500">
             {payment.member.memberNumber} · {payment.membership.program.name}
           </p>
@@ -208,7 +208,7 @@ function AmountCard({ label, value, highlight }: { label: string; value: string;
   return (
     <div className={`rounded-xl border p-4 ${highlight ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-white'}`}>
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-lg font-bold">{value}</p>
+      <p className="mt-1 text-lg">{value}</p>
     </div>
   );
 }
