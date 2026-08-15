@@ -1,7 +1,16 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, Fragment, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import IconAction from '../../components/ui/IconAction';
+import {
+  LIST_TABLE_4_COL,
+  LIST_TABLE_DURATION_COL,
+  ListTable,
+  ListTableBody,
+  ListTableCols,
+  ListTableEmpty,
+  ListTableHead,
+} from '../../components/ui/ListTable';
 
 type Duration = {
   id: string;
@@ -32,6 +41,10 @@ export default function ProgramsPage() {
   const [editingDurationId, setEditingDurationId] = useState<string | null>(null);
   const [editDuration, setEditDuration] = useState(emptyDuration);
   const readOnly = user?.role === 'MANAGER';
+  const programColCount = readOnly ? 3 : 4;
+  const programColWidths = readOnly ? LIST_TABLE_4_COL.slice(0, 3) : [...LIST_TABLE_4_COL];
+  const durationColWidths = readOnly ? LIST_TABLE_DURATION_COL.slice(0, 4) : [...LIST_TABLE_DURATION_COL];
+  const durationColCount = readOnly ? 4 : 5;
 
   const load = () => api<Program[]>('/config/programs').then(setPrograms);
   useEffect(() => { load(); }, []);
@@ -107,10 +120,10 @@ export default function ProgramsPage() {
   };
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       <h2 className="text-2xl">Membership Programs</h2>
       {!readOnly && (
-        <form onSubmit={addProgram} className="mt-4 flex gap-2">
+        <form onSubmit={addProgram} className="list-table-toolbar flex gap-2">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -122,112 +135,168 @@ export default function ProgramsPage() {
           </button>
         </form>
       )}
-      <div className="mt-6 space-y-4">
-        {programs.map((p) => (
-          <div key={p.id} className={`rounded-xl border border-slate-200 bg-white p-4 ${!p.isActive ? 'opacity-60' : ''}`}>
-            {editingId === p.id ? (
-              <div className="space-y-2">
-                <input
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full rounded-lg border px-3 py-2 text-sm font-semibold"
-                />
-                <textarea
-                  value={editForm.description}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  placeholder="Description"
-                  rows={2}
-                  className="w-full rounded-lg border px-3 py-2 text-sm"
-                />
-                <div className="flex gap-2">
-                  <button onClick={() => saveProgram(p.id)} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Save</button>
-                  <button onClick={() => setEditingId(null)} className="rounded-lg border px-3 py-1.5 text-sm">Cancel</button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold">{p.name}</h3>
-                  {p.description && <p className="mt-1 text-sm text-slate-500">{p.description}</p>}
-                  {!p.isActive && <span className="text-xs text-red-500">Inactive</span>}
-                </div>
-                {!readOnly && (
-                  <div className="flex shrink-0 items-center gap-1">
-                    <IconAction variant="edit" onClick={() => startEdit(p)} />
-                    {p.isActive && (
-                      <IconAction variant="deactivate" onClick={() => deactivateProgram(p.id)} />
+
+      <ListTable>
+        <ListTableCols widths={[...programColWidths]} />
+        <ListTableHead>
+          <tr>
+            <th>Program</th>
+            <th>Description</th>
+            <th>Status</th>
+            {!readOnly && <th className="list-table-actions-header">Actions</th>}
+          </tr>
+        </ListTableHead>
+        <ListTableBody>
+          {programs.length === 0 && <ListTableEmpty colSpan={programColCount} />}
+          {programs.map((p) => (
+            <Fragment key={p.id}>
+              <tr className={!p.isActive ? 'opacity-50' : ''}>
+                {editingId === p.id ? (
+                  <>
+                    <td>
+                      <input
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="w-full rounded border border-slate-300 px-3 py-2 text-sm font-semibold"
+                      />
+                    </td>
+                    <td>
+                      <textarea
+                        value={editForm.description}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        placeholder="Description"
+                        rows={2}
+                        className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                      />
+                    </td>
+                    <td>{p.isActive ? 'Active' : 'Inactive'}</td>
+                    {!readOnly && (
+                      <td className="list-table-actions">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => saveProgram(p.id)} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Save</button>
+                          <button onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">Cancel</button>
+                        </div>
+                      </td>
                     )}
-                  </div>
+                  </>
+                ) : (
+                  <>
+                    <td className="font-semibold">{p.name}</td>
+                    <td className="text-slate-600">{p.description || '—'}</td>
+                    <td>
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}`}>
+                        {p.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    {!readOnly && (
+                      <td className="list-table-actions">
+                        <div className="inline-flex items-center justify-end gap-1">
+                          <IconAction variant="edit" onClick={() => startEdit(p)} />
+                          {p.isActive && (
+                            <IconAction variant="deactivate" onClick={() => deactivateProgram(p.id)} />
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </>
                 )}
-              </div>
-            )}
+              </tr>
 
-            <table className="mt-3 w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500">
-                  <th className="pb-1">Duration</th>
-                  <th>Months</th>
-                  <th>Price (₹)</th>
-                  {!readOnly && <th />}
-                </tr>
-              </thead>
-              <tbody>
-                {p.durations.map((d) => (
-                  <tr key={d.id} className={!d.isActive ? 'opacity-40' : ''}>
-                    {editingDurationId === d.id ? (
-                      <>
-                        <td className="py-1 pr-2">
-                          <input value={editDuration.label} onChange={(e) => setEditDuration({ ...editDuration, label: e.target.value })} className="w-full rounded border px-2 py-1" />
-                        </td>
-                        <td className="pr-2">
-                          <input type="number" value={editDuration.months} onChange={(e) => setEditDuration({ ...editDuration, months: e.target.value })} className="w-16 rounded border px-2 py-1" />
-                        </td>
-                        <td className="pr-2">
-                          <input type="number" step="0.01" value={editDuration.price} onChange={(e) => setEditDuration({ ...editDuration, price: e.target.value })} className="w-24 rounded border px-2 py-1" />
-                        </td>
-                        <td className="space-x-2">
-                          <button onClick={() => saveDuration(d.id)} className="text-brand-600 hover:underline">Save</button>
-                          <button onClick={() => setEditingDurationId(null)} className="text-slate-500 hover:underline">Cancel</button>
-                        </td>
-                      </>
+              <tr className="list-table-detail">
+                <td colSpan={programColCount}>
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
+                    {p.name} — Durations
+                  </p>
+                  <ListTable className="!mt-0">
+                    <ListTableCols widths={[...durationColWidths]} />
+                    <ListTableHead>
+                      <tr>
+                        <th>Duration</th>
+                        <th>Months</th>
+                        <th>Price (₹)</th>
+                        <th>Status</th>
+                        {!readOnly && <th className="list-table-actions-header">Actions</th>}
+                      </tr>
+                    </ListTableHead>
+                    <ListTableBody>
+                      {p.durations.length === 0 && (
+                        <ListTableEmpty colSpan={durationColCount} message="No durations added" />
+                      )}
+                      {p.durations.map((d) => (
+                        <tr key={d.id} className={!d.isActive ? 'opacity-40' : ''}>
+                          {editingDurationId === d.id ? (
+                            <>
+                              <td>
+                                <input value={editDuration.label} onChange={(e) => setEditDuration({ ...editDuration, label: e.target.value })} className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                              </td>
+                              <td>
+                                <input type="number" value={editDuration.months} onChange={(e) => setEditDuration({ ...editDuration, months: e.target.value })} className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                              </td>
+                              <td>
+                                <input type="number" step="0.01" value={editDuration.price} onChange={(e) => setEditDuration({ ...editDuration, price: e.target.value })} className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                              </td>
+                              <td>—</td>
+                              {!readOnly && (
+                                <td className="list-table-actions">
+                                  <div className="flex justify-end gap-2 text-sm">
+                                    <button onClick={() => saveDuration(d.id)} className="font-medium text-brand-600 hover:underline">Save</button>
+                                    <button onClick={() => setEditingDurationId(null)} className="text-slate-500 hover:underline">Cancel</button>
+                                  </div>
+                                </td>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <td>{d.label}</td>
+                              <td>{d.months}</td>
+                              <td>{Number(d.price).toLocaleString()}</td>
+                              <td>
+                                <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}`}>
+                                  {d.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                              </td>
+                              {!readOnly && (
+                                <td className="list-table-actions">
+                                  {d.isActive ? (
+                                    <div className="inline-flex items-center justify-end gap-1">
+                                      <IconAction variant="edit" onClick={() => startEditDuration(d)} />
+                                      <IconAction variant="remove" onClick={() => deactivateDuration(d.id)} />
+                                    </div>
+                                  ) : null}
+                                </td>
+                              )}
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </ListTableBody>
+                  </ListTable>
+
+                  {!readOnly && p.isActive && (
+                    addingDurationFor === p.id ? (
+                      <form onSubmit={(e) => addDuration(p.id, e)} className="mt-4 flex flex-wrap gap-2 border-t border-slate-300 pt-4">
+                        <input value={newDuration.label} onChange={(e) => setNewDuration({ ...newDuration, label: e.target.value })} placeholder="Label" required className="rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                        <input type="number" value={newDuration.months} onChange={(e) => setNewDuration({ ...newDuration, months: e.target.value })} placeholder="Months" required className="w-24 rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                        <input type="number" step="0.01" value={newDuration.price} onChange={(e) => setNewDuration({ ...newDuration, price: e.target.value })} placeholder="Price" required className="w-28 rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                        <button type="submit" className="rounded bg-brand-600 px-3 py-1.5 text-sm text-white">Add</button>
+                        <button type="button" onClick={() => setAddingDurationFor(null)} className="rounded border border-slate-300 px-3 py-1.5 text-sm">Cancel</button>
+                      </form>
                     ) : (
-                      <>
-                        <td className="py-1">{d.label}</td>
-                        <td>{d.months}</td>
-                        <td>{Number(d.price).toLocaleString()}</td>
-                        {!readOnly && d.isActive && (
-                          <td className="text-right">
-                            <div className="inline-flex items-center justify-end gap-1">
-                              <IconAction variant="edit" onClick={() => startEditDuration(d)} />
-                              <IconAction variant="remove" onClick={() => deactivateDuration(d.id)} />
-                            </div>
-                          </td>
-                        )}
-                      </>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {!readOnly && p.isActive && (
-              addingDurationFor === p.id ? (
-                <form onSubmit={(e) => addDuration(p.id, e)} className="mt-3 flex flex-wrap gap-2 border-t pt-3">
-                  <input value={newDuration.label} onChange={(e) => setNewDuration({ ...newDuration, label: e.target.value })} placeholder="Label" required className="rounded border px-2 py-1 text-sm" />
-                  <input type="number" value={newDuration.months} onChange={(e) => setNewDuration({ ...newDuration, months: e.target.value })} placeholder="Months" required className="w-20 rounded border px-2 py-1 text-sm" />
-                  <input type="number" step="0.01" value={newDuration.price} onChange={(e) => setNewDuration({ ...newDuration, price: e.target.value })} placeholder="Price" required className="w-24 rounded border px-2 py-1 text-sm" />
-                  <button type="submit" className="rounded bg-brand-600 px-3 py-1 text-sm text-white">Add</button>
-                  <button type="button" onClick={() => setAddingDurationFor(null)} className="rounded border px-3 py-1 text-sm">Cancel</button>
-                </form>
-              ) : (
-                <button onClick={() => { setAddingDurationFor(p.id); setNewDuration(emptyDuration); }} className="mt-3 text-sm text-brand-600 hover:underline">
-                  + Add duration
-                </button>
-              )
-            )}
-          </div>
-        ))}
-      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setAddingDurationFor(p.id); setNewDuration(emptyDuration); }}
+                        className="mt-4 text-sm font-medium text-brand-600 hover:underline"
+                      >
+                        + Add duration
+                      </button>
+                    )
+                  )}
+                </td>
+              </tr>
+            </Fragment>
+          ))}
+        </ListTableBody>
+      </ListTable>
     </div>
   );
 }

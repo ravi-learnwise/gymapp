@@ -97,6 +97,53 @@ h4 {
   @apply rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/25;
 }
 
+/* ── full-width responsive list tables ── */
+.list-table-wrap {
+  @apply mt-10 w-full min-w-0 overflow-x-auto border-2 border-slate-300 bg-white;
+}
+
+.list-table {
+  @apply w-full table-fixed border-collapse text-sm;
+  border-spacing: 0;
+}
+
+.list-table-head th {
+  @apply border border-slate-300 bg-brand-200 px-5 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-brand-950;
+}
+
+.list-table td {
+  @apply border border-slate-300 px-5 py-3.5 align-middle text-slate-800;
+}
+
+.list-table tbody tr:hover:not(.list-table-detail) {
+  @apply bg-slate-50/80;
+}
+
+.list-table-empty {
+  @apply border border-slate-300 px-5 py-12 text-center text-slate-400;
+}
+
+.list-table-actions-header,
+.list-table td.list-table-actions {
+  @apply text-right;
+}
+
+.list-table-detail > td {
+  @apply border border-slate-300 bg-slate-50 px-5 py-4 align-top;
+}
+
+.list-table-detail .list-table-wrap {
+  @apply mt-0 border border-slate-300 shadow-none;
+}
+
+.list-table-detail .list-table-head th {
+  @apply bg-slate-200 text-slate-800;
+}
+
+.list-table-toolbar {
+  @apply mt-5;
+}
+
 @media print {
   body * {
     visibility: hidden;

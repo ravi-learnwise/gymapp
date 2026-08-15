@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { api, authApi, type AuthUser, type UserRole } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { ListTable, ListTableBody, ListTableCols, ListTableEmpty, ListTableHead, LIST_TABLE_USERS_COL } from '../components/ui/ListTable';
 
 export default function UsersPage() {
   const { user } = useAuth();
@@ -29,9 +30,9 @@ export default function UsersPage() {
   };
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       <h2 className="text-2xl">User Management</h2>
-      <form onSubmit={create} className="mt-4 grid max-w-lg gap-3 rounded-xl border border-slate-200 bg-white p-4">
+      <form onSubmit={create} className="list-table-toolbar grid max-w-lg gap-3 rounded-xl border border-slate-200 bg-white p-4">
         <h3 className="font-medium">Add user</h3>
         <input
           placeholder="Email"
@@ -62,24 +63,30 @@ export default function UsersPage() {
           Create user
         </button>
       </form>
-      <table className="mt-6 w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-slate-500">
-            <th className="pb-2">Email</th>
+      <ListTable>
+        <ListTableCols widths={[...LIST_TABLE_USERS_COL]} />
+        <ListTableHead>
+          <tr>
+            <th>Email</th>
             <th>Role</th>
             <th>Name</th>
           </tr>
-        </thead>
-        <tbody>
+        </ListTableHead>
+        <ListTableBody>
+          {users.length === 0 && <ListTableEmpty colSpan={3} />}
           {users.map((u) => (
-            <tr key={u.id} className="border-b border-slate-100">
-              <td className="py-2">{u.email}</td>
-              <td className="capitalize">{u.role.toLowerCase()}</td>
-              <td>{[u.firstName, u.lastName].filter(Boolean).join(' ')}</td>
+            <tr key={u.id}>
+              <td className="font-medium">{u.email}</td>
+              <td>
+                <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold capitalize text-slate-700">
+                  {u.role.toLowerCase()}
+                </span>
+              </td>
+              <td>{[u.firstName, u.lastName].filter(Boolean).join(' ') || '—'}</td>
             </tr>
           ))}
-        </tbody>
-      </table>
+        </ListTableBody>
+      </ListTable>
     </div>
   );
 }
