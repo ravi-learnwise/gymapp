@@ -17,7 +17,7 @@ export default function PasswordInput({
   placeholder,
   required,
   minLength,
-  className = 'w-full rounded-lg border border-slate-300 px-3 py-2 pr-10 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500',
+  className = 'input-field pr-10',
 }: Props) {
   const [show, setShow] = useState(false);
 
@@ -36,7 +36,7 @@ export default function PasswordInput({
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:text-slate-600"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-ink-muted hover:text-ink-secondary"
         aria-label={show ? 'Hide password' : 'Show password'}
       >
         {show ? (

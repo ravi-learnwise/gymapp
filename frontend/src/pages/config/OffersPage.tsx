@@ -71,7 +71,7 @@ export default function OffersPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Offer name"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-line-strong px-3 py-2 text-sm"
           />
           <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">
             Add
@@ -98,7 +98,7 @@ export default function OffersPage() {
                     <input
                       value={editForm.name}
                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      className="w-full rounded border border-slate-300 px-3 py-2 text-sm font-medium"
+                      className="w-full rounded border border-line-strong px-3 py-2 text-sm font-medium"
                     />
                   </td>
                   <td>
@@ -107,7 +107,7 @@ export default function OffersPage() {
                       onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                       placeholder="Description"
                       rows={2}
-                      className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                      className="w-full rounded border border-line-strong px-3 py-2 text-sm"
                     />
                   </td>
                   <td>{o.isActive ? 'Active' : 'Inactive'}</td>
@@ -115,7 +115,7 @@ export default function OffersPage() {
                     <td className="list-table-actions">
                       <div className="flex justify-end gap-2">
                         <button onClick={() => save(o.id)} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Save</button>
-                        <button onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">Cancel</button>
+                        <button onClick={() => setEditingId(null)} className="rounded-lg border border-line-strong px-3 py-1.5 text-sm">Cancel</button>
                       </div>
                     </td>
                   )}
@@ -123,9 +123,9 @@ export default function OffersPage() {
               ) : (
                 <>
                   <td className="font-medium">{o.name}</td>
-                  <td className="text-slate-600">{o.description || '—'}</td>
+                  <td className="text-ink-secondary">{o.description || '—'}</td>
                   <td>
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${o.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${o.isActive ? 'badge badge-success' : 'badge badge-danger'}`}>
                       {o.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>

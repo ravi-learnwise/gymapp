@@ -51,18 +51,15 @@ export default function DashboardPage() {
   if (user?.role === 'TRAINER') {
     return (
       <div>
-        <PageHeader
-          title="Trainer Portal"
-          subtitle={`Welcome back, ${user?.firstName || user?.email}`}
-        />
-        <div className="page-section mt-6 border-violet-200/60 bg-gradient-to-br from-violet-50/80 to-fuchsia-50/50">
+        <PageHeader title="Trainer Portal" subtitle="Your member assignments and assessments" />
+        <div className="page-section mt-6">
           <div className="flex items-start gap-4">
-            <div className="rounded-xl bg-violet-200/50 p-3 text-violet-700">
-              <Users className="h-6 w-6" />
+            <div className="stat-card-icon">
+              <Users className="h-[18px] w-[18px]" strokeWidth={2} />
             </div>
             <div>
-              <p className="font-semibold text-slate-800">Your assigned members</p>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="font-medium text-ink">Your assigned members</p>
+              <p className="mt-1 text-sm text-ink-muted">
                 View members assigned to you and their fitness assessments.
               </p>
               <Link to="/members" className="btn btn-primary mt-4">
@@ -76,25 +73,31 @@ export default function DashboardPage() {
     );
   }
 
+  const maxProgramRevenue = summary?.revenueByProgram?.length
+    ? Math.max(...summary.revenueByProgram.map((p) => p.revenue), 1)
+    : 1;
+
   return (
-    <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader
-          title="Dashboard"
-          subtitle={`Welcome back, ${user?.firstName || user?.email}`}
-        />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <PageHeader title="Dashboard" subtitle="Overview of your gym performance" />
         <div className="flex flex-wrap items-center gap-3">
-          <select
-            className="select-field"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
-          >
-            {PERIODS.map((p) => (
-              <option key={p} value={p}>
-                {PERIOD_LABELS[p]}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label htmlFor="dashboard-period" className="sr-only">Date range</label>
+            <select
+              id="dashboard-period"
+              className="select-field min-w-[10rem]"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
+            >
+              {PERIODS.map((p) => (
+                <option key={p} value={p}>
+                  {PERIOD_LABELS[p]}
+                </option>
+              ))}
+            </select>
+          </div>
           <Link to="/reports" className="btn btn-secondary">
             <BarChart3 className="h-4 w-4" />
             Reports
@@ -102,34 +105,49 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {!summary && (
+        <p className="text-sm text-ink-muted">Loading dashboard…</p>
+      )}
+
       {summary && (
         <>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* KPI cards — 6 uniform white cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard title="Active Members" value={summary.activeMembers} icon={Users} tone="blue" />
             <StatCard title="Pending Payments" value={summary.pendingPayments} icon={Wallet} tone="amber" />
-            {enquiryStats && (
-              <>
-                <StatCard title="New Enquiries (MTD)" value={enquiryStats.newEnquiries} icon={MessageSquare} tone="emerald" />
-                <StatCard title="Converted (MTD)" value={enquiryStats.converted} icon={UserCheck} tone="violet" />
-              </>
-            )}
+            <StatCard
+              title="New Enquiries"
+              value={enquiryStats?.newEnquiries ?? '—'}
+              icon={MessageSquare}
+              tone="blue"
+              note={enquiryStats ? 'Month to date' : undefined}
+            />
+            <StatCard
+              title="Converted"
+              value={enquiryStats?.converted ?? '—'}
+              icon={UserCheck}
+              tone="emerald"
+              note={enquiryStats ? 'Month to date' : undefined}
+            />
+            <StatCard
+              title="Lost"
+              value={enquiryStats?.lost ?? '—'}
+              icon={UserX}
+              tone="rose"
+              note={enquiryStats ? 'Month to date' : undefined}
+            />
+            <StatCard
+              title="Open Enquiries"
+              value={enquiryStats?.openRemaining ?? '—'}
+              icon={TrendingUp}
+              tone="slate"
+              note={enquiryStats ? `${enquiryStats.dateFrom} → ${enquiryStats.dateTo}` : undefined}
+            />
           </div>
 
-          {enquiryStats && (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <StatCard title="Lost (MTD)" value={enquiryStats.lost} icon={UserX} tone="rose" />
-              <StatCard
-                title="Open in Period"
-                value={enquiryStats.openRemaining}
-                note={`${enquiryStats.dateFrom} → ${enquiryStats.dateTo}`}
-                icon={TrendingUp}
-                tone="slate"
-              />
-            </div>
-          )}
-
+          {/* Membership renewals */}
           {expiring && (
-            <div className="mt-8">
+            <section className="page-section">
               <SectionHeader
                 title="Membership Renewals"
                 icon={CalendarClock}
@@ -139,66 +157,95 @@ export default function DashboardPage() {
                   </Link>
                 }
               />
-              <div className="mt-3 grid gap-3 sm:grid-cols-4">
-                <ExpiryCard label="Within 7 days" count={expiring.summary.within7} bucket="7" urgent />
-                <ExpiryCard label="Within 15 days" count={expiring.summary.within15} bucket="15" />
-                <ExpiryCard label="Within 30 days" count={expiring.summary.within30} bucket="30" />
-                <ExpiryCard label="Beyond 30 days" count={expiring.summary.beyond30} bucket="beyond" />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <RenewalBlock label="Within 7 Days" count={expiring.summary.within7} bucket="7" variant="urgent" />
+                <RenewalBlock label="Within 15 Days" count={expiring.summary.within15} bucket="15" variant="warning" />
+                <RenewalBlock label="Within 30 Days" count={expiring.summary.within30} bucket="30" variant="neutral" />
+                <RenewalBlock label="Beyond 30 Days" count={expiring.summary.beyond30} bucket="beyond" variant="safe" />
               </div>
-            </div>
+            </section>
           )}
 
+          {/* Revenue */}
           {user?.role === 'OWNER' && summary.revenue != null && (
-            <div className="mt-8">
+            <section className="page-section">
               <SectionHeader title="Revenue" icon={IndianRupee} />
-              <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                <StatCard
-                  title={`Revenue (${PERIOD_LABELS[period]})`}
-                  value={`₹${summary.revenue.toLocaleString('en-IN')}`}
-                  note={`${summary.transactionCount ?? 0} transactions`}
-                  icon={IndianRupee}
-                  tone="cyan"
-                />
-                <StatCard
-                  title="Renewal Rate"
-                  value={`${summary.renewalRate}%`}
-                  note={`${summary.renewedCount} of ${summary.expiredCount} expired`}
-                  icon={RefreshCw}
-                  tone="indigo"
-                />
+              <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                <div className="rounded-xl border border-line bg-white p-5 lg:col-span-1">
+                  <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
+                    Revenue ({PERIOD_LABELS[period]})
+                  </p>
+                  <p className="mt-2 text-3xl font-semibold text-ink">
+                    ₹{summary.revenue.toLocaleString('en-IN')}
+                  </p>
+                  <p className="mt-2 text-sm text-ink-muted">
+                    {summary.transactionCount ?? 0} transactions collected
+                  </p>
+                </div>
+                <div className="rounded-xl border border-line bg-white p-5 lg:col-span-1">
+                  <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+                    <RefreshCw className="h-[18px] w-[18px]" strokeWidth={2} />
+                  </div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">Renewal Rate</p>
+                  <p className="mt-1 text-2xl font-semibold text-ink">{summary.renewalRate}%</p>
+                  <p className="mt-1.5 text-xs text-ink-muted">
+                    {summary.renewedCount} of {summary.expiredCount} expired memberships renewed
+                  </p>
+                </div>
+                {summary.revenueByProgram && summary.revenueByProgram.length > 0 && (
+                  <div className="rounded-xl border border-line bg-white p-5 lg:col-span-1">
+                    <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">Top Program</p>
+                    <p className="mt-2 text-lg font-semibold text-ink">
+                      {summary.revenueByProgram[0].programName}
+                    </p>
+                    <p className="mt-1 text-sm text-ink-muted">
+                      ₹{summary.revenueByProgram[0].revenue.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                )}
               </div>
+
               {summary.revenueByProgram && summary.revenueByProgram.length > 0 && (
-                <div className="page-section mt-4">
-                  <h4 className="text-sm text-slate-800">Revenue by Program</h4>
-                  <ul className="mt-3 space-y-2 text-sm">
+                <div className="mt-4 rounded-xl border border-line bg-canvas/50 p-4">
+                  <h4 className="text-sm font-medium text-ink">Revenue by Program</h4>
+                  <ul className="mt-3 space-y-3">
                     {summary.revenueByProgram.map((p) => (
-                      <li key={p.programId} className="flex justify-between border-b border-slate-200/80 pb-2 last:border-0">
-                        <span className="font-medium text-slate-700">{p.programName}</span>
-                        <span className="text-slate-900">₹{p.revenue.toLocaleString('en-IN')}</span>
+                      <li key={p.programId}>
+                        <div className="mb-1 flex justify-between text-sm">
+                          <span className="text-ink-muted">{p.programName}</span>
+                          <span className="font-medium text-ink">₹{p.revenue.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-brand-100">
+                          <div
+                            className="h-full rounded-full bg-brand-600 transition-all"
+                            style={{ width: `${(p.revenue / maxProgramRevenue) * 100}%` }}
+                          />
+                        </div>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
-            </div>
+            </section>
           )}
 
+          {/* Other analytics */}
           {summary.programEnrollments.length > 0 && (
-            <div className="page-section mt-6">
+            <section className="page-section">
               <SectionHeader title="Program Enrollments" icon={Users} />
-              <ul className="mt-3 space-y-2 text-sm">
+              <ul className="mt-3 divide-y divide-line">
                 {summary.programEnrollments.map((p) => (
-                  <li key={p.programName} className="flex justify-between border-b border-slate-200/80 pb-2 last:border-0">
-                    <span className="font-medium text-slate-700">{p.programName}</span>
-                    <span className="text-slate-900">{p.count}</span>
+                  <li key={p.programName} className="flex justify-between py-2.5 text-sm first:pt-0 last:pb-0">
+                    <span className="text-ink-muted">{p.programName}</span>
+                    <span className="font-medium text-ink">{p.count}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </section>
           )}
 
           {summary.attendanceEnabled && summary.attendanceTrend.length > 0 && (
-            <div className="page-section mt-6">
+            <section className="page-section">
               <SectionHeader
                 title="Attendance"
                 icon={ClipboardCheck}
@@ -208,44 +255,32 @@ export default function DashboardPage() {
                   </Link>
                 }
               />
-              <p className="mt-2 text-sm font-medium text-slate-600">
-                {summary.inactiveMemberCount} inactive members (no visit in 30 days)
-              </p>
-              {summary.peakHours.length > 0 && (
-                <p className="mt-1 text-sm font-medium text-slate-600">
-                  Peak hour: {summary.peakHours[0].hour}:00 ({summary.peakHours[0].count} check-ins)
-                </p>
-              )}
-              <div className="mt-4 flex flex-wrap gap-1.5">
+              <div className="mt-3 flex flex-wrap gap-4 text-sm text-ink-muted">
+                <span>{summary.inactiveMemberCount} inactive members (30+ days)</span>
+                {summary.peakHours.length > 0 && (
+                  <span>
+                    Peak: {summary.peakHours[0].hour}:00 ({summary.peakHours[0].count} check-ins)
+                  </span>
+                )}
+              </div>
+              <div className="mt-4 flex flex-wrap items-end gap-1.5">
                 {summary.attendanceTrend.slice(-14).map((d) => (
                   <div
                     key={d.date}
                     title={`${d.date}: ${d.count}`}
-                    className="flex h-20 w-7 flex-col items-center justify-end rounded-lg bg-amber-100/60"
+                    className="flex h-16 w-6 flex-col items-center justify-end rounded bg-brand-50"
                   >
                     <div
-                      className="w-full rounded-md bg-gradient-to-t from-amber-400 to-amber-300"
-                      style={{ height: `${Math.min(d.count * 8, 56)}px` }}
+                      className="w-full rounded-sm bg-brand-600"
+                      style={{ height: `${Math.min(d.count * 6, 48)}px` }}
                     />
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
         </>
       )}
-
-      {!summary && (
-        <p className="mt-6 font-medium text-slate-500">Loading dashboard…</p>
-      )}
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <QuickLink to="/enquiries" title="Enquiries" desc="Manage leads and follow-ups" icon={MessageSquare} tone="emerald" />
-        <QuickLink to="/members" title="Members" desc="View member profiles" icon={Users} tone="blue" />
-        {summary?.attendanceEnabled && (
-          <QuickLink to="/attendance" title="Attendance" desc="Check-in / check-out" icon={ClipboardCheck} tone="violet" />
-        )}
-      </div>
     </div>
   );
 }
@@ -253,8 +288,8 @@ export default function DashboardPage() {
 function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div>
-      <h2 className="text-2xl text-slate-900">{title}</h2>
-      <p className="mt-1 text-sm font-medium text-slate-500">{subtitle}</p>
+      <h2 className="text-2xl font-semibold text-ink">{title}</h2>
+      <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
     </div>
   );
 }
@@ -271,76 +306,45 @@ function SectionHeader({
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-2">
-        <Icon className="h-5 w-5 text-brand-600" strokeWidth={2.5} />
-        <h3 className="text-base text-slate-900">{title}</h3>
+        <Icon className="h-[18px] w-[18px] text-brand-600" strokeWidth={2} />
+        <h3 className="text-base font-semibold text-ink">{title}</h3>
       </div>
       {action}
     </div>
   );
 }
 
-function ExpiryCard({
+type RenewalVariant = 'urgent' | 'warning' | 'neutral' | 'safe';
+
+const renewalStyles: Record<RenewalVariant, { border: string; count: string; icon: string }> = {
+  urgent: { border: 'border-warning/50', count: 'text-ink', icon: 'text-warning' },
+  warning: { border: 'border-line', count: 'text-ink', icon: 'text-warning' },
+  neutral: { border: 'border-line', count: 'text-ink', icon: 'text-ink-muted' },
+  safe: { border: 'border-line', count: 'text-ink', icon: 'text-success' },
+};
+
+function RenewalBlock({
   label,
   count,
   bucket,
-  urgent,
+  variant,
 }: {
   label: string;
   count: number;
   bucket: string;
-  urgent?: boolean;
+  variant: RenewalVariant;
 }) {
+  const s = renewalStyles[variant];
   return (
     <Link
       to={`/members/expiring?bucket=${bucket}`}
-      className={`group rounded-2xl border-2 p-4 transition-all hover:-translate-y-0.5 hover:shadow-md ${
-        urgent && count > 0
-          ? 'border-orange-200/80 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 shadow-sm shadow-orange-100/60'
-          : 'border-stone-200/80 bg-gradient-to-br from-stone-50 to-amber-50/30 shadow-sm hover:border-amber-200'
-      }`}
+      className={`rounded-xl border bg-white p-4 transition-colors hover:bg-brand-50/40 ${s.border}`}
     >
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p>
-        <CalendarClock className={`h-4 w-4 ${urgent && count > 0 ? 'text-orange-500' : 'text-stone-400'}`} />
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">{label}</p>
+        <CalendarClock className={`h-4 w-4 shrink-0 ${s.icon}`} />
       </div>
-      <p className={`mt-2 text-3xl font-extrabold ${urgent && count > 0 ? 'text-orange-800' : 'text-stone-800'}`}>
-        {count}
-      </p>
-    </Link>
-  );
-}
-
-function QuickLink({
-  to,
-  title,
-  desc,
-  icon: Icon,
-  tone,
-}: {
-  to: string;
-  title: string;
-  desc: string;
-  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
-  tone: 'blue' | 'emerald' | 'violet';
-}) {
-  const iconBg = {
-    blue: 'bg-sky-100 text-sky-700',
-    emerald: 'bg-emerald-100 text-emerald-700',
-    violet: 'bg-violet-100 text-violet-700',
-  }[tone];
-
-  return (
-    <Link
-      to={to}
-      className="group flex items-start gap-4 rounded-2xl border-2 border-stone-200/80 bg-gradient-to-br from-white to-amber-50/40 p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-md"
-    >
-      <div className={`rounded-xl p-2.5 ${iconBg}`}>
-        <Icon className="h-5 w-5" strokeWidth={2.5} />
-      </div>
-      <div>
-        <p className="font-semibold text-slate-900 group-hover:text-brand-700">{title}</p>
-        <p className="mt-1 text-sm font-medium text-slate-500">{desc}</p>
-      </div>
+      <p className={`mt-2 text-3xl font-semibold tabular-nums ${s.count}`}>{count}</p>
     </Link>
   );
 }

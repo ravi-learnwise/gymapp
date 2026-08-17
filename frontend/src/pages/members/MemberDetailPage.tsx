@@ -5,9 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 import { GENDER_LABELS, type Gender } from '../../types/enquiry';
 import { trainerName, type Member } from '../../types/member';
 import MemberAssessmentsSection from '../assessment/MemberAssessmentsSection';
+import StatusBadge, { paymentStatusVariant } from '../../components/ui/StatusBadge';
 import {
   formatCurrency,
-  PAYMENT_STATUS_COLORS,
   PAYMENT_STATUS_LABELS,
   type PaymentCommitmentSummary,
 } from '../../types/payment';
@@ -27,7 +27,7 @@ export default function MemberDetailPage() {
     }
   }, [id, user]);
 
-  if (!member) return <p className="text-slate-500">Loading…</p>;
+  if (!member) return <p className="text-ink-secondary">Loading…</p>;
 
   const canEdit = user?.role === 'OWNER' || user?.role === 'MANAGER';
 
@@ -38,12 +38,12 @@ export default function MemberDetailPage() {
       <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-2xl">{member.fullName}</h2>
-          <p className="text-sm text-slate-500">{member.memberNumber}</p>
+          <p className="text-sm text-ink-secondary">{member.memberNumber}</p>
         </div>
         {member.sourceEnquiry && (
           <Link
             to={`/enquiries/${member.sourceEnquiry.id}`}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
+            className="rounded-lg border border-line-strong px-4 py-2 text-sm hover:bg-canvas"
           >
             Source: {member.sourceEnquiry.enquiryNumber}
           </Link>
@@ -51,7 +51,7 @@ export default function MemberDetailPage() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="rounded-xl border border-line bg-white p-5">
           <h3 className="font-semibold">Contact Details</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <Row label="Mobile" value={member.mobileNumber} />
@@ -64,7 +64,7 @@ export default function MemberDetailPage() {
           </dl>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="rounded-xl border border-line bg-white p-5">
           <h3 className="font-semibold">Health Profile</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <Row label="Height" value={member.height ? `${member.height} cm` : null} />
@@ -79,29 +79,29 @@ export default function MemberDetailPage() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-xl border border-line bg-white p-5">
         <h3 className="font-semibold">Memberships</h3>
         <ul className="mt-3 space-y-3">
           {member.memberships?.map((m) => (
             <li key={m.id} className="rounded-lg border px-4 py-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-medium">{m.program.name}</span>
-                <span className={`rounded-full px-2 py-0.5 text-xs ${m.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100'}`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs ${m.status === 'ACTIVE' ? 'badge badge-success' : 'bg-neutral-soft'}`}>
                   {m.status}{m.isTrial ? ' · Trial' : ''}
                 </span>
               </div>
-              <p className="mt-1 text-slate-500">
+              <p className="mt-1 text-ink-secondary">
                 {m.programDuration?.label} · {new Date(m.startDate).toLocaleDateString()} → {new Date(m.endDate).toLocaleDateString()}
               </p>
-              <p className="text-slate-500">Trainer: {trainerName(m.trainer)}</p>
+              <p className="text-ink-secondary">Trainer: {trainerName(m.trainer)}</p>
             </li>
           ))}
-          {!member.memberships?.length && <li className="text-slate-400">No memberships</li>}
+          {!member.memberships?.length && <li className="text-ink-muted">No memberships</li>}
         </ul>
       </div>
 
       {canEdit && payments.length > 0 && (
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+        <div className="mt-6 rounded-xl border border-line bg-white p-5">
           <h3 className="font-semibold">Payments</h3>
           <ul className="mt-3 space-y-2">
             {payments.map((p) => (
@@ -110,13 +110,13 @@ export default function MemberDetailPage() {
                   <Link to={`/payments/${p.id}`} className="font-medium text-brand-600 hover:underline">
                     {p.membership.program.name}
                   </Link>
-                  <p className="text-slate-500">
+                  <p className="text-ink-secondary">
                     {formatCurrency(p.amountPaid)} / {formatCurrency(p.finalAmount)} · Pending {formatCurrency(p.pendingAmount)}
                   </p>
                 </div>
-                <span className={`rounded-full px-2 py-0.5 text-xs ${PAYMENT_STATUS_COLORS[p.status]}`}>
+                <StatusBadge variant={paymentStatusVariant(p.status)}>
                   {PAYMENT_STATUS_LABELS[p.status]}
-                </span>
+                </StatusBadge>
               </li>
             ))}
           </ul>
@@ -124,9 +124,9 @@ export default function MemberDetailPage() {
       )}
 
       {member.enrollment && (
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-sm">
+        <div className="mt-6 rounded-xl border border-line bg-white p-5 text-sm">
           <h3 className="font-semibold">Enrollment</h3>
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-ink-secondary">
             {member.enrollment.enrollmentNumber} · enrolled{' '}
             {new Date(member.enrollment.enrolledAt).toLocaleString()} by{' '}
             {trainerName(member.enrollment.enrolledBy)}
@@ -137,7 +137,7 @@ export default function MemberDetailPage() {
       {id && <MemberAssessmentsSection memberId={id} canEdit={canEdit} />}
 
       {!canEdit && (
-        <p className="mt-4 text-xs text-slate-400">Trainer view — read only</p>
+        <p className="mt-4 text-xs text-ink-muted">Trainer view — read only</p>
       )}
     </div>
   );
@@ -146,8 +146,8 @@ export default function MemberDetailPage() {
 function Row({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div className="flex gap-2">
-      <dt className="w-32 shrink-0 text-slate-500">{label}</dt>
-      <dd className="text-slate-800">{value || '—'}</dd>
+      <dt className="w-32 shrink-0 text-ink-secondary">{label}</dt>
+      <dd className="text-ink">{value || '—'}</dd>
     </div>
   );
 }

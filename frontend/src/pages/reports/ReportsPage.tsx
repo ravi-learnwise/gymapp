@@ -58,14 +58,14 @@ export default function ReportsPage() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl text-slate-900">Reports</h2>
-          <p className="mt-1 text-slate-500">Operational and financial reports by period</p>
+          <h2 className="text-2xl text-ink">Reports</h2>
+          <p className="mt-1 text-ink-secondary">Operational and financial reports by period</p>
         </div>
         {report && user?.role === 'OWNER' && (
           <button
             type="button"
             onClick={exportJson}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
+            className="rounded-lg border border-line-strong px-4 py-2 text-sm hover:bg-canvas"
           >
             Export JSON
           </button>
@@ -74,9 +74,9 @@ export default function ReportsPage() {
 
       <div className="mt-6 flex flex-wrap gap-4">
         <label className="text-sm">
-          <span className="text-slate-600">Period</span>
+          <span className="text-ink-secondary">Period</span>
           <select
-            className="mt-1 block rounded-lg border border-slate-300 px-3 py-2"
+            className="mt-1 block rounded-lg border border-line-strong px-3 py-2"
             value={period}
             onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
           >
@@ -88,9 +88,9 @@ export default function ReportsPage() {
           </select>
         </label>
         <label className="text-sm">
-          <span className="text-slate-600">Report type</span>
+          <span className="text-ink-secondary">Report type</span>
           <select
-            className="mt-1 block rounded-lg border border-slate-300 px-3 py-2"
+            className="mt-1 block rounded-lg border border-line-strong px-3 py-2"
             value={type}
             onChange={(e) => setType(e.target.value as ReportType)}
           >
@@ -104,13 +104,13 @@ export default function ReportsPage() {
       </div>
 
       {user?.role === 'MANAGER' && (
-        <p className="mt-3 text-sm text-slate-500">
+        <p className="mt-3 text-sm text-ink-secondary">
           Financial reports are available to owners only.
         </p>
       )}
 
-      {loading && <p className="mt-6 text-slate-500">Loading report…</p>}
-      {error && <p className="mt-6 text-sm text-red-600">{error}</p>}
+      {loading && <p className="mt-6 text-ink-secondary">Loading report…</p>}
+      {error && <p className="mt-6 text-sm text-danger">{error}</p>}
 
       {report && !loading && (
         <div className="mt-6 space-y-4">
@@ -148,7 +148,7 @@ function ReportSummary({ report, type }: { report: Record<string, unknown>; type
   } else if (type === 'attendance') {
     if (report.enabled === false) {
       return (
-        <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <p className="rounded-xl border border-warning-border bg-warning-soft p-4 text-sm text-warning">
           Attendance module is disabled.
         </p>
       );
@@ -172,8 +172,8 @@ function ReportSummary({ report, type }: { report: Record<string, unknown>; type
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       {cards.map((c) => (
-        <div key={c.label} className="rounded-xl border border-slate-200 bg-white p-5">
-          <p className="text-sm text-slate-500">{c.label}</p>
+        <div key={c.label} className="rounded-xl border border-line bg-white p-5">
+          <p className="text-sm text-ink-secondary">{c.label}</p>
           <p className="mt-1 text-2xl">{c.value}</p>
         </div>
       ))}
@@ -186,9 +186,9 @@ function ReportItems({ report, type }: { report: Record<string, unknown>; type: 
   if (!items?.length) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-xl border border-line bg-white">
       <table className="min-w-full text-sm">
-        <thead className="bg-slate-50 text-left text-slate-600">
+        <thead className="bg-canvas text-left text-ink-secondary">
           <tr>
             {Object.keys(items[0])
               .filter((k) => !['id'].includes(k))
@@ -202,7 +202,7 @@ function ReportItems({ report, type }: { report: Record<string, unknown>; type: 
         </thead>
         <tbody>
           {items.slice(0, 50).map((row, i) => (
-            <tr key={i} className="border-t border-slate-100">
+            <tr key={i} className="border-t border-line">
               {Object.entries(row)
                 .filter(([k]) => !['id'].includes(k))
                 .slice(0, 6)
@@ -216,7 +216,7 @@ function ReportItems({ report, type }: { report: Record<string, unknown>; type: 
         </tbody>
       </table>
       {items.length > 50 && (
-        <p className="px-4 py-2 text-xs text-slate-400">Showing first 50 of {items.length}</p>
+        <p className="px-4 py-2 text-xs text-ink-muted">Showing first 50 of {items.length}</p>
       )}
     </div>
   );

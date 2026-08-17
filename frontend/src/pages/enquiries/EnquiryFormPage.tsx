@@ -152,7 +152,7 @@ export default function EnquiryFormPage() {
   };
 
   const inputClass = (key: keyof typeof form) =>
-    `${fieldErrors[key] ? 'border-red-400 focus:border-red-500 focus:ring-red-500/25' : ''}`;
+    `${fieldErrors[key] ? 'border-danger focus:border-danger focus:ring-danger/25' : ''}`;
 
   const field = (
     label: string,
@@ -161,7 +161,7 @@ export default function EnquiryFormPage() {
     required = false,
   ) => (
     <div>
-      <label className="mb-1.5 block text-sm font-bold text-slate-700">
+      <label className="mb-1.5 block text-sm font-bold text-ink">
         {label}{required && ' *'}
       </label>
       <input
@@ -170,7 +170,7 @@ export default function EnquiryFormPage() {
         onChange={(e) => set(key, e.target.value)}
         className={`input-field ${inputClass(key)}`}
       />
-      {fieldErrors[key] && <p className="mt-1 text-xs font-medium text-red-600">{fieldErrors[key]}</p>}
+      {fieldErrors[key] && <p className="mt-1 text-xs font-medium text-danger">{fieldErrors[key]}</p>}
     </div>
   );
 
@@ -183,30 +183,30 @@ export default function EnquiryFormPage() {
         <ArrowLeft className="h-4 w-4" />
         Back
       </Link>
-      <h2 className="mt-2 text-2xl text-slate-900">
+      <h2 className="mt-2 text-2xl text-ink">
         {isEdit ? 'Edit Enquiry' : 'New Enquiry'}
       </h2>
-      <p className="mt-1 text-sm font-medium text-slate-500">
+      <p className="mt-1 text-sm font-medium text-ink-secondary">
         Capture lead information and program interest in one place.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 w-full space-y-6">
         {error && (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          <p className="rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
             {error}
           </p>
         )}
 
         <div className="grid w-full gap-6 lg:grid-cols-2">
           {/* ── Personal Details ── */}
-          <section className="rounded-2xl border border-stone-200/80 bg-gradient-to-br from-sky-50/50 via-white to-amber-50/30 p-5 sm:p-6">
-            <div className="mb-5 flex items-center gap-3 border-b border-stone-200/80 pb-4">
-              <div className="rounded-xl bg-sky-200/50 p-2.5 text-sky-700">
+          <section className="page-section p-5 sm:p-6">
+            <div className="mb-5 flex items-center gap-3 border-b border-line pb-4">
+              <div className="icon-accent-info rounded-xl p-2.5">
                 <UserRound className="h-5 w-5" strokeWidth={2.25} />
               </div>
               <div>
-                <h3 className="text-lg text-slate-900">Personal Details</h3>
-                <p className="text-xs font-medium text-slate-500">Contact and demographic information</p>
+                <h3 className="text-lg text-ink">Personal Details</h3>
+                <p className="text-xs font-medium text-ink-secondary">Contact and demographic information</p>
               </div>
             </div>
 
@@ -215,7 +215,7 @@ export default function EnquiryFormPage() {
               {field('Mobile Number', 'mobileNumber', 'tel', true)}
               {field('Date of Enquiry', 'dateOfEnquiry', 'date', true)}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Lead Source *</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Lead Source *</label>
                 <select
                   value={form.leadSource}
                   onChange={(e) => set('leadSource', e.target.value)}
@@ -228,7 +228,7 @@ export default function EnquiryFormPage() {
               </div>
               {field('Age', 'age', 'number')}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Gender</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Gender</label>
                 <select
                   value={form.gender}
                   onChange={(e) => set('gender', e.target.value)}
@@ -248,7 +248,7 @@ export default function EnquiryFormPage() {
 
             <div className="mt-4 grid gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Address</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Address</label>
                 <textarea
                   value={form.address}
                   onChange={(e) => set('address', e.target.value)}
@@ -257,7 +257,7 @@ export default function EnquiryFormPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Family Details</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Family Details</label>
                 <textarea
                   value={form.familyDetails}
                   onChange={(e) => set('familyDetails', e.target.value)}
@@ -267,7 +267,7 @@ export default function EnquiryFormPage() {
               </div>
               {!isEdit && (
                 <div>
-                  <label className="mb-1.5 block text-sm font-bold text-slate-700">Initial Note</label>
+                  <label className="mb-1.5 block text-sm font-bold text-ink">Initial Note</label>
                   <textarea
                     value={form.initialNote}
                     onChange={(e) => set('initialNote', e.target.value)}
@@ -281,20 +281,20 @@ export default function EnquiryFormPage() {
           </section>
 
           {/* ── Program Details ── */}
-          <section className="rounded-2xl border border-stone-200/80 bg-gradient-to-br from-amber-50/50 via-white to-orange-50/30 p-5 sm:p-6">
-            <div className="mb-5 flex items-center gap-3 border-b border-stone-200/80 pb-4">
-              <div className="rounded-xl bg-amber-200/50 p-2.5 text-amber-800">
+          <section className="page-section p-5 sm:p-6">
+            <div className="mb-5 flex items-center gap-3 border-b border-line pb-4">
+              <div className="icon-accent-warning rounded-xl p-2.5">
                 <Dumbbell className="h-5 w-5" strokeWidth={2.25} />
               </div>
               <div>
-                <h3 className="text-lg text-slate-900">Program Details</h3>
-                <p className="text-xs font-medium text-slate-500">Program, pricing, discounts and offers</p>
+                <h3 className="text-lg text-ink">Program Details</h3>
+                <p className="text-xs font-medium text-ink-secondary">Program, pricing, discounts and offers</p>
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Offered Program</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Offered Program</label>
                 <select
                   value={form.offeredProgramId}
                   onChange={(e) => set('offeredProgramId', e.target.value)}
@@ -307,12 +307,12 @@ export default function EnquiryFormPage() {
                 </select>
               </div>
               <div className="sm:col-span-2">
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Program Duration</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Program Duration</label>
                 <select
                   value={form.offeredProgramDurationId}
                   onChange={(e) => set('offeredProgramDurationId', e.target.value)}
                   disabled={!form.offeredProgramId}
-                  className="select-field w-full disabled:cursor-not-allowed disabled:bg-stone-100"
+                  className="select-field w-full disabled:cursor-not-allowed disabled:bg-neutral-soft"
                 >
                   <option value="">— Select duration —</option>
                   {durations.map((d) => (
@@ -323,12 +323,12 @@ export default function EnquiryFormPage() {
                 </select>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Discount Category (%)</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Discount Category (%)</label>
                 <select
                   value={form.offeredDiscountId}
                   onChange={(e) => set('offeredDiscountId', e.target.value)}
                   disabled={Boolean(form.offeredFlatDiscount)}
-                  className="select-field w-full disabled:cursor-not-allowed disabled:bg-stone-100"
+                  className="select-field w-full disabled:cursor-not-allowed disabled:bg-neutral-soft"
                 >
                   <option value="">—</option>
                   {discounts.map((d) => (
@@ -338,7 +338,7 @@ export default function EnquiryFormPage() {
               </div>
               {field('Flat Discount (₹)', 'offeredFlatDiscount', 'number')}
               <div>
-                <label className="mb-1.5 block text-sm font-bold text-slate-700">Offer Category</label>
+                <label className="mb-1.5 block text-sm font-bold text-ink">Offer Category</label>
                 <select
                   value={form.offerCategoryId}
                   onChange={(e) => set('offerCategoryId', e.target.value)}
@@ -355,7 +355,7 @@ export default function EnquiryFormPage() {
           </section>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-stone-200/80 pt-5">
+        <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
           <button type="submit" disabled={loading} className="btn btn-primary">
             {loading ? 'Saving…' : isEdit ? 'Update Enquiry' : 'Create Enquiry'}
           </button>

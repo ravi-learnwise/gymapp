@@ -22,9 +22,9 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl text-slate-900">Forgot password</h1>
-        <p className="mt-1 text-sm text-slate-500">
+      <div className="w-full max-w-md rounded-xl border border-line bg-white p-8 shadow-sm">
+        <h1 className="text-xl text-ink">Forgot password</h1>
+        <p className="mt-1 text-sm text-ink-secondary">
           Enter your email and check the backend console for the reset link (dev mode).
         </p>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-line-strong px-3 py-2 text-sm"
           />
           <button
             type="submit"
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
             {loading ? 'Sending…' : 'Send reset link'}
           </button>
         </form>
-        {message && <p className="mt-4 text-sm text-green-700">{message}</p>}
+        {message && <p className="mt-4 text-sm text-success">{message}</p>}
         <Link to="/login" className="mt-4 block text-center text-sm text-brand-600">
           Back to login
         </Link>

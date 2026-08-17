@@ -65,13 +65,13 @@ export default function AttendancePage() {
     }
   };
 
-  if (enabled === null) return <p className="text-slate-500">Loading…</p>;
+  if (enabled === null) return <p className="text-ink-secondary">Loading…</p>;
 
   if (!enabled) {
     return (
-      <div className="max-w-lg rounded-xl border border-amber-200 bg-amber-50 p-6">
-        <h2 className="text-xl text-amber-900">Attendance Disabled</h2>
-        <p className="mt-2 text-sm text-amber-800">
+      <div className="max-w-lg rounded-xl border border-warning-border bg-warning-soft p-6">
+        <h2 className="text-xl text-ink">Attendance Disabled</h2>
+        <p className="mt-2 text-sm text-ink-secondary">
           Enable attendance tracking in{' '}
           <Link to="/config/gym" className="font-medium underline">
             Gym Info
@@ -84,15 +84,15 @@ export default function AttendancePage() {
 
   return (
     <div>
-      <h2 className="text-2xl text-slate-900">Attendance</h2>
-      <p className="mt-1 text-slate-500">Record check-ins and check-outs for today</p>
+      <h2 className="text-2xl text-ink">Attendance</h2>
+      <p className="mt-1 text-ink-secondary">Record check-ins and check-outs for today</p>
 
-      <form onSubmit={handleCheckIn} className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4">
+      <form onSubmit={handleCheckIn} className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-line bg-white p-4">
         <label className="text-sm">
-          <span className="text-slate-600">Member</span>
+          <span className="text-ink-secondary">Member</span>
           <select
             required
-            className="mt-1 block min-w-[200px] rounded-lg border border-slate-300 px-3 py-2"
+            className="mt-1 block min-w-[200px] rounded-lg border border-line-strong px-3 py-2"
             value={checkInMemberId}
             onChange={(e) => setCheckInMemberId(e.target.value)}
           >
@@ -105,9 +105,9 @@ export default function AttendancePage() {
           </select>
         </label>
         <label className="text-sm">
-          <span className="text-slate-600">Batch (optional)</span>
+          <span className="text-ink-secondary">Batch (optional)</span>
           <input
-            className="mt-1 block rounded-lg border border-slate-300 px-3 py-2"
+            className="mt-1 block rounded-lg border border-line-strong px-3 py-2"
             value={batch}
             onChange={(e) => setBatch(e.target.value)}
             placeholder="Morning / Evening"
@@ -121,24 +121,24 @@ export default function AttendancePage() {
         </button>
       </form>
 
-      {message && <p className="mt-3 text-sm text-green-700">{message}</p>}
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {message && <p className="mt-3 text-sm text-success">{message}</p>}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       <div className="mt-6 flex items-center gap-3">
-        <label className="text-sm text-slate-600">
+        <label className="text-sm text-ink-secondary">
           Date
           <input
             type="date"
-            className="ml-2 rounded-lg border border-slate-300 px-3 py-1.5"
+            className="ml-2 rounded-lg border border-line-strong px-3 py-1.5"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
         </label>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="mt-4 overflow-hidden rounded-xl border border-line bg-white">
         <table className="min-w-full text-sm">
-          <thead className="bg-slate-50 text-left text-slate-600">
+          <thead className="bg-canvas text-left text-ink-secondary">
             <tr>
               <th className="px-4 py-3">Member</th>
               <th className="px-4 py-3">Check-in</th>
@@ -150,12 +150,12 @@ export default function AttendancePage() {
           </thead>
           <tbody>
             {records.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100">
+              <tr key={r.id} className="border-t border-line">
                 <td className="px-4 py-3">
                   <Link to={`/members/${r.member.id}`} className="text-brand-600 hover:underline">
                     {r.member.fullName}
                   </Link>
-                  <p className="text-xs text-slate-400">{r.member.memberNumber}</p>
+                  <p className="text-xs text-ink-muted">{r.member.memberNumber}</p>
                 </td>
                 <td className="px-4 py-3">{new Date(r.checkIn).toLocaleTimeString()}</td>
                 <td className="px-4 py-3">
@@ -180,7 +180,7 @@ export default function AttendancePage() {
             ))}
             {!records.length && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-ink-muted">
                   No attendance for this date
                 </td>
               </tr>

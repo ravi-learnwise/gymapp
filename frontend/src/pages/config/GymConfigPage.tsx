@@ -48,13 +48,13 @@ export default function GymConfigPage() {
     }
   };
 
-  if (!config) return <p className="text-slate-500">Loading…</p>;
+  if (!config) return <p className="text-ink-secondary">Loading…</p>;
 
   return (
     <div>
       <h2 className="text-2xl">Gym Information</h2>
       {readOnly && (
-        <p className="mt-1 text-sm text-amber-600">Read-only (Manager access)</p>
+        <p className="mt-1 text-sm text-warning">Read-only (Manager access)</p>
       )}
       <form onSubmit={handleSubmit} className="mt-6 max-w-lg space-y-4">
         {['name', 'address', 'gstNumber', 'logoUrl'].map((field) => (
@@ -66,7 +66,7 @@ export default function GymConfigPage() {
               value={(config as Record<string, string | boolean | null>)[field] as string || ''}
               onChange={(e) => setConfig({ ...config, [field]: e.target.value })}
               disabled={readOnly}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
+              className="w-full rounded-lg border border-line-strong px-3 py-2 text-sm disabled:bg-canvas"
             />
           </div>
         ))}
@@ -86,7 +86,7 @@ export default function GymConfigPage() {
             Save
           </button>
         )}
-        {message && <p className="text-sm text-green-600">{message}</p>}
+        {message && <p className="text-sm text-success">{message}</p>}
       </form>
     </div>
   );

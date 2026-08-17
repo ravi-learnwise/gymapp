@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { MessageSquare, Plus, Search, TrendingUp, UserCheck, UserX } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import DataTable, { type DataTableColumn } from '../../components/DataTable/DataTable';
+import EnquiryRowActions from '../../components/enquiries/EnquiryRowActions';
 import { api } from '../../lib/api';
 import { monthToDateRange } from '../../lib/date-range';
+import StatusBadge, { enquiryStatusVariant } from '../../components/ui/StatusBadge';
 import {
   LEAD_SOURCE_LABELS,
-  STATUS_COLORS,
   STATUS_LABELS,
   type Enquiry,
   type EnquiryStats,
@@ -19,6 +20,7 @@ type ListResponse = {
   total: number;
   page: number;
   pages: number;
+  limit: number;
 };
 
 export default function EnquiryListPage() {
@@ -74,7 +76,10 @@ export default function EnquiryListPage() {
         meta: { fixed: true, label: 'Name' },
         enableSorting: true,
         cell: ({ row }) => (
-          <Link to={`/enquiries/${row.original.id}`} className="font-medium text-brand-600 hover:underline">
+          <Link
+            to={`/enquiries/${row.original.id}`}
+            className="text-sm font-medium text-ink hover:text-brand-600"
+          >
             {row.original.fullName}
           </Link>
         ),
@@ -85,6 +90,9 @@ export default function EnquiryListPage() {
         header: 'Mobile',
         meta: { fixed: true, label: 'Mobile' },
         enableSorting: true,
+        cell: ({ row }) => (
+          <span className="text-ink-muted">{row.original.mobileNumber}</span>
+        ),
       },
       {
         id: 'status',
@@ -93,9 +101,9 @@ export default function EnquiryListPage() {
         meta: { fixed: true, label: 'Status' },
         enableSorting: true,
         cell: ({ row }) => (
-          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[row.original.status]}`}>
+          <StatusBadge variant={enquiryStatusVariant(row.original.status)}>
             {STATUS_LABELS[row.original.status]}
-          </span>
+          </StatusBadge>
         ),
       },
       {
@@ -104,6 +112,9 @@ export default function EnquiryListPage() {
         header: 'Enquiry ID',
         meta: { label: 'Enquiry ID' },
         enableSorting: true,
+        cell: ({ row }) => (
+          <span className="text-ink-muted">{row.original.enquiryNumber}</span>
+        ),
       },
       {
         id: 'leadSource',
@@ -128,21 +139,28 @@ export default function EnquiryListPage() {
       {
         id: 'dateOfEnquiry',
         accessorKey: 'dateOfEnquiry',
-        header: 'Date',
-        meta: { label: 'Date' },
+        header: 'Enquiry Date',
+        meta: { label: 'Enquiry Date' },
         enableSorting: true,
         cell: ({ row }) => new Date(row.original.dateOfEnquiry).toLocaleDateString(),
+      },
+      {
+        id: 'actions',
+        header: '',
+        meta: { fixed: true, label: 'Actions' },
+        cell: ({ row }) => <EnquiryRowActions enquiry={row.original} />,
       },
     ],
     [],
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl text-slate-900">Enquiries</h2>
-          <p className="text-sm font-medium text-slate-500">CRM — capture and convert leads</p>
+          <h2 className="text-2xl font-semibold text-ink">Enquiries</h2>
+          <p className="mt-1 text-sm text-ink-muted">Manage, follow up and convert your leads</p>
         </div>
         <Link to="/enquiries/new" className="btn btn-primary">
           <Plus className="h-4 w-4" />
@@ -150,85 +168,136 @@ export default function EnquiryListPage() {
         </Link>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-end gap-2">
-        <label className="text-sm">
-          <span className="text-slate-600">From</span>
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="ml-1 rounded-lg border px-2 py-1.5" />
-        </label>
-        <label className="text-sm">
-          <span className="text-slate-600">To</span>
-          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="ml-1 rounded-lg border px-2 py-1.5" />
-        </label>
-        <button type="button" onClick={applyFilters} className="rounded-lg border px-3 py-1.5 text-sm hover:bg-slate-50">
-          Apply dates
-        </button>
-      </div>
-
+      {/* Summary cards */}
       {stats && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-4">
-          <StatCard label="New Enquiries" value={stats.newEnquiries} />
-          <StatCard label="Converted" value={stats.converted} />
-          <StatCard label="Lost" value={stats.lost} />
-          <StatCard label="Open (in period)" value={stats.openRemaining} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <SummaryCard label="New Enquiries" value={stats.newEnquiries} icon={MessageSquare} accent="info" />
+          <SummaryCard label="Converted" value={stats.converted} icon={UserCheck} accent="success" />
+          <SummaryCard label="Lost" value={stats.lost} icon={UserX} accent="danger" />
+          <SummaryCard label="Open" value={stats.openRemaining} icon={TrendingUp} accent="neutral" />
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search name, mobile, email, ID…"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-        />
-        <select
-          value={status}
-          onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        >
-          <option value="">All statuses</option>
-          {(Object.keys(STATUS_LABELS) as EnquiryStatus[]).map((s) => (
-            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-          ))}
-        </select>
-        <select
-          value={leadSource}
-          onChange={(e) => updateParams({ leadSource: e.target.value, page: '1' })}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        >
-          <option value="">All sources</option>
-          {(Object.keys(LEAD_SOURCE_LABELS) as LeadSource[]).map((s) => (
-            <option key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</option>
-          ))}
-        </select>
-        <button onClick={applyFilters} className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
-          Search
-        </button>
+      {/* Filters */}
+      <div className="rounded-xl border border-line bg-white p-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6 lg:items-end">
+          <div>
+            <label htmlFor="enq-from" className="form-label">From</label>
+            <input
+              id="enq-from"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label htmlFor="enq-to" className="form-label">To</label>
+            <input
+              id="enq-to"
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <label htmlFor="enq-search" className="form-label">Search</label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+              <input
+                id="enq-search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search name, mobile or email"
+                className="input-field pl-9"
+                onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="enq-status" className="form-label">Status</label>
+            <select
+              id="enq-status"
+              value={status}
+              onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
+              className="select-field w-full"
+            >
+              <option value="">All statuses</option>
+              {(Object.keys(STATUS_LABELS) as EnquiryStatus[]).map((s) => (
+                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="enq-source" className="form-label">Source</label>
+            <select
+              id="enq-source"
+              value={leadSource}
+              onChange={(e) => updateParams({ leadSource: e.target.value, page: '1' })}
+              className="select-field w-full"
+            >
+              <option value="">All sources</option>
+              {(Object.keys(LEAD_SOURCE_LABELS) as LeadSource[]).map((s) => (
+                <option key={s} value={s}>{LEAD_SOURCE_LABELS[s]}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="mt-3 flex justify-end">
+          <button type="button" onClick={applyFilters} className="btn btn-primary">
+            <Search className="h-4 w-4" />
+            Apply
+          </button>
+        </div>
       </div>
 
-      <div className="mt-4">
-        <DataTable
-          tableKey="enquiries"
-          columns={columns}
-          data={data?.items ?? []}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onSortChange={(col, order) => updateParams({ sortBy: col, sortOrder: order, page: '1' })}
-          page={data?.page}
-          pages={data?.pages}
-          onPageChange={(p) => updateParams({ page: String(p) })}
-          emptyMessage={data ? 'No enquiries found' : 'Loading…'}
-        />
-      </div>
+      {/* Table */}
+      <DataTable
+        tableKey="enquiries"
+        columns={columns}
+        data={data?.items ?? []}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortChange={(col, order) => updateParams({ sortBy: col, sortOrder: order, page: '1' })}
+        page={data?.page}
+        pages={data?.pages}
+        total={data?.total}
+        pageSize={data?.limit ?? 20}
+        onPageChange={(p) => updateParams({ page: String(p) })}
+        emptyMessage={data ? 'No enquiries found' : 'Loading…'}
+      />
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string | number }) {
+function SummaryCard({
+  label,
+  value,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: number;
+  icon: typeof MessageSquare;
+  accent: 'info' | 'success' | 'danger' | 'neutral';
+}) {
+  const iconClass = {
+    info: 'icon-accent-info',
+    success: 'icon-accent-success',
+    danger: 'icon-accent-danger',
+    neutral: 'icon-accent-neutral',
+  }[accent];
+
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-xl text-slate-900">{value}</p>
+    <div className="rounded-xl border border-line bg-white p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${iconClass}`}>
+          <Icon className="h-4 w-4" strokeWidth={2} />
+        </div>
+        <p className="text-2xl font-semibold tabular-nums text-ink">{value}</p>
+      </div>
+      <p className="mt-2 text-xs font-medium uppercase tracking-wide text-ink-muted">{label}</p>
     </div>
   );
 }

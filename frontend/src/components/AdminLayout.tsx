@@ -92,38 +92,38 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-300 via-slate-200 to-slate-300">
-      <header className="sticky top-0 z-30 border-b border-slate-300/80 bg-white/95 px-4 py-3 shadow-md shadow-slate-400/20 backdrop-blur-sm">
+    <div className="min-h-screen bg-canvas">
+      <header className="sticky top-0 z-30 border-b border-line bg-white px-4 py-3">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="btn btn-secondary !px-3 !py-2.5"
+            className="btn btn-secondary !h-9 !w-9 !px-0"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             aria-controls="main-nav"
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
           </button>
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-lg shadow-brand-900/30">
-              <Dumbbell className="h-5 w-5" strokeWidth={2.5} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
+              <Dumbbell className="h-[18px] w-[18px]" strokeWidth={2} />
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-lg text-slate-900">GymApp</h1>
-              <p className="truncate text-xs font-semibold capitalize text-slate-500">
+              <h1 className="truncate text-base font-semibold text-ink">GymApp</h1>
+              <p className="truncate text-xs capitalize text-ink-muted">
                 {user?.role?.toLowerCase()} portal
               </p>
             </div>
           </div>
-          <p className="hidden truncate text-xs font-medium text-slate-500 sm:block">{user?.email}</p>
+          <p className="hidden truncate text-xs text-ink-muted sm:block">{user?.email}</p>
         </div>
       </header>
 
       {menuOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-[2px]"
+          className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-[1px]"
           aria-label="Close menu"
           onClick={() => setMenuOpen(false)}
         />
@@ -131,15 +131,15 @@ export default function AdminLayout() {
 
       <aside
         id="main-nav"
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-200 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-line bg-white shadow-xl transition-transform duration-200 ease-in-out ${
           menuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-hidden={!menuOpen}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-4">
+        <div className="flex items-center justify-between border-b border-line px-4 py-4">
           <div>
-            <h2 className="text-lg text-slate-900">GymApp</h2>
-            <p className="text-xs font-semibold capitalize text-slate-500">{user?.role?.toLowerCase()}</p>
+            <h2 className="text-base font-semibold text-ink">GymApp</h2>
+            <p className="text-xs capitalize text-ink-muted">{user?.role?.toLowerCase()}</p>
           </div>
           <button
             type="button"
@@ -159,22 +159,18 @@ export default function AdminLayout() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-all ${
-                    isActive
-                      ? 'bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-md shadow-brand-900/25'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                  }`
+                  isActive ? 'nav-item nav-item-active' : 'nav-item'
                 }
               >
-                <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
                 {item.label}
               </NavLink>
             );
           })}
         </nav>
 
-        <div className="border-t border-slate-200 bg-slate-50 p-3">
-          <p className="truncate px-3 text-xs font-medium text-slate-500">{user?.email}</p>
+        <div className="border-t border-line p-3">
+          <p className="truncate px-3 text-xs text-ink-muted">{user?.email}</p>
           <button
             type="button"
             onClick={handleLogout}

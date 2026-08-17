@@ -11,27 +11,27 @@ const variants: Record<
   edit: {
     Icon: Pencil,
     label: 'Edit',
-    tone: 'text-brand-700 hover:bg-brand-50 hover:border-brand-200 border-slate-200',
+    tone: 'text-brand-700 hover:bg-brand-50 hover:border-brand-200 border-line',
   },
   remove: {
     Icon: Trash2,
     label: 'Remove',
-    tone: 'text-red-600 hover:bg-red-50 hover:border-red-200 border-slate-200',
+    tone: 'text-danger hover:bg-danger-soft hover:border-danger-border border-line',
   },
   deactivate: {
     Icon: Ban,
     label: 'Deactivate',
-    tone: 'text-orange-700 hover:bg-orange-50 hover:border-orange-200 border-slate-200',
+    tone: 'text-warning hover:bg-warning-soft hover:border-warning-border border-line',
   },
   delete: {
     Icon: Trash2,
     label: 'Delete',
-    tone: 'text-red-600 hover:bg-red-50 hover:border-red-200 border-slate-200',
+    tone: 'text-danger hover:bg-danger-soft hover:border-danger-border border-line',
   },
 };
 
 const baseClass =
-  'inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-white shadow-sm transition-colors';
+  'inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white transition-colors';
 
 type IconActionProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant: IconActionVariant;

@@ -27,12 +27,12 @@ export const STATUS_LABELS: Record<EnquiryStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<EnquiryStatus, string> = {
-  NEW: 'bg-blue-100 text-blue-800',
-  CONTACTED: 'bg-purple-100 text-purple-800',
-  FOLLOW_UP: 'bg-amber-100 text-amber-800',
-  TRIAL: 'bg-cyan-100 text-cyan-800',
-  CONVERTED: 'bg-green-100 text-green-800',
-  LOST: 'bg-slate-100 text-slate-600',
+  NEW: 'badge badge-info',
+  CONTACTED: 'badge badge-purple',
+  FOLLOW_UP: 'badge badge-warning',
+  TRIAL: 'badge badge-warning',
+  CONVERTED: 'badge badge-success',
+  LOST: 'badge badge-danger',
 };
 
 export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {

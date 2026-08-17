@@ -22,7 +22,7 @@ export default function ReceiptPrintPage() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-red-600">{error}</p>
+        <p className="text-danger">{error}</p>
       </div>
     );
   }
@@ -30,13 +30,13 @@ export default function ReceiptPrintPage() {
   if (!receipt) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-slate-500">Loading receipt…</p>
+        <p className="text-ink-secondary">Loading receipt…</p>
       </div>
     );
   }
 
   return (
-    <div className="receipt-print-page min-h-screen bg-slate-100 py-8 print:bg-white print:py-0">
+    <div className="receipt-print-page min-h-screen bg-neutral-soft py-8 print:bg-white print:py-0">
       <div className="mx-auto mb-4 flex max-w-md justify-center gap-2 print:hidden">
         <button
           type="button"
@@ -48,13 +48,13 @@ export default function ReceiptPrintPage() {
         <button
           type="button"
           onClick={() => window.close()}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
+          className="rounded-lg border border-line-strong px-4 py-2 text-sm hover:bg-canvas"
         >
           Close
         </button>
       </div>
       <ReceiptSlip receipt={receipt} />
-      <p className="mx-auto mt-4 max-w-md text-center text-xs text-slate-400 print:hidden">
+      <p className="mx-auto mt-4 max-w-md text-center text-xs text-ink-muted print:hidden">
         Tip: Choose &quot;Save as PDF&quot; in the print dialog to download a PDF copy.
       </p>
     </div>

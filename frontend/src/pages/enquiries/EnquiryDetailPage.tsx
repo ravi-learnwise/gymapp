@@ -3,10 +3,10 @@ import { Check, RotateCcw } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../../lib/api';
 import IconAction, { IconActionLink } from '../../components/ui/IconAction';
+import StatusBadge, { enquiryStatusVariant } from '../../components/ui/StatusBadge';
 import {
   LEAD_SOURCE_LABELS,
   NEXT_STATUSES,
-  STATUS_COLORS,
   STATUS_LABELS,
   type EnquiryDetail,
   type EnquiryStatus,
@@ -33,7 +33,7 @@ export default function EnquiryDetailPage() {
 
   useEffect(() => { load(); }, [id]);
 
-  if (!enquiry) return <p className="text-slate-500">Loading…</p>;
+  if (!enquiry) return <p className="text-ink-secondary">Loading…</p>;
 
   const isClosed = enquiry.status === 'CONVERTED' || enquiry.status === 'LOST';
   const nextStatuses = NEXT_STATUSES[enquiry.status];
@@ -139,11 +139,11 @@ export default function EnquiryDetailPage() {
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl">{enquiry.fullName}</h2>
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[enquiry.status]}`}>
+            <StatusBadge variant={enquiryStatusVariant(enquiry.status)}>
               {STATUS_LABELS[enquiry.status]}
-            </span>
+            </StatusBadge>
           </div>
-          <p className="text-sm text-slate-500">{enquiry.enquiryNumber}</p>
+          <p className="text-sm text-ink-secondary">{enquiry.enquiryNumber}</p>
         </div>
         {!isClosed && (
           <div className="flex gap-2">
@@ -159,18 +159,18 @@ export default function EnquiryDetailPage() {
         {enquiry.status === 'CONVERTED' && enquiry.member && (
           <Link
             to={`/members/${enquiry.member.id}`}
-            className="rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-800 hover:bg-green-100"
+            className="rounded-lg border border-success-border bg-success-soft px-4 py-2 text-sm text-success hover:bg-success-soft"
           >
             View Member ({enquiry.member.memberNumber})
           </Link>
         )}
       </div>
 
-      {message && <p className="mt-2 text-sm text-green-600">{message}</p>}
+      {message && <p className="mt-2 text-sm text-success">{message}</p>}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h3 className="font-semibold text-slate-900">Contact Details</h3>
+        <div className="rounded-xl border border-line bg-white p-5">
+          <h3 className="font-semibold text-ink">Contact Details</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <Row label="Mobile" value={enquiry.mobileNumber} />
             <Row label="Alt. Contact" value={enquiry.alternateContact} />
@@ -185,8 +185,8 @@ export default function EnquiryDetailPage() {
           </dl>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h3 className="font-semibold text-slate-900">Offer Details</h3>
+        <div className="rounded-xl border border-line bg-white p-5">
+          <h3 className="font-semibold text-ink">Offer Details</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <Row label="Program" value={enquiry.offeredProgram?.name} />
             <Row
@@ -232,7 +232,7 @@ export default function EnquiryDetailPage() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-xl border border-line bg-white p-5">
         <h3 className="font-semibold">Follow-up Reminders</h3>
         <ul className="mt-3 space-y-2">
           {enquiry.reminders.map((r) => (
@@ -253,7 +253,7 @@ export default function EnquiryDetailPage() {
                       onClick={() => completeReminder(r.id)}
                       title="Mark done"
                       aria-label="Mark done"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-emerald-700 shadow-sm transition-colors hover:border-emerald-200 hover:bg-emerald-50"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white text-success shadow-sm transition-colors hover:border-success-border hover:bg-success-soft"
                     >
                       <Check className="h-4 w-4" strokeWidth={2.25} />
                     </button>
@@ -266,7 +266,7 @@ export default function EnquiryDetailPage() {
                     onClick={() => reopenReminder(r.id)}
                     title="Undo"
                     aria-label="Undo"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-white text-ink-secondary shadow-sm transition-colors hover:bg-canvas"
                   >
                     <RotateCcw className="h-4 w-4" strokeWidth={2.25} />
                   </button>
@@ -275,7 +275,7 @@ export default function EnquiryDetailPage() {
             </li>
           ))}
           {enquiry.reminders.length === 0 && (
-            <li className="text-sm text-slate-400">No reminders scheduled</li>
+            <li className="text-sm text-ink-muted">No reminders scheduled</li>
           )}
         </ul>
 
@@ -314,25 +314,25 @@ export default function EnquiryDetailPage() {
               placeholder="Reminder note"
               className="flex-1 rounded-lg border px-3 py-2 text-sm"
             />
-            <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+            <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
               Schedule
             </button>
           </form>
         )}
       </div>
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-xl border border-line bg-white p-5">
         <h3 className="font-semibold">Timeline</h3>
         <ul className="mt-4 space-y-4">
           {timeline.map((item, i) => (
             <li key={i} className="flex gap-3 text-sm">
               <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-brand-500" />
               <div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-ink-muted">
                   {new Date(item.date).toLocaleString()} ·{' '}
                   {[item.by.firstName, item.by.lastName].filter(Boolean).join(' ') || item.by.email}
                 </p>
-                <p className={item.type === 'status' ? 'font-medium text-slate-700' : 'text-slate-600'}>
+                <p className={item.type === 'status' ? 'font-medium text-ink' : 'text-ink-secondary'}>
                   {item.text}
                 </p>
               </div>
@@ -359,8 +359,8 @@ export default function EnquiryDetailPage() {
 function Row({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div className="flex gap-2">
-      <dt className="w-32 shrink-0 text-slate-500">{label}</dt>
-      <dd className="text-slate-800">{value || '—'}</dd>
+      <dt className="w-32 shrink-0 text-ink-secondary">{label}</dt>
+      <dd className="text-ink">{value || '—'}</dd>
     </div>
   );
 }

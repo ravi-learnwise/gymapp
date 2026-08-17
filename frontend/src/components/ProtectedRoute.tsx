@@ -11,7 +11,7 @@ export default function ProtectedRoute({ roles }: Props) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-slate-500">
+      <div className="flex min-h-screen items-center justify-center text-ink-secondary">
         Loading…
       </div>
     );

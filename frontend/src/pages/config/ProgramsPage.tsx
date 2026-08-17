@@ -128,7 +128,7 @@ export default function ProgramsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="New program name"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-line-strong px-3 py-2 text-sm"
           />
           <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">
             Add
@@ -157,7 +157,7 @@ export default function ProgramsPage() {
                       <input
                         value={editForm.name}
                         onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        className="w-full rounded border border-slate-300 px-3 py-2 text-sm font-semibold"
+                        className="w-full rounded border border-line-strong px-3 py-2 text-sm font-semibold"
                       />
                     </td>
                     <td>
@@ -166,7 +166,7 @@ export default function ProgramsPage() {
                         onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                         placeholder="Description"
                         rows={2}
-                        className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                        className="w-full rounded border border-line-strong px-3 py-2 text-sm"
                       />
                     </td>
                     <td>{p.isActive ? 'Active' : 'Inactive'}</td>
@@ -174,7 +174,7 @@ export default function ProgramsPage() {
                       <td className="list-table-actions">
                         <div className="flex justify-end gap-2">
                           <button onClick={() => saveProgram(p.id)} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Save</button>
-                          <button onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">Cancel</button>
+                          <button onClick={() => setEditingId(null)} className="rounded-lg border border-line-strong px-3 py-1.5 text-sm">Cancel</button>
                         </div>
                       </td>
                     )}
@@ -182,9 +182,9 @@ export default function ProgramsPage() {
                 ) : (
                   <>
                     <td className="font-semibold">{p.name}</td>
-                    <td className="text-slate-600">{p.description || '—'}</td>
+                    <td className="text-ink-secondary">{p.description || '—'}</td>
                     <td>
-                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}`}>
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.isActive ? 'badge badge-success' : 'badge badge-danger'}`}>
                         {p.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
@@ -204,7 +204,7 @@ export default function ProgramsPage() {
 
               <tr className="list-table-detail">
                 <td colSpan={programColCount}>
-                  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-ink-secondary">
                     {p.name} — Durations
                   </p>
                   <ListTable className="!mt-0">
@@ -227,20 +227,20 @@ export default function ProgramsPage() {
                           {editingDurationId === d.id ? (
                             <>
                               <td>
-                                <input value={editDuration.label} onChange={(e) => setEditDuration({ ...editDuration, label: e.target.value })} className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                                <input value={editDuration.label} onChange={(e) => setEditDuration({ ...editDuration, label: e.target.value })} className="w-full rounded border border-line-strong px-2 py-1.5 text-sm" />
                               </td>
                               <td>
-                                <input type="number" value={editDuration.months} onChange={(e) => setEditDuration({ ...editDuration, months: e.target.value })} className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                                <input type="number" value={editDuration.months} onChange={(e) => setEditDuration({ ...editDuration, months: e.target.value })} className="w-full rounded border border-line-strong px-2 py-1.5 text-sm" />
                               </td>
                               <td>
-                                <input type="number" step="0.01" value={editDuration.price} onChange={(e) => setEditDuration({ ...editDuration, price: e.target.value })} className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                                <input type="number" step="0.01" value={editDuration.price} onChange={(e) => setEditDuration({ ...editDuration, price: e.target.value })} className="w-full rounded border border-line-strong px-2 py-1.5 text-sm" />
                               </td>
                               <td>—</td>
                               {!readOnly && (
                                 <td className="list-table-actions">
                                   <div className="flex justify-end gap-2 text-sm">
                                     <button onClick={() => saveDuration(d.id)} className="font-medium text-brand-600 hover:underline">Save</button>
-                                    <button onClick={() => setEditingDurationId(null)} className="text-slate-500 hover:underline">Cancel</button>
+                                    <button onClick={() => setEditingDurationId(null)} className="text-ink-secondary hover:underline">Cancel</button>
                                   </div>
                                 </td>
                               )}
@@ -251,7 +251,7 @@ export default function ProgramsPage() {
                               <td>{d.months}</td>
                               <td>{Number(d.price).toLocaleString()}</td>
                               <td>
-                                <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}`}>
+                                <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.isActive ? 'badge badge-success' : 'badge badge-danger'}`}>
                                   {d.isActive ? 'Active' : 'Inactive'}
                                 </span>
                               </td>
@@ -274,12 +274,12 @@ export default function ProgramsPage() {
 
                   {!readOnly && p.isActive && (
                     addingDurationFor === p.id ? (
-                      <form onSubmit={(e) => addDuration(p.id, e)} className="mt-4 flex flex-wrap gap-2 border-t border-slate-300 pt-4">
-                        <input value={newDuration.label} onChange={(e) => setNewDuration({ ...newDuration, label: e.target.value })} placeholder="Label" required className="rounded border border-slate-300 px-2 py-1.5 text-sm" />
-                        <input type="number" value={newDuration.months} onChange={(e) => setNewDuration({ ...newDuration, months: e.target.value })} placeholder="Months" required className="w-24 rounded border border-slate-300 px-2 py-1.5 text-sm" />
-                        <input type="number" step="0.01" value={newDuration.price} onChange={(e) => setNewDuration({ ...newDuration, price: e.target.value })} placeholder="Price" required className="w-28 rounded border border-slate-300 px-2 py-1.5 text-sm" />
+                      <form onSubmit={(e) => addDuration(p.id, e)} className="mt-4 flex flex-wrap gap-2 border-t border-line-strong pt-4">
+                        <input value={newDuration.label} onChange={(e) => setNewDuration({ ...newDuration, label: e.target.value })} placeholder="Label" required className="rounded border border-line-strong px-2 py-1.5 text-sm" />
+                        <input type="number" value={newDuration.months} onChange={(e) => setNewDuration({ ...newDuration, months: e.target.value })} placeholder="Months" required className="w-24 rounded border border-line-strong px-2 py-1.5 text-sm" />
+                        <input type="number" step="0.01" value={newDuration.price} onChange={(e) => setNewDuration({ ...newDuration, price: e.target.value })} placeholder="Price" required className="w-28 rounded border border-line-strong px-2 py-1.5 text-sm" />
                         <button type="submit" className="rounded bg-brand-600 px-3 py-1.5 text-sm text-white">Add</button>
-                        <button type="button" onClick={() => setAddingDurationFor(null)} className="rounded border border-slate-300 px-3 py-1.5 text-sm">Cancel</button>
+                        <button type="button" onClick={() => setAddingDurationFor(null)} className="rounded border border-line-strong px-3 py-1.5 text-sm">Cancel</button>
                       </form>
                     ) : (
                       <button

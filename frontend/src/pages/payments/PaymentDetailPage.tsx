@@ -1,10 +1,10 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../../lib/api';
+import StatusBadge, { paymentStatusVariant } from '../../components/ui/StatusBadge';
 import {
   formatCurrency,
   PAYMENT_MODE_LABELS,
-  PAYMENT_STATUS_COLORS,
   PAYMENT_STATUS_LABELS,
   type PaymentDetail,
   type PaymentMode,
@@ -33,7 +33,7 @@ export default function PaymentDetailPage() {
 
   useEffect(() => { load(); }, [id]);
 
-  if (!payment) return <p className="text-slate-500">Loading…</p>;
+  if (!payment) return <p className="text-ink-secondary">Loading…</p>;
 
   const recordPayment = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,16 +93,16 @@ export default function PaymentDetailPage() {
       <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-2xl">{payment.member.fullName}</h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-secondary">
             {payment.member.memberNumber} · {payment.membership.program.name}
           </p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-sm font-medium ${PAYMENT_STATUS_COLORS[payment.status]}`}>
+        <StatusBadge variant={paymentStatusVariant(payment.status)}>
           {PAYMENT_STATUS_LABELS[payment.status]}
-        </span>
+        </StatusBadge>
       </div>
 
-      {message && <p className="mt-2 text-sm text-green-600">{message}</p>}
+      {message && <p className="mt-2 text-sm text-success">{message}</p>}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AmountCard label="Total Fee" value={formatCurrency(payment.totalFee)} />
@@ -113,7 +113,7 @@ export default function PaymentDetailPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         {payment.status !== 'PAID' && (
-          <form onSubmit={recordPayment} className="rounded-xl border border-slate-200 bg-white p-5">
+          <form onSubmit={recordPayment} className="rounded-xl border border-line bg-white p-5">
             <h3 className="font-semibold">Record Payment</h3>
             <div className="mt-3 space-y-3">
               <input type="number" step="0.01" required value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} placeholder={`Amount (max ${payment.pendingAmount})`} className="w-full rounded-lg border px-3 py-2 text-sm" />
@@ -128,7 +128,7 @@ export default function PaymentDetailPage() {
           </form>
         )}
 
-        <form onSubmit={updateCommitment} className="rounded-xl border border-slate-200 bg-white p-5">
+        <form onSubmit={updateCommitment} className="rounded-xl border border-line bg-white p-5">
           <h3 className="font-semibold">Commitment Details</h3>
           <div className="mt-3 space-y-3">
             <label className="block text-sm">
@@ -144,15 +144,15 @@ export default function PaymentDetailPage() {
               <input type="date" value={editForm.commitmentDate} onChange={(e) => setEditForm({ ...editForm, commitmentDate: e.target.value })} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" />
             </label>
             <textarea value={editForm.commitmentNotes} onChange={(e) => setEditForm({ ...editForm, commitmentNotes: e.target.value })} placeholder="Commitment notes" rows={2} className="w-full rounded-lg border px-3 py-2 text-sm" />
-            <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">Update Commitment</button>
+            <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">Update Commitment</button>
           </div>
         </form>
       </div>
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-xl border border-line bg-white p-5">
         <h3 className="font-semibold">Payment History</h3>
         <table className="mt-3 w-full text-sm">
-          <thead className="text-left text-slate-500">
+          <thead className="text-left text-ink-secondary">
             <tr>
               <th className="pb-2">Receipt</th>
               <th>Date</th>
@@ -174,13 +174,13 @@ export default function PaymentDetailPage() {
               </tr>
             ))}
             {payment.transactions.length === 0 && (
-              <tr><td colSpan={5} className="py-4 text-slate-400">No payments recorded yet</td></tr>
+              <tr><td colSpan={5} className="py-4 text-ink-muted">No payments recorded yet</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-xl border border-line bg-white p-5">
         <h3 className="font-semibold">Due Reminders</h3>
         <ul className="mt-3 space-y-2">
           {payment.reminders.map((r) => (
@@ -196,7 +196,7 @@ export default function PaymentDetailPage() {
           <form onSubmit={scheduleReminder} className="mt-3 flex flex-wrap gap-2 border-t pt-3">
             <input type="datetime-local" value={remindAt} onChange={(e) => setRemindAt(e.target.value)} required className="rounded-lg border px-3 py-2 text-sm" />
             <input value={reminderNote} onChange={(e) => setReminderNote(e.target.value)} placeholder="Reminder note" className="flex-1 rounded-lg border px-3 py-2 text-sm" />
-            <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">Schedule</button>
+            <button type="submit" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">Schedule</button>
           </form>
         )}
       </div>
@@ -206,8 +206,8 @@ export default function PaymentDetailPage() {
 
 function AmountCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-white'}`}>
-      <p className="text-sm text-slate-500">{label}</p>
+    <div className={`rounded-xl border p-4 ${highlight ? 'border-danger-border bg-danger-soft' : 'border-line bg-white'}`}>
+      <p className="text-sm text-ink-secondary">{label}</p>
       <p className="mt-1 text-lg">{value}</p>
     </div>
   );
@@ -216,7 +216,7 @@ function AmountCard({ label, value, highlight }: { label: string; value: string;
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
+      <dt className="text-ink-secondary">{label}</dt>
       <dd className="font-medium">{value}</dd>
     </div>
   );

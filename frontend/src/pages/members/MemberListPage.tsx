@@ -93,7 +93,7 @@ export default function MemberListPage() {
         cell: ({ row }) => {
           const status = row.original.memberships?.[0]?.status;
           return (
-            <span className={`rounded-full px-2 py-0.5 text-xs ${status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`rounded-full px-2 py-0.5 text-xs ${status === 'ACTIVE' ? 'badge badge-success' : 'bg-neutral-soft text-ink-secondary'}`}>
               {status ?? '—'}
             </span>
           );
@@ -117,12 +117,12 @@ export default function MemberListPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl">Members</h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-secondary">
             {user?.role === 'TRAINER' ? 'Members assigned to you' : 'All gym members'}
           </p>
         </div>
         {(user?.role === 'OWNER' || user?.role === 'MANAGER') && (
-          <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+          <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
             Expiring memberships →
           </Link>
         )}
@@ -146,7 +146,7 @@ export default function MemberListPage() {
           <option value="EXPIRED">Expired</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
-        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
           Search
         </button>
       </div>
