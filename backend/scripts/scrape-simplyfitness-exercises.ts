@@ -218,6 +218,14 @@ async function scrapeDetail(slug: string, bodyPart: string): Promise<ScrapedExer
   };
 }
 
+function extractCategoryExerciseLinks(html: string): string[] {
+  const h1Match = html.match(/<h1[^>]*>[\s\S]*?<\/h1>/i);
+  const startIdx = h1Match ? html.indexOf(h1Match[0]) + h1Match[0].length : 0;
+  const footerIdx = html.search(/id="shopify-section-footer"|class="footer|<footer/i);
+  const slice = html.slice(startIdx, footerIdx > startIdx ? footerIdx : undefined);
+  return extractLinks(slice);
+}
+
 async function collectSlugs(): Promise<Map<string, string>> {
   const slugToBodyPart = new Map<string, string>();
 
@@ -225,8 +233,8 @@ async function collectSlugs(): Promise<Map<string, string>> {
     const url = `${BASE_URL}${cat.path}`;
     console.log(`Fetching category: ${cat.bodyPart} (${url})`);
     const html = await fetchHtml(url);
-    for (const slug of extractLinks(html)) {
-      if (!slugToBodyPart.has(slug)) slugToBodyPart.set(slug, cat.bodyPart);
+    for (const slug of extractCategoryExerciseLinks(html)) {
+      slugToBodyPart.set(slug, cat.bodyPart);
     }
     await sleep(DELAY_MS);
   }

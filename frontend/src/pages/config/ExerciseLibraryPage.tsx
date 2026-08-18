@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState, type ReactNode } from 'react';
-import { Ban, Eye } from 'lucide-react';
+import { Ban, ChevronDown, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import ExerciseDetailModal from '../../components/exercises/ExerciseDetailModal';
 import ExerciseSearchFilter from '../../components/exercises/ExerciseSearchFilter';
@@ -36,6 +36,7 @@ export default function ExerciseLibraryPage() {
   const [saving, setSaving] = useState(false);
   const [detail, setDetail] = useState<Exercise | null>(null);
   const [deactivateTarget, setDeactivateTarget] = useState<Exercise | null>(null);
+  const [addFormOpen, setAddFormOpen] = useState(false);
 
   const load = () => {
     const params = new URLSearchParams();
@@ -116,116 +117,133 @@ export default function ExerciseLibraryPage() {
       </div>
 
       {!readOnly && (
-        <form onSubmit={addExercise} className="page-panel mt-6">
-          <h3 className="text-lg font-semibold text-ink">Add new exercise to library</h3>
-          <p className="mt-1 text-sm text-ink-secondary">Only the exercise name is required.</p>
+        <div className="page-panel mt-6">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between gap-3 text-left"
+            onClick={() => setAddFormOpen((open) => !open)}
+            aria-expanded={addFormOpen}
+          >
+            <div>
+              <h3 className="text-lg font-semibold text-ink">Add new exercise to library</h3>
+              <p className="mt-1 text-sm text-ink-secondary">Only the exercise name is required.</p>
+            </div>
+            <ChevronDown
+              className={`h-5 w-5 shrink-0 text-ink-muted transition-transform ${addFormOpen ? 'rotate-180' : ''}`}
+              aria-hidden
+            />
+          </button>
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <Field label="Exercise name" required className="sm:col-span-2">
-              <input
-                className="input-field !h-12"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Barbell Bench Press"
-                required
-              />
-            </Field>
+          {addFormOpen && (
+            <form onSubmit={addExercise} className="mt-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Exercise name" required className="sm:col-span-2">
+                  <input
+                    className="input-field !h-12"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="e.g. Barbell Bench Press"
+                    required
+                  />
+                </Field>
 
-            <Field label="Body part">
-              <select
-                className="select-field w-full !h-12"
-                value={form.bodyPart}
-                onChange={(e) => setForm({ ...form, bodyPart: e.target.value })}
-              >
-                <option value="">Select body part</option>
-                {BODY_PARTS.map((bp) => (
-                  <option key={bp} value={bp}>{bp}</option>
-                ))}
-              </select>
-            </Field>
+                <Field label="Body part">
+                  <select
+                    className="select-field w-full !h-12"
+                    value={form.bodyPart}
+                    onChange={(e) => setForm({ ...form, bodyPart: e.target.value })}
+                  >
+                    <option value="">Select body part</option>
+                    {BODY_PARTS.map((bp) => (
+                      <option key={bp} value={bp}>{bp}</option>
+                    ))}
+                  </select>
+                </Field>
 
-            <Field label="Exercise type">
-              <select
-                className="select-field w-full !h-12"
-                value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value as ExerciseType })}
-              >
-                {TYPE_OPTIONS.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </Field>
+                <Field label="Exercise type">
+                  <select
+                    className="select-field w-full !h-12"
+                    value={form.type}
+                    onChange={(e) => setForm({ ...form, type: e.target.value as ExerciseType })}
+                  >
+                    {TYPE_OPTIONS.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </Field>
 
-            <Field label="Primary muscle">
-              <input
-                className="input-field !h-12"
-                value={form.primaryMuscle}
-                onChange={(e) => setForm({ ...form, primaryMuscle: e.target.value })}
-                placeholder="e.g. Pectoralis major"
-              />
-            </Field>
+                <Field label="Primary muscle">
+                  <input
+                    className="input-field !h-12"
+                    value={form.primaryMuscle}
+                    onChange={(e) => setForm({ ...form, primaryMuscle: e.target.value })}
+                    placeholder="e.g. Pectoralis major"
+                  />
+                </Field>
 
-            <Field label="Secondary muscles">
-              <input
-                className="input-field !h-12"
-                value={form.secondaryMuscles}
-                onChange={(e) => setForm({ ...form, secondaryMuscles: e.target.value })}
-                placeholder="e.g. Triceps, anterior deltoid"
-              />
-            </Field>
+                <Field label="Secondary muscles">
+                  <input
+                    className="input-field !h-12"
+                    value={form.secondaryMuscles}
+                    onChange={(e) => setForm({ ...form, secondaryMuscles: e.target.value })}
+                    placeholder="e.g. Triceps, anterior deltoid"
+                  />
+                </Field>
 
-            <Field label="Equipment" className="sm:col-span-2">
-              <input
-                className="input-field !h-12"
-                value={form.equipment}
-                onChange={(e) => setForm({ ...form, equipment: e.target.value })}
-                placeholder="e.g. Barbell, flat bench"
-              />
-            </Field>
+                <Field label="Equipment" className="sm:col-span-2">
+                  <input
+                    className="input-field !h-12"
+                    value={form.equipment}
+                    onChange={(e) => setForm({ ...form, equipment: e.target.value })}
+                    placeholder="e.g. Barbell, flat bench"
+                  />
+                </Field>
 
-            <Field label="Technique / execution" className="sm:col-span-2">
-              <textarea
-                className="input-field min-h-[7rem] resize-y py-3"
-                rows={4}
-                value={form.technique}
-                onChange={(e) => setForm({ ...form, technique: e.target.value })}
-                placeholder="Starting position, execution steps, form cues…"
-              />
-            </Field>
+                <Field label="Technique / execution" className="sm:col-span-2">
+                  <textarea
+                    className="input-field min-h-[7rem] resize-y py-3"
+                    rows={4}
+                    value={form.technique}
+                    onChange={(e) => setForm({ ...form, technique: e.target.value })}
+                    placeholder="Starting position, execution steps, form cues…"
+                  />
+                </Field>
 
-            <Field label="Safety notes" className="sm:col-span-2">
-              <textarea
-                className="input-field min-h-[5rem] resize-y py-3"
-                rows={3}
-                value={form.safetyNotes}
-                onChange={(e) => setForm({ ...form, safetyNotes: e.target.value })}
-                placeholder="Optional safety reminders"
-              />
-            </Field>
+                <Field label="Safety notes" className="sm:col-span-2">
+                  <textarea
+                    className="input-field min-h-[5rem] resize-y py-3"
+                    rows={3}
+                    value={form.safetyNotes}
+                    onChange={(e) => setForm({ ...form, safetyNotes: e.target.value })}
+                    placeholder="Optional safety reminders"
+                  />
+                </Field>
 
-            <Field label="Illustration image" className="sm:col-span-2">
-              <input
-                type="file"
-                accept="image/*"
-                className="input-field !h-auto cursor-pointer py-3 file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600"
-                onChange={(e) => onImageChange(e.target.files?.[0] ?? null)}
-              />
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="mt-3 h-32 w-32 rounded-lg border border-line object-cover"
-                />
-              )}
-            </Field>
-          </div>
+                <Field label="Illustration image" className="sm:col-span-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="input-field !h-auto cursor-pointer py-3 file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600"
+                    onChange={(e) => onImageChange(e.target.files?.[0] ?? null)}
+                  />
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="mt-3 h-32 w-32 rounded-lg border border-line object-cover"
+                    />
+                  )}
+                </Field>
+              </div>
 
-          <div className="mt-6 flex justify-end">
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Adding…' : 'Add exercise'}
-            </Button>
-          </div>
-        </form>
+              <div className="mt-6 flex justify-end">
+                <Button type="submit" disabled={saving}>
+                  {saving ? 'Adding…' : 'Add exercise'}
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
       )}
 
       <div className="mt-8">

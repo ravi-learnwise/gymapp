@@ -170,7 +170,7 @@
   {
     "slug": "dumbbell-bent-over-row-single-arm",
     "name": "Dumbbell Bent Over Row (Single Arm)",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Hind Deltoids , biceps",
     "equipment": "Dumbbell, Bench",
@@ -184,7 +184,7 @@
   {
     "slug": "wide-grip-pulldown",
     "name": "Wide Grip Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Lat Pulldown Machine, Lat Bar",
@@ -198,7 +198,7 @@
   {
     "slug": "seated-cable-row",
     "name": "Seated Cable Row",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Hind deltoids , biceps",
     "equipment": "Cable Machine",
@@ -212,7 +212,7 @@
   {
     "slug": "close-grip-pulldown",
     "name": "Close Grip Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Lat Pulldown Machine, Lat Bar",
@@ -226,7 +226,7 @@
   {
     "slug": "barbell-row",
     "name": "Barbell Row",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Hind deltoids , biceps",
     "equipment": "Barbell",
@@ -240,7 +240,7 @@
   {
     "slug": "behind-neck-pulldown",
     "name": "Behind Neck Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Lat Pulldown Machine, Lat Bar",
@@ -254,7 +254,7 @@
   {
     "slug": "reverse-grip-pulldown",
     "name": "Reverse Grip Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Lat Pulldown Machine, Lat Bar",
@@ -268,7 +268,7 @@
   {
     "slug": "rope-pulldown",
     "name": "Rope Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Triceps",
     "equipment": "Cable Machine, Rope",
@@ -282,7 +282,7 @@
   {
     "slug": "t-bar-rows",
     "name": "T-Bar Rows",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back muscles",
     "secondaryMuscles": "Rear deltoids , biceps",
     "equipment": "T-Bar machine, plates",
@@ -296,7 +296,7 @@
   {
     "slug": "barbell-bent-over-rows-supinated-grip",
     "name": "Barbell Bent Over Rows Supinated Grip",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Back , hind deltoids",
     "secondaryMuscles": null,
     "equipment": "Bar, plates",
@@ -310,7 +310,7 @@
   {
     "slug": "pull-up",
     "name": "Pull Up",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Pull bar",
@@ -324,7 +324,7 @@
   {
     "slug": "behind-the-neck-pull-up",
     "name": "Behind the Neck Pull Up",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Pull bar",
@@ -338,7 +338,7 @@
   {
     "slug": "pull-up-with-a-supinated-grip",
     "name": "Pull Up with a Supinated Grip",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps",
     "equipment": "Pull bar",
@@ -352,7 +352,7 @@
   {
     "slug": "straight-arm-lat-pulldown",
     "name": "Straight Arm Lat Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Triceps",
     "equipment": "Straight bar, high pulley cable",
@@ -366,7 +366,7 @@
   {
     "slug": "dumbbell-bent-over-rows",
     "name": "Dumbbell Bent Over Rows",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back",
     "secondaryMuscles": "Biceps , hind deltoids",
     "equipment": "Dumbbells",
@@ -380,7 +380,7 @@
   {
     "slug": "dumbbell-pullover",
     "name": "Dumbbell Pullover",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back , chest",
     "secondaryMuscles": "Triceps",
     "equipment": "Dumbbell, bench",
@@ -394,7 +394,7 @@
   {
     "slug": "barbell-pullover",
     "name": "Barbell Pullover",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back , chest",
     "secondaryMuscles": "Triceps",
     "equipment": "Barbell, bench",
@@ -408,7 +408,7 @@
   {
     "slug": "barbell-deadlift",
     "name": "Barbell Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back , legs",
     "secondaryMuscles": null,
     "equipment": "Barbell, plates",
@@ -422,7 +422,7 @@
   {
     "slug": "barbell-sumo-deadlift",
     "name": "Barbell Sumo Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back , legs",
     "secondaryMuscles": null,
     "equipment": "Barbell, plates",
@@ -436,7 +436,7 @@
   {
     "slug": "trap-bar-deadlift",
     "name": "Trap Bar Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back , legs",
     "secondaryMuscles": null,
     "equipment": "Trap barbell, plates",
@@ -450,7 +450,7 @@
   {
     "slug": "dumbbell-deadlift",
     "name": "Dumbbell Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Back , legs",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -464,7 +464,7 @@
   {
     "slug": "barbell-shrug",
     "name": "Barbell Shrug",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Trapezius muscles",
     "secondaryMuscles": null,
     "equipment": "Barbell",
@@ -478,7 +478,7 @@
   {
     "slug": "dumbbell-shrugs",
     "name": "Dumbbell Shrugs",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Trapezius muscles",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -492,7 +492,7 @@
   {
     "slug": "dumbbell-shoulder-press",
     "name": "Dumbbell Shoulder Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids",
     "secondaryMuscles": "Triceps",
     "equipment": "Dumbbells, bench",
@@ -506,7 +506,7 @@
   {
     "slug": "dumbbell-lateral-raise",
     "name": "Dumbbell Lateral Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids (mostly the middle bundle)",
     "secondaryMuscles": "Trapezius muscles",
     "equipment": "Dumbbells",
@@ -520,7 +520,7 @@
   {
     "slug": "dumbbell-front-raise",
     "name": "Dumbbell Front Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids (mostly anterior bundle)",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -534,7 +534,7 @@
   {
     "slug": "high-cable-rear-delt-fly",
     "name": "High Cable Rear Delt Fly",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoid muscles (mainly the posterior bundle)",
     "secondaryMuscles": "Trapezius muscles",
     "equipment": "Cable machine",
@@ -548,7 +548,7 @@
   {
     "slug": "smith-machine-shoulder-press",
     "name": "Smith Machine Shoulder Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids",
     "secondaryMuscles": "Triceps",
     "equipment": "Smith machine",
@@ -562,7 +562,7 @@
   {
     "slug": "barbell-upright-row",
     "name": "Barbell Upright Row",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids , trapezius muscles",
     "secondaryMuscles": "Biceps and forearms",
     "equipment": "Barbell",
@@ -576,7 +576,7 @@
   {
     "slug": "bent-over-lateral-raise",
     "name": "Bent-Over Lateral Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoid muscles (mainly the posterior bundle)",
     "secondaryMuscles": "Trapezius muscles",
     "equipment": "Dumbbells",
@@ -590,7 +590,7 @@
   {
     "slug": "cable-one-arm-lateral-raise",
     "name": "Cable One-Arm Lateral Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids (mostly anterior bundle)",
     "secondaryMuscles": null,
     "equipment": "Cable machine",
@@ -604,7 +604,7 @@
   {
     "slug": "dumbbell-push-press",
     "name": "Dumbbell Push Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Shoulders",
     "secondaryMuscles": "Triceps",
     "equipment": "Dumbbells",
@@ -618,7 +618,7 @@
   {
     "slug": "barbell-push-press",
     "name": "Barbell Push Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Shoulders",
     "secondaryMuscles": "Triceps",
     "equipment": "Barbell",
@@ -632,7 +632,7 @@
   {
     "slug": "single-arm-cable-front-raise",
     "name": "Single-Arm Cable Front Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Front deltoids",
     "secondaryMuscles": null,
     "equipment": "Grip handle, low pulley cable",
@@ -646,7 +646,7 @@
   {
     "slug": "barbell-front-raise",
     "name": "Barbell Front Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Front deltoids",
     "secondaryMuscles": null,
     "equipment": "Bar, plates",
@@ -660,7 +660,7 @@
   {
     "slug": "seated-barbell-shoulder-press",
     "name": "Seated Barbell Shoulder Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids",
     "secondaryMuscles": "Triceps",
     "equipment": "Bar, plates, bench",
@@ -674,7 +674,7 @@
   {
     "slug": "seated-behind-the-neck-barbell-shoulder-press",
     "name": "Seated Behind the Neck Barbell Shoulder Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids",
     "secondaryMuscles": "Triceps",
     "equipment": "Bar, plates, bench",
@@ -688,7 +688,7 @@
   {
     "slug": "standing-barbell-shoulder-press",
     "name": "Standing Barbell Shoulder Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids",
     "secondaryMuscles": "Triceps",
     "equipment": "Bar, plates",
@@ -702,7 +702,7 @@
   {
     "slug": "standing-behind-the-neck-barbell-shoulder-press",
     "name": "Standing Behind the Neck Barbell Shoulder Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Deltoids",
     "secondaryMuscles": "Triceps",
     "equipment": "Bar, plates",
@@ -716,7 +716,7 @@
   {
     "slug": "alternate-dumbbell-front-raise-neutral-grip",
     "name": "Alternate Dumbbell Front Raise Neutral Grip",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Anterior deltoids",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -730,7 +730,7 @@
   {
     "slug": "one-arm-low-pulley-front-raise-neutral-grip",
     "name": "One-Arm Low-Pulley Front Raise Neutral Grip",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Anterior deltoids",
     "secondaryMuscles": null,
     "equipment": "Lower pulley",
@@ -744,7 +744,7 @@
   {
     "slug": "two-handed-dumbbell-front-raise",
     "name": "Two-Handed Dumbbell Front Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Shoulders",
     "primaryMuscle": "Anterior deltoids",
     "secondaryMuscles": null,
     "equipment": "Dumbbell",
@@ -758,7 +758,7 @@
   {
     "slug": "barbell-curl",
     "name": "Barbell Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "EZ Barbell",
@@ -772,7 +772,7 @@
   {
     "slug": "alternating-dumbbell-curl",
     "name": "Alternating Dumbbell Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -786,7 +786,7 @@
   {
     "slug": "rope-cable-curl",
     "name": "Rope Cable Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Cable machine, rope",
@@ -800,7 +800,7 @@
   {
     "slug": "ez-barbell-curl",
     "name": "EZ Barbell Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "EZ Barbell",
@@ -814,7 +814,7 @@
   {
     "slug": "ez-barbell-preacher-curl",
     "name": "EZ Barbell Preacher Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Preacher bench, EZ Barbell",
@@ -828,7 +828,7 @@
   {
     "slug": "hammer-curl",
     "name": "Hammer Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -842,7 +842,7 @@
   {
     "slug": "incline-dumbbell-curl",
     "name": "Incline Dumbbell Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbells, bench",
@@ -856,7 +856,7 @@
   {
     "slug": "dumbbell-concentration-curl",
     "name": "Dumbbell Concentration Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbell, bench",
@@ -870,7 +870,7 @@
   {
     "slug": "single-arm-low-pulley-cable-curl",
     "name": "Single-Arm Low Pulley Cable Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Grip handle, low pulley cable",
@@ -884,7 +884,7 @@
   {
     "slug": "straight-bar-low-pulley-cable-curl",
     "name": "Straight Bar Low Pulley Cable Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "Straight bar, low pulley cable",
@@ -898,7 +898,7 @@
   {
     "slug": "standing-high-pulley-cable-curl",
     "name": "Standing High Pulley Cable Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps",
     "secondaryMuscles": null,
     "equipment": "2 grip handles, 2 low pulley cables",
@@ -912,7 +912,7 @@
   {
     "slug": "seated-barbell-wrist-curl",
     "name": "Seated Barbell Wrist Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Forearms",
     "secondaryMuscles": null,
     "equipment": "Bar, plates, bench",
@@ -926,7 +926,7 @@
   {
     "slug": "seated-barbell-wrist-extension",
     "name": "Seated Barbell Wrist Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Forearms",
     "secondaryMuscles": null,
     "equipment": "Bar, plates, bench",
@@ -940,7 +940,7 @@
   {
     "slug": "reverse-barbell-curl",
     "name": "Reverse Barbell Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Biceps",
     "primaryMuscle": "Biceps, Forearms",
     "secondaryMuscles": null,
     "equipment": "Straight bar or EZ bar, plates",
@@ -954,7 +954,7 @@
   {
     "slug": "lying-triceps-extension",
     "name": "Lying Triceps Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "EZ Barbell, Bench",
@@ -968,7 +968,7 @@
   {
     "slug": "triceps-pressdown",
     "name": "Triceps Pressdown",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Cable Machine, Pressdown Bar",
@@ -982,7 +982,7 @@
   {
     "slug": "cable-rope-puschdown",
     "name": "Cable Rope Pushdown",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Cable machine, rope",
@@ -996,7 +996,7 @@
   {
     "slug": "dumbbell-overhead-triceps-extension",
     "name": "Dumbbell Overhead Triceps Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbell, Bench",
@@ -1010,7 +1010,7 @@
   {
     "slug": "close-grip-bench-press",
     "name": "Close Grip Bench Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": "Anterior deltoids , Chest",
     "equipment": "EZ Barbell, Bench",
@@ -1024,7 +1024,7 @@
   {
     "slug": "kickback",
     "name": "Kickback",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbell, Bench",
@@ -1038,7 +1038,7 @@
   {
     "slug": "reverse-grip-cable-triceps-extension-with-barbell",
     "name": "Reverse Grip Cable Triceps Extension with Barbell",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Straight bar, high pulley cable",
@@ -1052,7 +1052,7 @@
   {
     "slug": "single-arm-cable-triceps-extension",
     "name": "Single-Arm Cable Triceps Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Grip handle, high pulley cable",
@@ -1066,7 +1066,7 @@
   {
     "slug": "single-arm-cable-triceps-extension-with-supinated-grip",
     "name": "Single-Arm Cable Triceps Extension with Supinated Grip",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Grip handle, high pulley cable",
@@ -1080,7 +1080,7 @@
   {
     "slug": "lying-dumbbell-triceps-extension",
     "name": "Lying Dumbbell Triceps Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Dumbbells, bench",
@@ -1094,7 +1094,7 @@
   {
     "slug": "seated-barbell-french-press",
     "name": "Seated Barbell French Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps",
     "secondaryMuscles": null,
     "equipment": "Straight bar or EZ bar, plates, bench",
@@ -1108,7 +1108,7 @@
   {
     "slug": "bench-dips",
     "name": "Bench Dips",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps , front deltoids",
     "secondaryMuscles": null,
     "equipment": "2 benches",
@@ -1122,7 +1122,7 @@
   {
     "slug": "parallel-dip-bar",
     "name": "Parallel Dip Bar",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Triceps , front deltoids , lower chest",
     "secondaryMuscles": null,
     "equipment": "Parallel bars",
@@ -1136,7 +1136,7 @@
   {
     "slug": "crunch",
     "name": "Crunch",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1150,7 +1150,7 @@
   {
     "slug": "oblique-crunch",
     "name": "Oblique Crunch",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abdominals (oblique)",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1164,7 +1164,7 @@
   {
     "slug": "crunch-machine",
     "name": "Crunch Machine",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": "Crunch machine",
@@ -1178,7 +1178,7 @@
   {
     "slug": "rope-ab-pulldown",
     "name": "Rope Ab Pulldown",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": "Cable machine, rope",
@@ -1192,7 +1192,7 @@
   {
     "slug": "plank",
     "name": "Plank",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1206,7 +1206,7 @@
   {
     "slug": "hanging-leg-raise",
     "name": "Hanging Leg Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1220,7 +1220,7 @@
   {
     "slug": "bent-knee-reverse-crunch",
     "name": "Bent Knee Reverse Crunch",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1234,7 +1234,7 @@
   {
     "slug": "long-arm-crunch",
     "name": "Long Arm Crunch",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1248,7 +1248,7 @@
   {
     "slug": "plank-get-ups",
     "name": "Plank Get Ups",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Abs",
     "secondaryMuscles": "Triceps , deltoids",
     "equipment": null,
@@ -1262,7 +1262,7 @@
   {
     "slug": "squat",
     "name": "Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and buttock muscles",
     "secondaryMuscles": "Abs and lumbar muscles",
     "equipment": "Barbell",
@@ -1276,7 +1276,7 @@
   {
     "slug": "leg-press",
     "name": "Leg Press",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and buttock muscles",
     "secondaryMuscles": null,
     "equipment": "Leg press machine",
@@ -1290,7 +1290,7 @@
   {
     "slug": "leg-extension",
     "name": "Leg Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Quadriceps",
     "secondaryMuscles": null,
     "equipment": "Leg Extension machine",
@@ -1304,7 +1304,7 @@
   {
     "slug": "lunge",
     "name": "Lunge",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Buttocks and thigh muscles",
     "secondaryMuscles": null,
     "equipment": "Dumbbells",
@@ -1318,7 +1318,7 @@
   {
     "slug": "lying-leg-curl",
     "name": "Lying Leg Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hamstrings",
     "secondaryMuscles": "Calves",
     "equipment": "Leg curl machine",
@@ -1332,7 +1332,7 @@
   {
     "slug": "hack-squat",
     "name": "Hack Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and buttock muscles",
     "secondaryMuscles": null,
     "equipment": "Hack squat machine",
@@ -1346,7 +1346,7 @@
   {
     "slug": "seated-leg-curl",
     "name": "Seated Leg Curl",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hamstrings",
     "secondaryMuscles": "Calves",
     "equipment": "Seated leg curl machine",
@@ -1360,7 +1360,7 @@
   {
     "slug": "single-leg-extension",
     "name": "Single Leg Extension",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Quadriceps",
     "secondaryMuscles": null,
     "equipment": "Leg extension machine",
@@ -1374,7 +1374,7 @@
   {
     "slug": "front-squat",
     "name": "Front Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and buttock muscles",
     "secondaryMuscles": null,
     "equipment": "Barbell",
@@ -1388,7 +1388,7 @@
   {
     "slug": "dumbbell-stiff-leg-deadlift",
     "name": "Dumbbell Stiff-Leg Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Hamstrings, glutes , lower back muscles",
     "secondaryMuscles": null,
     "equipment": "Dumbbell",
@@ -1402,7 +1402,7 @@
   {
     "slug": "barbell-stiff-leg-deadlift",
     "name": "Barbell Stiff-Leg Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Back",
     "primaryMuscle": "Hamstrings, glutes , lower back muscles",
     "secondaryMuscles": null,
     "equipment": "Barbell",
@@ -1416,7 +1416,7 @@
   {
     "slug": "dumbbell-goblet-squat",
     "name": "Dumbbell Goblet Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Quadriceps, hamstrings, glutes",
     "secondaryMuscles": null,
     "equipment": "Dumbbell",
@@ -1430,7 +1430,7 @@
   {
     "slug": "knee-tuck-jumps",
     "name": "Knee Tuck Jumps",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Quadriceps , calves",
     "secondaryMuscles": "Hamstrings , Abs",
     "equipment": null,
@@ -1444,7 +1444,7 @@
   {
     "slug": "burpees",
     "name": "Burpees",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Chest , Triceps , Deltoids , Quadriceps, Hamstrings, Glutes , Calves , Abs",
     "secondaryMuscles": null,
     "equipment": null,
@@ -1458,7 +1458,7 @@
   {
     "slug": "bodyweight-squat",
     "name": "Bodyweight Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves and Front deltoids (due to the arms position)",
     "equipment": null,
@@ -1472,7 +1472,7 @@
   {
     "slug": "1-5-rep-bodyweight-squats",
     "name": "1.5 Rep Bodyweight Squats",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves and Front deltoids (due to the arms position)",
     "equipment": null,
@@ -1486,7 +1486,7 @@
   {
     "slug": "medicine-ball-squat",
     "name": "Medicine Ball Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves , and Front deltoids",
     "equipment": "Medicine Ball",
@@ -1500,7 +1500,7 @@
   {
     "slug": "barbell-bulgarian-split-squat",
     "name": "Barbell Bulgarian Split Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "Barbell",
@@ -1514,7 +1514,7 @@
   {
     "slug": "bodyweight-bulgarian-split-squat",
     "name": "Bodyweight Bulgarian Split Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "Bench",
@@ -1528,7 +1528,7 @@
   {
     "slug": "mini-band-air-squat",
     "name": "Mini-Band Air Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "Mini-Band",
@@ -1542,7 +1542,7 @@
   {
     "slug": "jump-squat",
     "name": "Jump Squat",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": null,
@@ -1556,7 +1556,7 @@
   {
     "slug": "wall-sit",
     "name": "Wall Sit",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "A Flat Wall",
@@ -1570,7 +1570,7 @@
   {
     "slug": "medicine-ball-deadlift",
     "name": "Medicine Ball Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hamstrings and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Medicine Ball",
@@ -1584,7 +1584,7 @@
   {
     "slug": "single-leg-bodyweight-deadlift",
     "name": "Single Leg Bodyweight Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hamstrings and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": null,
@@ -1598,7 +1598,7 @@
   {
     "slug": "kettlebell-sumo-deadlift",
     "name": "Kettlebell Sumo Deadlift",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hamstrings and Glute Muscles",
     "secondaryMuscles": "Core Muscles , Quadriceps",
     "equipment": "Kettlebell",
@@ -1612,7 +1612,7 @@
   {
     "slug": "good-morning",
     "name": "Good Morning Exercise",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hamstrings and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Barbell",
@@ -1626,7 +1626,7 @@
   {
     "slug": "bodyweight-glute-bridge",
     "name": "Bodyweight Glute Bridge",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1640,7 +1640,7 @@
   {
     "slug": "single-leg-glute-bridge",
     "name": "Single Leg Glute Bridge",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1654,7 +1654,7 @@
   {
     "slug": "banded-glute-bridge",
     "name": "Banded Glute Bridge",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat, Mini-Band",
@@ -1668,7 +1668,7 @@
   {
     "slug": "duck-walk",
     "name": "Duck Walk",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "This exercise is not a strengthening movement, but one that can be utilized for stretching and warming up at the beginning of your workout. These are the main muscles you’ll be stretching: Thigh and Glute Muscles",
     "secondaryMuscles": "Calves",
     "equipment": null,
@@ -1682,7 +1682,7 @@
   {
     "slug": "bird-dog",
     "name": "Bird Dog",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Core Muscles",
     "secondaryMuscles": "Glute Muscles",
     "equipment": "Mat",
@@ -1696,7 +1696,7 @@
   {
     "slug": "groiners",
     "name": "Groiners",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "This exercise is not a strengthening movement, but one that can be utilized for stretching and warming up at the beginning of your workout. These are the main muscles you’ll be stretching: Thigh , Hip Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1710,7 +1710,7 @@
   {
     "slug": "fire-hydrants",
     "name": "Fire Hydrants",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "This exercise is not a strengthening movement, but one that can be utilized for stretching and warming up at the beginning of your workout. These are the main muscles you’ll be stretching: Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1724,7 +1724,7 @@
   {
     "slug": "smith-machine-hip-thrust",
     "name": "Smith Machine Hip Thrust",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Smith-Machine, Bench, Squat Pad or Towel if needed for padding",
@@ -1738,7 +1738,7 @@
   {
     "slug": "barbell-hip-thrust",
     "name": "Barbell Hip Thrust",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Barbell, Bench, Squat Pad or Towel if needed for padding",
@@ -1752,7 +1752,7 @@
   {
     "slug": "band-seated-hip-abduction",
     "name": "Band Seated Hip Abduction",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Glute Muscles",
     "secondaryMuscles": null,
     "equipment": "Mini-Band & Bench or Chair",
@@ -1766,7 +1766,7 @@
   {
     "slug": "seated-hip-abduction-machine",
     "name": "Seated Hip Abduction Machine",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Hip Abductors",
     "secondaryMuscles": "Glute Muscles",
     "equipment": "Hip Abduction Machine",
@@ -1780,7 +1780,7 @@
   {
     "slug": "standing-cable-abduction",
     "name": "Standing Cable Abduction",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Cable Machine with Ankle Attachments",
@@ -1794,7 +1794,7 @@
   {
     "slug": "bodyweight-frog-pump",
     "name": "Bodyweight Frog Pump",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1808,7 +1808,7 @@
   {
     "slug": "smith-machine-frog-pump",
     "name": "Smith Machine Frog Pump",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Smith Machine, Bench, Squat Pad or Towel if needed for padding",
@@ -1822,7 +1822,7 @@
   {
     "slug": "banded-clams",
     "name": "Banded Clams",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat, Mini-Band",
@@ -1836,7 +1836,7 @@
   {
     "slug": "side-lying-leg-raise",
     "name": "Side Lying Leg Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1850,7 +1850,7 @@
   {
     "slug": "glute-ham-raise",
     "name": "Glute Ham Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Glute Ham Developer (GHD) Machine",
@@ -1864,7 +1864,7 @@
   {
     "slug": "dumbbell-step-up",
     "name": "Dumbbell Step Up",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "Step, Dumbbells",
@@ -1878,7 +1878,7 @@
   {
     "slug": "lateral-mini-band-walk",
     "name": "Lateral Mini-Band Walk",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "Mini-Band",
@@ -1892,7 +1892,7 @@
   {
     "slug": "standing-knee-raise",
     "name": "Standing Knee Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": null,
@@ -1906,7 +1906,7 @@
   {
     "slug": "kettlebell-swings",
     "name": "Kettlebell Swings",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Kettlebell",
@@ -1920,7 +1920,7 @@
   {
     "slug": "standing-cable-kickback",
     "name": "Standing Cable Kickback",
-    "bodyPart": "Chest",
+    "bodyPart": "Triceps",
     "primaryMuscle": "Thigh and Glute Muscles",
     "secondaryMuscles": "Core Muscles, Calves",
     "equipment": "Cable Machine, Ankle Attachments",
@@ -1934,7 +1934,7 @@
   {
     "slug": "donkey-kicks",
     "name": "Donkey Kicks",
-    "bodyPart": "Chest",
+    "bodyPart": "Legs",
     "primaryMuscle": "Glute Muscles",
     "secondaryMuscles": "Core Muscles",
     "equipment": "Mat",
@@ -1948,7 +1948,7 @@
   {
     "slug": "side-lying-hip-raise",
     "name": "Side Lying Hip Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Abdominals",
     "primaryMuscle": "Glute Muscles , Core Muscles",
     "secondaryMuscles": null,
     "equipment": "Mat",
@@ -1976,7 +1976,7 @@
   {
     "slug": "seated-calf-raise",
     "name": "Seated Calf Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Calves",
     "primaryMuscle": "Calves",
     "secondaryMuscles": null,
     "equipment": "Seated Calf Raise Machine",
@@ -1990,7 +1990,7 @@
   {
     "slug": "standing-calf-raise",
     "name": "Standing Calf Raise",
-    "bodyPart": "Chest",
+    "bodyPart": "Calves",
     "primaryMuscle": "Calves",
     "secondaryMuscles": null,
     "equipment": "Standing Calf Raise machine",

@@ -13,7 +13,8 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "ts-node prisma/seed.ts",
     "scrape:exercises": "ts-node --transpile-only scripts/scrape-simplyfitness-exercises.ts",
-    "import:exercises": "ts-node -r dotenv/config scripts/import-exercises.ts dotenv_config_path=../.env"
+    "import:exercises": "ts-node -r dotenv/config scripts/import-exercises.ts dotenv_config_path=../.env",
+    "fix:exercise-bodyparts": "ts-node --transpile-only scripts/fix-exercise-bodyparts.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",
