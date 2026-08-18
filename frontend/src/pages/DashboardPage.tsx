@@ -22,7 +22,53 @@ import { PERIOD_LABELS, type DashboardSummary, type ReportPeriod } from '../type
 import type { EnquiryStats } from '../types/enquiry';
 import type { ExpiringMembershipResponse } from '../types/member';
 
+import type { TrainingCard } from '../types/training-card';
+
 const PERIODS: ReportPeriod[] = ['daily', 'weekly', 'monthly', 'yearly'];
+
+function TrainerDashboard() {
+  const [dueReviews, setDueReviews] = useState<TrainingCard[]>([]);
+
+  useEffect(() => {
+    api<TrainingCard[]>('/training-cards/due-reviews').then(setDueReviews).catch(() => setDueReviews([]));
+  }, []);
+
+  return (
+    <div>
+      <PageHeader title="Trainer Portal" subtitle="Your member assignments and training cards" />
+      <div className="page-section mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="flex items-start gap-4">
+          <div className="stat-card-icon">
+            <Users className="h-[18px] w-[18px]" strokeWidth={2} />
+          </div>
+          <div>
+            <p className="font-medium text-ink">Your assigned members</p>
+            <p className="mt-1 text-sm text-ink-muted">
+              View members assigned to you, add programs, and manage training cards.
+            </p>
+            <Link to="/members" className="btn btn-primary mt-4">
+              My Members
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+        <div className="rounded-xl border border-line bg-white p-4">
+          <p className="text-sm font-medium text-ink">Training cards due for review</p>
+          <p className="mt-1 text-3xl font-semibold tabular-nums">{dueReviews.length}</p>
+          {dueReviews.slice(0, 3).map((c) => (
+            <Link
+              key={c.id}
+              to={`/members/${c.memberId}/training-card`}
+              className="mt-2 block text-sm text-brand-600 hover:underline"
+            >
+              {c.member?.fullName ?? 'Member'} — {c.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -30,6 +76,7 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [enquiryStats, setEnquiryStats] = useState<EnquiryStats | null>(null);
   const [expiring, setExpiring] = useState<ExpiringMembershipResponse | null>(null);
+  const [dueReviews, setDueReviews] = useState<TrainingCard[]>([]);
 
   useEffect(() => {
     if (user?.role === 'OWNER' || user?.role === 'MANAGER') {
@@ -45,32 +92,15 @@ export default function DashboardPage() {
       api<ExpiringMembershipResponse>('/memberships/expiring?limit=1')
         .then(setExpiring)
         .catch(() => setExpiring(null));
+
+      api<TrainingCard[]>('/training-cards/due-reviews')
+        .then(setDueReviews)
+        .catch(() => setDueReviews([]));
     }
   }, [user, period]);
 
   if (user?.role === 'TRAINER') {
-    return (
-      <div>
-        <PageHeader title="Trainer Portal" subtitle="Your member assignments and assessments" />
-        <div className="page-section mt-6">
-          <div className="flex items-start gap-4">
-            <div className="stat-card-icon">
-              <Users className="h-[18px] w-[18px]" strokeWidth={2} />
-            </div>
-            <div>
-              <p className="font-medium text-ink">Your assigned members</p>
-              <p className="mt-1 text-sm text-ink-muted">
-                View members assigned to you and their fitness assessments.
-              </p>
-              <Link to="/members" className="btn btn-primary mt-4">
-                My Members
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <TrainerDashboard />;
   }
 
   const maxProgramRevenue = summary?.revenueByProgram?.length
@@ -163,6 +193,25 @@ export default function DashboardPage() {
                 <RenewalBlock label="Within 30 Days" count={expiring.summary.within30} bucket="30" variant="neutral" />
                 <RenewalBlock label="Beyond 30 Days" count={expiring.summary.beyond30} bucket="beyond" variant="safe" />
               </div>
+            </section>
+          )}
+
+          {dueReviews.length > 0 && (
+            <section className="page-section">
+              <SectionHeader title="Training Cards Due for Review" icon={ClipboardCheck} />
+              <ul className="mt-4 space-y-2">
+                {dueReviews.slice(0, 5).map((c) => (
+                  <li key={c.id}>
+                    <Link
+                      to={`/members/${c.memberId}/training-card`}
+                      className="text-sm text-brand-600 hover:underline"
+                    >
+                      {c.member?.fullName ?? 'Member'} — {c.name}
+                      {c.reviewDate && ` (due ${new Date(c.reviewDate).toLocaleDateString()})`}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
 

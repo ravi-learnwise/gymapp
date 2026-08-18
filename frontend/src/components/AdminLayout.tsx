@@ -6,6 +6,7 @@ import {
   CalendarClock,
   ClipboardCheck,
   CreditCard,
+  ClipboardList,
   Dumbbell,
   LayoutDashboard,
   LogOut,
@@ -36,10 +37,11 @@ const navItems: NavItem[] = [
   { to: '/members', label: 'Members', roles: ['OWNER', 'MANAGER', 'TRAINER'], icon: Users },
   { to: '/members/expiring', label: 'Renewals', roles: ['OWNER', 'MANAGER'], icon: CalendarClock },
   { to: '/payments', label: 'Payments', roles: ['OWNER', 'MANAGER'], icon: CreditCard },
-  { to: '/attendance', label: 'Attendance', roles: ['OWNER', 'MANAGER'], icon: ClipboardCheck, requiresAttendance: true },
+  { to: '/attendance', label: 'Attendance', roles: ['OWNER', 'MANAGER', 'TRAINER'], icon: ClipboardCheck, requiresAttendance: true },
   { to: '/reports', label: 'Reports', roles: ['OWNER', 'MANAGER'], icon: BarChart3 },
   { to: '/config/gym', label: 'Gym Info', roles: ['OWNER', 'MANAGER'], icon: Building2 },
   { to: '/config/programs', label: 'Programs', roles: ['OWNER', 'MANAGER'], icon: Dumbbell },
+  { to: '/config/exercises', label: 'Exercise Library', roles: ['OWNER', 'MANAGER'], icon: ClipboardList },
   { to: '/config/discounts', label: 'Discounts', roles: ['OWNER', 'MANAGER'], icon: Percent },
   { to: '/config/offers', label: 'Offers', roles: ['OWNER', 'MANAGER'], icon: Tag },
   { to: '/users', label: 'Users', roles: ['OWNER'], icon: UserCog },
@@ -54,7 +56,7 @@ export default function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (user?.role === 'OWNER' || user?.role === 'MANAGER') {
+    if (user) {
       api<{ enabled: boolean }>('/attendance/enabled')
         .then((r) => setAttendanceEnabled(r.enabled))
         .catch(() => setAttendanceEnabled(false));

@@ -1,12 +1,7 @@
-import {
-  IsBoolean,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ProgramEnrollmentType } from '@prisma/client';
 
 export class UpdateGymConfigDto {
   @ApiPropertyOptional()
@@ -44,6 +39,11 @@ export class CreateProgramDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional({ enum: ProgramEnrollmentType })
+  @IsOptional()
+  @IsEnum(ProgramEnrollmentType)
+  enrollmentType?: ProgramEnrollmentType;
 }
 
 export class UpdateProgramDto {
@@ -61,6 +61,11 @@ export class UpdateProgramDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional({ enum: ProgramEnrollmentType })
+  @IsOptional()
+  @IsEnum(ProgramEnrollmentType)
+  enrollmentType?: ProgramEnrollmentType;
 }
 
 export class CreateDurationDto {

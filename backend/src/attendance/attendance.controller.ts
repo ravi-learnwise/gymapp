@@ -35,13 +35,13 @@ export class AttendanceController {
   }
 
   @Post('check-in')
-  @Roles(UserRole.OWNER, UserRole.MANAGER)
+  @Roles(UserRole.OWNER, UserRole.MANAGER, UserRole.TRAINER)
   checkIn(@Body() dto: CheckInDto, @CurrentUser() user: AuthUser) {
     return this.attendanceService.checkIn(dto, user);
   }
 
   @Patch(':id/check-out')
-  @Roles(UserRole.OWNER, UserRole.MANAGER)
+  @Roles(UserRole.OWNER, UserRole.MANAGER, UserRole.TRAINER)
   checkOut(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.attendanceService.checkOut(id, user);
   }

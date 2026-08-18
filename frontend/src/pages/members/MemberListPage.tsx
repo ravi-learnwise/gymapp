@@ -41,8 +41,10 @@ export default function MemberListPage() {
     setParams(qs);
   };
 
-  const columns = useMemo<DataTableColumn<Member>[]>(
-    () => [
+  const isTrainer = user?.role === 'TRAINER';
+
+  const columns = useMemo<DataTableColumn<Member>[]>(() => {
+    const cols: DataTableColumn<Member>[] = [
       {
         id: 'fullName',
         accessorKey: 'fullName',
@@ -67,18 +69,35 @@ export default function MemberListPage() {
           </Link>
         ),
       },
-      {
+    ];
+    if (!isTrainer) {
+      cols.push({
         id: 'mobileNumber',
         accessorKey: 'mobileNumber',
         header: 'Mobile',
         meta: { label: 'Mobile' },
         enableSorting: true,
-      },
+      });
+    }
+    cols.push(
       {
         id: 'program',
         header: 'Program',
         meta: { label: 'Program' },
-        cell: ({ row }) => row.original.memberships?.[0]?.program.name ?? '—',
+        cell: ({ row }) => {
+          const count = row.original.memberships?.length ?? 0;
+          const name = row.original.memberships?.[0]?.program.name ?? '—';
+          return (
+            <span>
+              {name}
+              {count > 1 && (
+                <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs text-brand-800">
+                  +{count - 1}
+                </span>
+              )}
+            </span>
+          );
+        },
       },
       {
         id: 'trainer',
@@ -108,9 +127,9 @@ export default function MemberListPage() {
           return end ? new Date(end).toLocaleDateString() : '—';
         },
       },
-    ],
-    [],
-  );
+    );
+    return cols;
+  }, [isTrainer]);
 
   return (
     <div>

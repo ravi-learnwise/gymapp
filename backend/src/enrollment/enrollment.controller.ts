@@ -4,13 +4,19 @@ import { UserRole } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser, AuthUser } from '../common/decorators/current-user.decorator';
 import { EnrollmentService } from './enrollment.service';
-import { CreateEnrollmentDto, ExpiringMembershipQueryDto, MemberQueryDto, UpdateMemberDto } from './dto/enrollment.dto';
+import { CreateEnrollmentDto, ExpiringMembershipQueryDto, MemberQueryDto, UpdateMemberDto, AddMembershipDto } from './dto/enrollment.dto';
 
 @ApiTags('enrollments')
 @ApiBearerAuth()
 @Controller()
 export class EnrollmentController {
   constructor(private enrollmentService: EnrollmentService) {}
+
+  @Get('programs')
+  @Roles(UserRole.OWNER, UserRole.MANAGER, UserRole.TRAINER)
+  getPrograms() {
+    return this.enrollmentService.getPrograms();
+  }
 
   @Get('enrollments/prefill/:enquiryId')
   @Roles(UserRole.OWNER, UserRole.MANAGER)
@@ -19,7 +25,7 @@ export class EnrollmentController {
   }
 
   @Get('enrollments/trainers')
-  @Roles(UserRole.OWNER, UserRole.MANAGER)
+  @Roles(UserRole.OWNER, UserRole.MANAGER, UserRole.TRAINER)
   getTrainers() {
     return this.enrollmentService.getTrainers();
   }
@@ -74,5 +80,15 @@ export class EnrollmentController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.enrollmentService.updateMember(id, dto, user);
+  }
+
+  @Post('members/:id/memberships')
+  @Roles(UserRole.OWNER, UserRole.MANAGER, UserRole.TRAINER)
+  addMembership(
+    @Param('id') memberId: string,
+    @Body() dto: AddMembershipDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.enrollmentService.addMembership(memberId, dto, user);
   }
 }

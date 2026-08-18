@@ -61,6 +61,38 @@ enum PaymentMode {
   OTHER
 }
 
+enum ProgramEnrollmentType {
+  INDEPENDENT
+  ADD_ON
+}
+
+enum TrainingCardStatus {
+  DRAFT
+  ACTIVE
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum TrainingDayType {
+  WORKOUT
+  REST
+  RECOVERY
+  NOT_ASSIGNED
+}
+
+enum WeightUnit {
+  KG
+  LB
+}
+
+enum ExerciseType {
+  STRENGTH
+  CARDIO
+  FLEXIBILITY
+  BODYWEIGHT
+  OTHER
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -85,6 +117,10 @@ model User {
   paymentReminders     PaymentReminder[]      @relation("PaymentReminderCreatedBy")
   fitnessAssessments   FitnessAssessment[]    @relation("AssessmentAssessedBy")
   attendanceRecords    AttendanceRecord[]     @relation("AttendanceRecordedBy")
+  membershipsEnrolled  Membership[]           @relation("MembershipEnrolledBy")
+  exercisesCreated     Exercise[]             @relation("ExerciseCreatedBy")
+  trainingCardsCreated TrainingCard[]         @relation("TrainingCardCreatedBy")
+  trainingCardsUpdated TrainingCard[]         @relation("TrainingCardUpdatedBy")
 
   @@map("users")
 }
@@ -103,15 +139,16 @@ model GymConfig {
 }
 
 model Program {
-  id          String            @id @default(uuid())
-  name        String
-  description String?           @db.Text
-  isActive    Boolean           @default(true)
-  durations   ProgramDuration[]
-  enquiries   Enquiry[]
-  memberships Membership[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id             String                @id @default(uuid())
+  name           String
+  description    String?               @db.Text
+  enrollmentType ProgramEnrollmentType @default(INDEPENDENT)
+  isActive       Boolean               @default(true)
+  durations      ProgramDuration[]
+  enquiries      Enquiry[]
+  memberships    Membership[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
 
   @@map("programs")
 }
@@ -272,6 +309,7 @@ model Member {
   paymentCommitments  PaymentCommitment[]
   fitnessAssessments  FitnessAssessment[]
   attendanceRecords   AttendanceRecord[]
+  trainingCards       TrainingCard[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -290,6 +328,8 @@ model Membership {
   programDuration   ProgramDuration  @relation(fields: [programDurationId], references: [id], onDelete: Restrict)
   trainerId         String?
   trainer           User?            @relation("MembershipTrainer", fields: [trainerId], references: [id], onDelete: SetNull)
+  enrolledById      String?
+  enrolledBy        User?            @relation("MembershipEnrolledBy", fields: [enrolledById], references: [id], onDelete: SetNull)
   isTrial           Boolean          @default(false)
   startDate         DateTime
   endDate           DateTime
@@ -427,8 +467,101 @@ model AttendanceRecord {
 
 model SchemaVersion {
   id        Int      @id @default(1)
-  version   String   @default("phase-7")
+  version   String   @default("phase-v2")
   updatedAt DateTime @updatedAt
 
   @@map("_schema_version")
+}
+
+model Exercise {
+  id           String       @id @default(uuid())
+  name         String
+  muscleGroups String?      @db.Text
+  equipment    String?
+  type         ExerciseType @default(STRENGTH)
+  imageUrl     String?
+  technique    String?      @db.Text
+  safetyNotes  String?      @db.Text
+  isActive     Boolean      @default(true)
+  createdById  String?
+  createdBy    User?        @relation("ExerciseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  cardExercises TrainingCardExercise[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([name])
+  @@index([isActive])
+  @@map("exercises")
+}
+
+model TrainingCard {
+  id                String             @id @default(uuid())
+  memberId          String
+  member            Member             @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  name              String
+  description       String?            @db.Text
+  status            TrainingCardStatus @default(DRAFT)
+  version           Int                @default(1)
+  effectiveFrom     DateTime?
+  reviewDate        DateTime?
+  previousVersionId String?
+  previousVersion   TrainingCard?      @relation("TrainingCardVersionChain", fields: [previousVersionId], references: [id], onDelete: SetNull)
+  nextVersions      TrainingCard[]     @relation("TrainingCardVersionChain")
+  createdById       String
+  createdBy         User               @relation("TrainingCardCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedById       String?
+  updatedBy         User?              @relation("TrainingCardUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  days              TrainingCardDay[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([memberId, status])
+  @@map("training_cards")
+}
+
+model TrainingCardDay {
+  id             String           @id @default(uuid())
+  trainingCardId String
+  trainingCard   TrainingCard     @relation(fields: [trainingCardId], references: [id], onDelete: Cascade)
+  weekday        Int
+  dayType        TrainingDayType  @default(NOT_ASSIGNED)
+  notes          String?          @db.Text
+  displayOrder   Int              @default(0)
+  exercises      TrainingCardExercise[]
+
+  @@unique([trainingCardId, weekday])
+  @@index([trainingCardId, weekday])
+  @@map("training_card_days")
+}
+
+model TrainingCardExercise {
+  id           String            @id @default(uuid())
+  dayId        String
+  day          TrainingCardDay   @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  exercise     Exercise          @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  sectionName  String?
+  displayOrder Int               @default(0)
+  restSeconds  Int?
+  notes        String?           @db.Text
+  sets         TrainingCardSet[]
+
+  @@index([dayId, displayOrder])
+  @@map("training_card_exercises")
+}
+
+model TrainingCardSet {
+  id                     String               @id @default(uuid())
+  trainingCardExerciseId String
+  trainingCardExercise   TrainingCardExercise @relation(fields: [trainingCardExerciseId], references: [id], onDelete: Cascade)
+  setNumber              Int
+  repMin                 Int
+  repMax                 Int?
+  weight                 Decimal?             @db.Decimal(8, 2)
+  weightUnit             WeightUnit?
+  durationSeconds        Int?
+  notes                  String?              @db.Text
+
+  @@index([trainingCardExerciseId, setNumber])
+  @@map("training_card_sets")
 }

@@ -14,6 +14,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { PaymentModule } from './payment/payment.module';
+import { TrainingCardModule } from './training-card/training-card.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -31,6 +32,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     EnquiryModule,
     EnrollmentModule,
     PaymentModule,
+    TrainingCardModule,
     AssessmentModule,
     AttendanceModule,
     DashboardModule,

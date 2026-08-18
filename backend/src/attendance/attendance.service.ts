@@ -79,10 +79,6 @@ export class AttendanceService {
 
   async checkIn(dto: CheckInDto, user: AuthUser) {
     await this.requireEnabled();
-    if (user.role === UserRole.TRAINER) {
-      throw new ForbiddenException('Trainers cannot record attendance');
-    }
-
     await assertMemberAccess(this.prisma, dto.memberId, user);
 
     const open = await this.prisma.attendanceRecord.findFirst({
@@ -105,15 +101,13 @@ export class AttendanceService {
 
   async checkOut(id: string, user: AuthUser) {
     await this.requireEnabled();
-    if (user.role === UserRole.TRAINER) {
-      throw new ForbiddenException('Trainers cannot record attendance');
-    }
 
     const record = await this.prisma.attendanceRecord.findUnique({
       where: { id },
       include: { member: true },
     });
     if (!record) throw new NotFoundException('Attendance record not found');
+    await assertMemberAccess(this.prisma, record.memberId, user);
     if (record.checkOut) throw new BadRequestException('Already checked out');
 
     const checkOut = new Date();

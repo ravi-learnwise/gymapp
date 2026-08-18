@@ -11,25 +11,27 @@ import {
   PAYMENT_STATUS_LABELS,
   type PaymentCommitmentSummary,
 } from '../../types/payment';
+import { ENROLLMENT_TYPE_LABELS, type ProgramEnrollmentType } from '../../types/training-card';
+import { hasMinRole } from '../../lib/roles';
 
 export default function MemberDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [member, setMember] = useState<Member | null>(null);
   const [payments, setPayments] = useState<PaymentCommitmentSummary[]>([]);
+  const isTrainer = user?.role === 'TRAINER';
+  const canManage = hasMinRole(user?.role ?? 'TRAINER', 'MANAGER');
 
   useEffect(() => {
     if (id) {
       api<Member>(`/members/${id}`).then(setMember);
-      if (user?.role === 'OWNER' || user?.role === 'MANAGER') {
+      if (user) {
         api<PaymentCommitmentSummary[]>(`/payments/member/${id}`).then(setPayments).catch(() => {});
       }
     }
   }, [id, user]);
 
   if (!member) return <p className="text-ink-secondary">Loading…</p>;
-
-  const canEdit = user?.role === 'OWNER' || user?.role === 'MANAGER';
 
   return (
     <div className="max-w-4xl">
@@ -40,31 +42,41 @@ export default function MemberDetailPage() {
           <h2 className="text-2xl">{member.fullName}</h2>
           <p className="text-sm text-ink-secondary">{member.memberNumber}</p>
         </div>
-        {member.sourceEnquiry && (
-          <Link
-            to={`/enquiries/${member.sourceEnquiry.id}`}
-            className="rounded-lg border border-line-strong px-4 py-2 text-sm hover:bg-canvas"
-          >
-            Source: {member.sourceEnquiry.enquiryNumber}
+        <div className="flex flex-wrap gap-2">
+          <Link to={`/members/${id}/training-card`} className="btn btn-secondary">
+            Training Card
           </Link>
-        )}
+          <Link to={`/members/${id}/add-program`} className="btn btn-primary">
+            Add Program
+          </Link>
+          {canManage && member.sourceEnquiry && (
+            <Link
+              to={`/enquiries/${member.sourceEnquiry.id}`}
+              className="rounded-lg border border-line-strong px-4 py-2 text-sm hover:bg-canvas"
+            >
+              Source: {member.sourceEnquiry.enquiryNumber}
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-line bg-white p-5">
-          <h3 className="font-semibold">Contact Details</h3>
-          <dl className="mt-3 space-y-2 text-sm">
-            <Row label="Mobile" value={member.mobileNumber} />
-            <Row label="Alt. Contact" value={member.alternateContact} />
-            <Row label="Email" value={member.email} />
-            <Row label="Gender" value={member.gender ? GENDER_LABELS[member.gender as Gender] : null} />
-            <Row label="Profession" value={member.profession} />
-            <Row label="Address" value={member.address} />
-            <Row label="DOB" value={member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : null} />
-          </dl>
-        </div>
+        {!isTrainer && (
+          <div className="rounded-xl border border-line bg-white p-5">
+            <h3 className="font-semibold">Contact Details</h3>
+            <dl className="mt-3 space-y-2 text-sm">
+              <Row label="Mobile" value={member.mobileNumber} />
+              <Row label="Alt. Contact" value={member.alternateContact} />
+              <Row label="Email" value={member.email} />
+              <Row label="Gender" value={member.gender ? GENDER_LABELS[member.gender as Gender] : null} />
+              <Row label="Profession" value={member.profession} />
+              <Row label="Address" value={member.address} />
+              <Row label="DOB" value={member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : null} />
+            </dl>
+          </div>
+        )}
 
-        <div className="rounded-xl border border-line bg-white p-5">
+        <div className={`rounded-xl border border-line bg-white p-5 ${isTrainer ? 'lg:col-span-2' : ''}`}>
           <h3 className="font-semibold">Health Profile</h3>
           <dl className="mt-3 space-y-2 text-sm">
             <Row label="Height" value={member.height ? `${member.height} cm` : null} />
@@ -93,14 +105,19 @@ export default function MemberDetailPage() {
               <p className="mt-1 text-ink-secondary">
                 {m.programDuration?.label} · {new Date(m.startDate).toLocaleDateString()} → {new Date(m.endDate).toLocaleDateString()}
               </p>
-              <p className="text-ink-secondary">Trainer: {trainerName(m.trainer)}</p>
+              <p className="text-ink-secondary">
+                Trainer: {trainerName(m.trainer)}
+                {(m.program as { enrollmentType?: ProgramEnrollmentType }).enrollmentType && (
+                  <> · {ENROLLMENT_TYPE_LABELS[(m.program as { enrollmentType: ProgramEnrollmentType }).enrollmentType]}</>
+                )}
+              </p>
             </li>
           ))}
           {!member.memberships?.length && <li className="text-ink-muted">No memberships</li>}
         </ul>
       </div>
 
-      {canEdit && payments.length > 0 && (
+      {payments.length > 0 && (
         <div className="mt-6 rounded-xl border border-line bg-white p-5">
           <h3 className="font-semibold">Payments</h3>
           <ul className="mt-3 space-y-2">
@@ -123,7 +140,7 @@ export default function MemberDetailPage() {
         </div>
       )}
 
-      {member.enrollment && (
+      {canManage && member.enrollment && (
         <div className="mt-6 rounded-xl border border-line bg-white p-5 text-sm">
           <h3 className="font-semibold">Enrollment</h3>
           <p className="mt-2 text-ink-secondary">
@@ -134,10 +151,10 @@ export default function MemberDetailPage() {
         </div>
       )}
 
-      {id && <MemberAssessmentsSection memberId={id} canEdit={canEdit} />}
+      {id && <MemberAssessmentsSection memberId={id} canEdit={canManage} />}
 
-      {!canEdit && (
-        <p className="mt-4 text-xs text-ink-muted">Trainer view — read only</p>
+      {isTrainer && (
+        <p className="mt-4 text-xs text-ink-muted">Trainer view — contact details hidden</p>
       )}
     </div>
   );

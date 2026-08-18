@@ -12,6 +12,8 @@ import {
   ListTableHead,
 } from '../../components/ui/ListTable';
 
+import { ENROLLMENT_TYPE_LABELS, type ProgramEnrollmentType } from '../../types/training-card';
+
 type Duration = {
   id: string;
   label: string;
@@ -24,6 +26,7 @@ type Program = {
   id: string;
   name: string;
   description: string | null;
+  enrollmentType: ProgramEnrollmentType;
   isActive: boolean;
   durations: Duration[];
 };
@@ -34,14 +37,15 @@ export default function ProgramsPage() {
   const { user } = useAuth();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [name, setName] = useState('');
+  const [enrollmentType, setEnrollmentType] = useState<ProgramEnrollmentType>('INDEPENDENT');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', description: '' });
+  const [editForm, setEditForm] = useState({ name: '', description: '', enrollmentType: 'INDEPENDENT' as ProgramEnrollmentType });
   const [addingDurationFor, setAddingDurationFor] = useState<string | null>(null);
   const [newDuration, setNewDuration] = useState(emptyDuration);
   const [editingDurationId, setEditingDurationId] = useState<string | null>(null);
   const [editDuration, setEditDuration] = useState(emptyDuration);
   const readOnly = user?.role === 'MANAGER';
-  const programColCount = readOnly ? 3 : 4;
+  const programColCount = readOnly ? 4 : 5;
   const programColWidths = readOnly ? LIST_TABLE_4_COL.slice(0, 3) : [...LIST_TABLE_4_COL];
   const durationColWidths = readOnly ? LIST_TABLE_DURATION_COL.slice(0, 4) : [...LIST_TABLE_DURATION_COL];
   const durationColCount = readOnly ? 4 : 5;
@@ -52,14 +56,15 @@ export default function ProgramsPage() {
   const addProgram = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await api('/config/programs', { method: 'POST', body: JSON.stringify({ name }) });
+    await api('/config/programs', { method: 'POST', body: JSON.stringify({ name, enrollmentType }) });
     setName('');
+    setEnrollmentType('INDEPENDENT');
     load();
   };
 
   const startEdit = (p: Program) => {
     setEditingId(p.id);
-    setEditForm({ name: p.name, description: p.description ?? '' });
+    setEditForm({ name: p.name, description: p.description ?? '', enrollmentType: p.enrollmentType ?? 'INDEPENDENT' });
   };
 
   const saveProgram = async (id: string) => {
@@ -68,6 +73,7 @@ export default function ProgramsPage() {
       body: JSON.stringify({
         name: editForm.name,
         description: editForm.description || undefined,
+        enrollmentType: editForm.enrollmentType,
       }),
     });
     setEditingId(null);
@@ -123,13 +129,21 @@ export default function ProgramsPage() {
     <div className="w-full min-w-0">
       <h2 className="text-2xl">Membership Programs</h2>
       {!readOnly && (
-        <form onSubmit={addProgram} className="list-table-toolbar flex gap-2">
+        <form onSubmit={addProgram} className="list-table-toolbar flex flex-wrap gap-2">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="New program name"
             className="rounded-lg border border-line-strong px-3 py-2 text-sm"
           />
+          <select
+            value={enrollmentType}
+            onChange={(e) => setEnrollmentType(e.target.value as ProgramEnrollmentType)}
+            className="rounded-lg border border-line-strong px-3 py-2 text-sm"
+          >
+            <option value="INDEPENDENT">Independent</option>
+            <option value="ADD_ON">Add-on</option>
+          </select>
           <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">
             Add
           </button>
@@ -142,6 +156,7 @@ export default function ProgramsPage() {
           <tr>
             <th>Program</th>
             <th>Description</th>
+            <th>Type</th>
             <th>Status</th>
             {!readOnly && <th className="list-table-actions-header">Actions</th>}
           </tr>
@@ -169,6 +184,16 @@ export default function ProgramsPage() {
                         className="w-full rounded border border-line-strong px-3 py-2 text-sm"
                       />
                     </td>
+                    <td>
+                      <select
+                        value={editForm.enrollmentType}
+                        onChange={(e) => setEditForm({ ...editForm, enrollmentType: e.target.value as ProgramEnrollmentType })}
+                        className="w-full rounded border border-line-strong px-3 py-2 text-sm"
+                      >
+                        <option value="INDEPENDENT">Independent</option>
+                        <option value="ADD_ON">Add-on</option>
+                      </select>
+                    </td>
                     <td>{p.isActive ? 'Active' : 'Inactive'}</td>
                     {!readOnly && (
                       <td className="list-table-actions">
@@ -183,6 +208,7 @@ export default function ProgramsPage() {
                   <>
                     <td className="font-semibold">{p.name}</td>
                     <td className="text-ink-secondary">{p.description || '—'}</td>
+                    <td>{ENROLLMENT_TYPE_LABELS[p.enrollmentType ?? 'INDEPENDENT']}</td>
                     <td>
                       <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.isActive ? 'badge badge-success' : 'badge badge-danger'}`}>
                         {p.isActive ? 'Active' : 'Inactive'}

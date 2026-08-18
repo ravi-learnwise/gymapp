@@ -13,6 +13,30 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { Gender, MembershipStatus } from '@prisma/client';
 
+export class AddMembershipDto {
+  @ApiProperty()
+  @IsString()
+  programId!: string;
+
+  @ApiProperty()
+  @IsString()
+  programDurationId!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  trainerId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  isTrial?: boolean;
+
+  @ApiProperty()
+  @IsDateString()
+  startDate!: string;
+}
+
 export class CreateEnrollmentDto {
   @ApiProperty()
   @IsString()

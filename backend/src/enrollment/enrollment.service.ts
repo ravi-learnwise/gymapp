@@ -4,11 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { EnquiryStatus, Prisma, UserRole } from '@prisma/client';
+import { EnquiryStatus, MembershipStatus, Prisma, ProgramEnrollmentType, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthUser } from '../common/decorators/current-user.decorator';
+import { assertMemberAccess } from '../common/utils/member-access.util';
+import { sanitizeMemberForUser, sanitizeMemberListItem } from '../common/utils/member-view.util';
 import { TERMINAL_STATUSES } from '../enquiry/enquiry-workflow';
-import { CreateEnrollmentDto, MemberQueryDto, UpdateMemberDto } from './dto/enrollment.dto';
+import { AddMembershipDto, CreateEnrollmentDto, MemberQueryDto, UpdateMemberDto } from './dto/enrollment.dto';
 import { addMonths, calculateBmi } from './bmi.util';
 import { PaymentService } from '../payment/payment.service';
 import { toNumber } from '../payment/payment.util';
@@ -18,7 +20,7 @@ const memberInclude = {
   sourceEnquiry: { select: { id: true, enquiryNumber: true } },
   memberships: {
     include: {
-      program: { select: { id: true, name: true } },
+      program: { select: { id: true, name: true, enrollmentType: true } },
       programDuration: { select: { id: true, label: true, months: true, price: true } },
       trainer: { select: { id: true, email: true, firstName: true, lastName: true } },
     },
@@ -107,6 +109,14 @@ export class EnrollmentService {
       where: { role: UserRole.TRAINER, isActive: true },
       select: { id: true, email: true, firstName: true, lastName: true, phone: true },
       orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+    });
+  }
+
+  getPrograms() {
+    return this.prisma.program.findMany({
+      where: { isActive: true },
+      include: { durations: { where: { isActive: true }, orderBy: { months: 'asc' } } },
+      orderBy: { name: 'asc' },
     });
   }
 
@@ -357,13 +367,15 @@ export class EnrollmentService {
         where,
         include: {
           memberships: {
-            where: user.role === UserRole.TRAINER ? { trainerId: user.id } : undefined,
+            where: {
+              status: MembershipStatus.ACTIVE,
+              ...(user.role === UserRole.TRAINER ? { trainerId: user.id } : {}),
+            },
             include: {
-              program: { select: { name: true } },
+              program: { select: { name: true, enrollmentType: true } },
               trainer: { select: { firstName: true, lastName: true } },
             },
             orderBy: { startDate: 'desc' },
-            take: 1,
           },
         },
         orderBy: { [sortField]: sortOrder },
@@ -373,7 +385,13 @@ export class EnrollmentService {
       this.prisma.member.count({ where }),
     ]);
 
-    return { items, total, page, limit, pages: Math.ceil(total / limit) };
+    return {
+      items: items.map((m) => sanitizeMemberListItem(m, user)),
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async findOneMember(id: string, user: AuthUser) {
@@ -388,7 +406,92 @@ export class EnrollmentService {
       if (!assigned) throw new ForbiddenException('Not assigned to this member');
     }
 
-    return member;
+    return sanitizeMemberForUser(member, user);
+  }
+
+  async addMembership(memberId: string, dto: AddMembershipDto, user: AuthUser) {
+    await assertMemberAccess(this.prisma, memberId, user);
+
+    const program = await this.prisma.program.findFirst({
+      where: { id: dto.programId, isActive: true },
+    });
+    if (!program) throw new BadRequestException('Invalid program');
+
+    const duration = await this.prisma.programDuration.findFirst({
+      where: {
+        id: dto.programDurationId,
+        programId: dto.programId,
+        isActive: true,
+      },
+    });
+    if (!duration) throw new BadRequestException('Invalid program duration');
+
+    if (dto.trainerId) {
+      const trainer = await this.prisma.user.findFirst({
+        where: { id: dto.trainerId, role: UserRole.TRAINER, isActive: true },
+      });
+      if (!trainer) throw new BadRequestException('Invalid trainer');
+      if (user.role === UserRole.TRAINER && dto.trainerId !== user.id) {
+        throw new ForbiddenException('Trainers can only assign themselves');
+      }
+    } else if (user.role === UserRole.TRAINER) {
+      dto.trainerId = user.id;
+    }
+
+    const startDate = new Date(dto.startDate);
+    const endDate = addMonths(startDate, duration.months);
+    const warnings: string[] = [];
+
+    if (program.enrollmentType === ProgramEnrollmentType.ADD_ON) {
+      const covering = await this.prisma.membership.findFirst({
+        where: {
+          memberId,
+          status: MembershipStatus.ACTIVE,
+          program: { enrollmentType: ProgramEnrollmentType.INDEPENDENT },
+          startDate: { lte: startDate },
+          endDate: { gte: endDate },
+        },
+        include: { program: { select: { name: true } } },
+      });
+      if (!covering) {
+        warnings.push(
+          'No active independent membership covers the full period of this add-on program. Proceeding anyway.',
+        );
+      }
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const membership = await tx.membership.create({
+        data: {
+          memberId,
+          programId: dto.programId,
+          programDurationId: dto.programDurationId,
+          trainerId: dto.trainerId,
+          isTrial: dto.isTrial ?? false,
+          startDate,
+          endDate,
+          enrolledById: user.id,
+        },
+        include: {
+          program: { select: { id: true, name: true, enrollmentType: true } },
+          programDuration: true,
+          trainer: { select: { id: true, firstName: true, lastName: true, email: true } },
+          enrolledBy: { select: { id: true, firstName: true, lastName: true } },
+        },
+      });
+
+      const payment = await this.paymentService.createCommitmentFromEnrollment(
+        membership.id,
+        memberId,
+        toNumber(duration.price),
+        null,
+        tx,
+      );
+
+      return { membership, payment };
+    });
+
+    return { ...result, warnings };
   }
 
   async updateMember(id: string, dto: UpdateMemberDto, user: AuthUser) {
