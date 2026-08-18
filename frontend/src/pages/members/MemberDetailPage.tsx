@@ -46,6 +46,9 @@ export default function MemberDetailPage() {
           <Link to={`/members/${id}/training-card`} className="btn btn-secondary">
             Training Card
           </Link>
+          <Link to={`/members/${id}/diet-plan`} className="btn btn-secondary">
+            Diet Plan
+          </Link>
           <Link to={`/members/${id}/add-program`} className="btn btn-primary">
             Add Program
           </Link>

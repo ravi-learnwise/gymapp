@@ -35,6 +35,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/package.json ./backend/package.json
 COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY --from=builder /app/backend/data ./backend/data
+COPY --from=builder /app/backend/uploads ./backend/uploads
 COPY deploy/docker/backend-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

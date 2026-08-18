@@ -20,7 +20,12 @@ export class ExerciseService {
         { name: { contains: s } },
         { muscleGroups: { contains: s } },
         { equipment: { contains: s } },
+        { primaryMuscle: { contains: s } },
+        { bodyPart: { contains: s } },
       ];
+    }
+    if (query.bodyPart?.trim()) {
+      where.bodyPart = query.bodyPart.trim();
     }
     return this.prisma.exercise.findMany({
       where,
@@ -35,9 +40,29 @@ export class ExerciseService {
   }
 
   create(dto: CreateExerciseDto, userId: string) {
+    const slug = this.slugFromName(dto.name);
+    const muscleGroups =
+      dto.muscleGroups ??
+      ([dto.primaryMuscle, dto.secondaryMuscles].filter(Boolean).length
+        ? `Primary: ${dto.primaryMuscle ?? '—'}; Secondary: ${dto.secondaryMuscles ?? '—'}`
+        : undefined);
     return this.prisma.exercise.create({
-      data: { ...dto, createdById: userId },
+      data: {
+        ...dto,
+        slug,
+        muscleGroups,
+        createdById: userId,
+      },
     });
+  }
+
+  private slugFromName(name: string) {
+    const base = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 80);
+    return `${base || 'exercise'}-${Date.now()}`;
   }
 
   async update(id: string, dto: UpdateExerciseDto) {

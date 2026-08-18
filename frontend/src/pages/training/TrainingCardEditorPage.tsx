@@ -1,26 +1,29 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import ExerciseLibraryPicker from '../../components/exercises/ExerciseLibraryPicker';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import Button from '../../components/ui/Button';
 import { api } from '../../lib/api';
 import {
   DAY_TYPE_LABELS,
   WEEKDAY_LABELS,
   type Exercise,
   type TrainingCard,
-  type TrainingCardDay,
   type TrainingDayType,
 } from '../../types/training-card';
 
 type SetDraft = {
   setNumber: number;
-  repMin: number;
-  repMax?: number;
+  reps: number;
   weight?: number;
-  weightUnit?: 'KG' | 'LB';
+  weightUnit: 'KG' | 'LB';
 };
 
 type ExerciseDraft = {
   exerciseId: string;
   exerciseName: string;
+  imageUrl?: string;
   sectionName?: string;
   restSeconds?: number;
   sets: SetDraft[];
@@ -32,6 +35,8 @@ type DayDraft = {
   notes?: string;
   exercises: ExerciseDraft[];
 };
+
+const ACTIVITY_TYPES: TrainingDayType[] = ['NOT_ASSIGNED', 'WORKOUT', 'REST', 'RECOVERY'];
 
 function emptyDays(): DayDraft[] {
   return Array.from({ length: 7 }, (_, weekday) => ({
@@ -51,14 +56,14 @@ function cardToDays(card: TrainingCard): DayDraft[] {
       exercises: day.exercises.map((ex) => ({
         exerciseId: ex.exerciseId,
         exerciseName: ex.exercise.name,
+        imageUrl: ex.exercise.imageUrl ?? undefined,
         sectionName: ex.sectionName ?? undefined,
         restSeconds: ex.restSeconds ?? undefined,
         sets: ex.sets.map((s) => ({
           setNumber: s.setNumber,
-          repMin: s.repMin,
-          repMax: s.repMax ?? undefined,
+          reps: s.repMax ?? s.repMin,
           weight: s.weight ? Number(s.weight) : undefined,
-          weightUnit: s.weightUnit ?? undefined,
+          weightUnit: s.weightUnit ?? 'KG',
         })),
       })),
     };
@@ -74,21 +79,28 @@ export default function TrainingCardEditorPage() {
   const memberId = isNew ? id : undefined;
   const cardId = isNew ? undefined : id;
 
-  const [name, setName] = useState('Weekly Program');
+  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [reviewDate, setReviewDate] = useState('');
+  const [memberName, setMemberName] = useState('');
   const [days, setDays] = useState<DayDraft[]>(emptyDays());
   const [activeTab, setActiveTab] = useState(1);
-  const [library, setLibrary] = useState<Exercise[]>([]);
-  const [search, setSearch] = useState('');
   const [existingId, setExistingId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('DRAFT');
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<{ index: number; name: string } | null>(null);
 
   useEffect(() => {
-    api<Exercise[]>('/exercises').then(setLibrary);
-  }, []);
+    if (isNew && memberId) {
+      api<{ fullName: string }>(`/members/${memberId}`)
+        .then((m) => {
+          setMemberName(m.fullName);
+          setName((prev) => prev || defaultPlanName(m.fullName));
+        })
+        .catch(() => undefined);
+    }
+  }, [isNew, memberId]);
 
   useEffect(() => {
     if (isNew || !cardId) return;
@@ -99,14 +111,9 @@ export default function TrainingCardEditorPage() {
       setReviewDate(card.reviewDate ? card.reviewDate.slice(0, 10) : '');
       setDays(cardToDays(card));
       setStatus(card.status);
+      setMemberName(card.member?.fullName ?? '');
     });
   }, [cardId, isNew]);
-
-  const filteredLibrary = useMemo(() => {
-    const s = search.trim().toLowerCase();
-    if (!s) return library.slice(0, 20);
-    return library.filter((e) => e.name.toLowerCase().includes(s)).slice(0, 20);
-  }, [library, search]);
 
   const currentDay = days[activeTab];
 
@@ -122,13 +129,25 @@ export default function TrainingCardEditorPage() {
                 {
                   exerciseId: ex.id,
                   exerciseName: ex.name,
-                  sets: [{ setNumber: 1, repMin: 10 }],
+                  imageUrl: ex.imageUrl ?? undefined,
+                  sets: [{ setNumber: 1, reps: 10, weightUnit: 'KG' as const }],
                 },
               ],
             }
           : d,
       ),
     );
+  };
+
+  const removeExercise = (index: number) => {
+    setDays((prev) =>
+      prev.map((d) =>
+        d.weekday === activeTab
+          ? { ...d, exercises: d.exercises.filter((_, i) => i !== index) }
+          : d,
+      ),
+    );
+    setRemoveTarget(null);
   };
 
   const moveExercise = (index: number, dir: -1 | 1) => {
@@ -144,13 +163,20 @@ export default function TrainingCardEditorPage() {
     );
   };
 
-  const updateSet = (exIndex: number, setIndex: number, field: keyof SetDraft, value: number) => {
+  const updateSet = (
+    exIndex: number,
+    setIndex: number,
+    field: 'reps' | 'weight',
+    value: number | undefined,
+  ) => {
     setDays((prev) =>
       prev.map((d) => {
         if (d.weekday !== activeTab) return d;
         const exercises = d.exercises.map((ex, ei) => {
           if (ei !== exIndex) return ex;
-          const sets = ex.sets.map((s, si) => (si === setIndex ? { ...s, [field]: value } : s));
+          const sets = ex.sets.map((s, si) =>
+            si === setIndex ? { ...s, [field]: value } : s,
+          );
           return { ...ex, sets };
         });
         return { ...d, exercises };
@@ -164,10 +190,35 @@ export default function TrainingCardEditorPage() {
         if (d.weekday !== activeTab) return d;
         const exercises = d.exercises.map((ex, ei) => {
           if (ei !== exIndex) return ex;
+          const last = ex.sets[ex.sets.length - 1];
           return {
             ...ex,
-            sets: [...ex.sets, { setNumber: ex.sets.length + 1, repMin: 10 }],
+            sets: [
+              ...ex.sets,
+              {
+                setNumber: ex.sets.length + 1,
+                reps: last?.reps ?? 10,
+                weight: last?.weight,
+                weightUnit: last?.weightUnit ?? 'KG',
+              },
+            ],
           };
+        });
+        return { ...d, exercises };
+      }),
+    );
+  };
+
+  const removeSet = (exIndex: number, setIndex: number) => {
+    setDays((prev) =>
+      prev.map((d) => {
+        if (d.weekday !== activeTab) return d;
+        const exercises = d.exercises.map((ex, ei) => {
+          if (ei !== exIndex) return ex;
+          const sets = ex.sets
+            .filter((_, si) => si !== setIndex)
+            .map((s, i) => ({ ...s, setNumber: i + 1 }));
+          return { ...ex, sets };
         });
         return { ...d, exercises };
       }),
@@ -190,8 +241,8 @@ export default function TrainingCardEditorPage() {
         restSeconds: ex.restSeconds,
         sets: ex.sets.map((s) => ({
           setNumber: s.setNumber,
-          repMin: s.repMin,
-          repMax: s.repMax,
+          repMin: s.reps,
+          repMax: s.reps,
           weight: s.weight,
           weightUnit: s.weightUnit,
         })),
@@ -226,13 +277,25 @@ export default function TrainingCardEditorPage() {
   };
 
   const publish = async () => {
-    if (!existingId) {
-      await saveDraft();
-    }
-    const id = existingId;
-    if (!id) return;
     setSaving(true);
+    setMessage('');
     try {
+      let id = existingId;
+      if (!id && memberId) {
+        const created = await api<TrainingCard>('/training-cards', {
+          method: 'POST',
+          body: JSON.stringify({ memberId, ...buildPayload() }),
+        });
+        id = created.id;
+        setExistingId(created.id);
+        navigate(`/training-cards/${created.id}/edit`, { replace: true });
+      } else if (id) {
+        await api(`/training-cards/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(buildPayload()),
+        });
+      }
+      if (!id) return;
       await api(`/training-cards/${id}/publish`, { method: 'POST', body: '{}' });
       setStatus('ACTIVE');
       setMessage('Published — now active for member');
@@ -243,138 +306,245 @@ export default function TrainingCardEditorPage() {
     }
   };
 
+  const planPlaceholder = useMemo(
+    () => defaultPlanName(memberName || 'Member'),
+    [memberName],
+  );
+
   const backLink = memberId ? `/members/${memberId}/training-card` : '/members';
 
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-6xl">
       <Link to={backLink} className="text-sm text-brand-600 hover:underline">
         ← Back
       </Link>
-      <h2 className="mt-3 text-2xl">Training Card Editor</h2>
-      <p className="text-sm text-ink-secondary">Status: {status}</p>
+      <h2 className="mt-3 text-2xl">Training Plan Builder</h2>
+      <p className="text-sm text-ink-secondary">
+        Status: <span className="font-medium text-ink">{status}</span>
+        {memberName && <> · Member: {memberName}</>}
+      </p>
 
-      <div className="mt-4 grid gap-4 rounded-xl border border-line bg-white p-5 lg:grid-cols-2">
-        <label className="block text-sm">
-          Name
-          <input className="input mt-1 w-full" value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label className="block text-sm">
-          Review date
-          <input type="date" className="input mt-1 w-full" value={reviewDate} onChange={(e) => setReviewDate(e.target.value)} />
-        </label>
-        <label className="block text-sm lg:col-span-2">
-          Description
-          <textarea className="input mt-1 w-full" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
-        </label>
-      </div>
+      <section className="page-panel mt-6">
+        <h3 className="text-lg font-semibold text-ink">Plan details</h3>
+        <div className="mt-4 grid gap-5 lg:grid-cols-2">
+          <label className="block lg:col-span-2">
+            <span className="form-label">Plan name</span>
+            <input
+              className="input-field !h-12"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={planPlaceholder}
+            />
+          </label>
+          <label className="block">
+            <span className="form-label">Review date</span>
+            <input
+              type="date"
+              className="input-field !h-12"
+              value={reviewDate}
+              onChange={(e) => setReviewDate(e.target.value)}
+            />
+          </label>
+          <label className="block lg:col-span-2">
+            <span className="form-label">Description</span>
+            <textarea
+              className="input-field min-h-[6rem] resize-y py-3"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Goals, focus areas, coach notes for this training plan…"
+            />
+          </label>
+        </div>
+      </section>
 
       <div className="mt-6 flex flex-wrap gap-1">
         {WEEKDAY_LABELS.map((label, i) => (
           <button
             key={label}
             type="button"
-            className={`rounded-lg px-3 py-1.5 text-sm ${activeTab === i ? 'bg-brand-600 text-white' : 'bg-neutral-soft'}`}
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              activeTab === i ? 'bg-brand-600 text-white' : 'bg-neutral-soft text-ink-secondary hover:bg-brand-50'
+            }`}
             onClick={() => setActiveTab(i)}
           >
             {label}
+            {days[i].exercises.length > 0 && (
+              <span className="ml-1.5 opacity-75">({days[i].exercises.length})</span>
+            )}
           </button>
         ))}
       </div>
 
-      <div className="mt-4 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-line bg-white p-5">
-          <label className="block text-sm">
-            Day type
-            <select
-              className="input mt-1 w-full"
-              value={currentDay.dayType}
-              onChange={(e) =>
-                setDays((prev) =>
-                  prev.map((d) =>
-                    d.weekday === activeTab ? { ...d, dayType: e.target.value as TrainingDayType } : d,
-                  ),
-                )
-              }
-            >
-              {Object.entries(DAY_TYPE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
+      <div className="mt-4 grid gap-6 xl:grid-cols-2">
+        <section className="page-panel">
+          <div>
+            <span className="form-label">Activity type</span>
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {ACTIVITY_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
+                    currentDay.dayType === type
+                      ? 'border-brand-600 bg-brand-50 text-brand-700'
+                      : 'border-line bg-white text-ink-secondary hover:border-brand-200'
+                  }`}
+                  onClick={() =>
+                    setDays((prev) =>
+                      prev.map((d) =>
+                        d.weekday === activeTab ? { ...d, dayType: type } : d,
+                      ),
+                    )
+                  }
+                >
+                  {DAY_TYPE_LABELS[type]}
+                </button>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <div className="mt-4 space-y-4">
+          <div className="mt-6 space-y-4">
+            <h4 className="font-semibold text-ink">Workout detail — {WEEKDAY_LABELS[activeTab]}</h4>
             {currentDay.exercises.map((ex, exIndex) => (
-              <div key={`${ex.exerciseId}-${exIndex}`} className="rounded-lg border p-3 text-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium">{ex.exerciseName}</p>
-                  <div className="flex gap-1">
-                    <button type="button" className="btn btn-ghost !px-2 !py-1" onClick={() => moveExercise(exIndex, -1)}>↑</button>
-                    <button type="button" className="btn btn-ghost !px-2 !py-1" onClick={() => moveExercise(exIndex, 1)}>↓</button>
+              <div key={`${ex.exerciseId}-${exIndex}`} className="rounded-lg border border-line p-4">
+                <div className="flex items-start gap-3">
+                  {ex.imageUrl ? (
+                    <img src={ex.imageUrl} alt="" className="h-14 w-14 shrink-0 rounded-lg border object-cover" />
+                  ) : (
+                    <div className="h-14 w-14 shrink-0 rounded-lg border bg-canvas" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-ink">{ex.exerciseName}</p>
+                      <div className="flex shrink-0 gap-1">
+                        <button
+                          type="button"
+                          className="rounded p-1 text-ink-muted hover:bg-canvas hover:text-ink"
+                          onClick={() => moveExercise(exIndex, -1)}
+                          aria-label="Move up"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded p-1 text-ink-muted hover:bg-canvas hover:text-ink"
+                          onClick={() => moveExercise(exIndex, 1)}
+                          aria-label="Move down"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded p-1 text-danger hover:bg-danger-soft"
+                          onClick={() => setRemoveTarget({ index: exIndex, name: ex.exerciseName })}
+                          aria-label="Remove exercise"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="mt-0.5 text-xs text-ink-muted">Each set = load × repetitions</p>
                   </div>
                 </div>
-                {ex.sets.map((s, si) => (
-                  <div key={si} className="mt-2 grid grid-cols-4 gap-2">
-                    <span>Set {s.setNumber}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      value={s.repMin}
-                      onChange={(e) => updateSet(exIndex, si, 'repMin', Number(e.target.value))}
-                    />
-                    <input
-                      type="number"
-                      className="input"
-                      placeholder="kg"
-                      value={s.weight ?? ''}
-                      onChange={(e) => updateSet(exIndex, si, 'weight', Number(e.target.value))}
-                    />
-                  </div>
-                ))}
-                <button type="button" className="mt-2 text-brand-600 hover:underline" onClick={() => addSet(exIndex)}>
+
+                <div className="mt-4 space-y-2">
+                  {ex.sets.map((s, si) => (
+                    <div key={si} className="flex items-center gap-1.5 rounded-md bg-canvas px-2.5 py-2 text-sm">
+                      <span className="w-10 shrink-0 font-medium text-ink-secondary">Set {s.setNumber}</span>
+                      <label className="flex shrink-0 items-center gap-1">
+                        <input
+                          type="number"
+                          min={0}
+                          max={999}
+                          step={0.5}
+                          className="input-field !h-9 !w-14 !min-w-0 !px-1.5 text-center"
+                          placeholder="kg"
+                          value={s.weight ?? ''}
+                          onChange={(e) =>
+                            updateSet(
+                              exIndex,
+                              si,
+                              'weight',
+                              e.target.value === '' ? undefined : Number(e.target.value),
+                            )
+                          }
+                        />
+                        <span className="text-xs text-ink-muted">kg</span>
+                      </label>
+                      <span className="shrink-0 text-ink-muted">×</span>
+                      <label className="flex shrink-0 items-center gap-1">
+                        <input
+                          type="number"
+                          min={1}
+                          max={99}
+                          className="input-field !h-9 !w-11 !min-w-0 !px-1.5 text-center"
+                          value={s.reps}
+                          onChange={(e) => updateSet(exIndex, si, 'reps', Number(e.target.value))}
+                        />
+                        <span className="text-xs text-ink-muted">reps</span>
+                      </label>
+                      {ex.sets.length > 1 && (
+                        <button
+                          type="button"
+                          className="ml-auto text-xs text-danger hover:underline"
+                          onClick={() => removeSet(exIndex, si)}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="mt-3 text-sm font-medium text-brand-600 hover:underline"
+                  onClick={() => addSet(exIndex)}
+                >
                   + Add set
                 </button>
               </div>
             ))}
-            {!currentDay.exercises.length && <p className="text-ink-muted">No exercises for this day</p>}
+            {!currentDay.exercises.length && (
+              <p className="rounded-lg border border-dashed border-line py-8 text-center text-sm text-ink-muted">
+                No exercises for this day — add from the library →
+              </p>
+            )}
           </div>
-        </div>
+        </section>
 
-        <div className="rounded-xl border border-line bg-white p-5">
-          <h3 className="font-semibold">Exercise library</h3>
-          <input
-            className="input mt-2 w-full"
-            placeholder="Search…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <ul className="mt-3 max-h-96 space-y-1 overflow-y-auto">
-            {filteredLibrary.map((ex) => (
-              <li key={ex.id}>
-                <button
-                  type="button"
-                  className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-canvas"
-                  onClick={() => addExercise(ex)}
-                >
-                  {ex.name}
-                  <span className="block text-xs text-ink-muted">{ex.muscleGroups}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ExerciseLibraryPicker onAdd={addExercise} />
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <button type="button" className="btn btn-secondary" disabled={saving} onClick={saveDraft}>
+        <Button variant="secondary" disabled={saving} onClick={saveDraft}>
           Save draft
-        </button>
+        </Button>
         {status === 'DRAFT' && (
-          <button type="button" className="btn btn-primary" disabled={saving} onClick={publish}>
+          <Button disabled={saving} onClick={publish}>
             Publish
-          </button>
+          </Button>
         )}
       </div>
       {message && <p className="mt-3 text-sm text-ink-secondary">{message}</p>}
+
+      <ConfirmDialog
+        open={!!removeTarget}
+        title="Remove exercise?"
+        message={
+          removeTarget
+            ? `Remove "${removeTarget.name}" from ${WEEKDAY_LABELS[activeTab]}?`
+            : ''
+        }
+        confirmLabel="Remove"
+        onConfirm={() => removeTarget && removeExercise(removeTarget.index)}
+        onCancel={() => setRemoveTarget(null)}
+      />
     </div>
   );
+}
+
+function defaultPlanName(member: string) {
+  const month = new Date().toLocaleString('en-US', { month: 'long' });
+  return `${month} Training Plan for ${member}`;
 }

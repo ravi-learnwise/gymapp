@@ -80,6 +80,46 @@ enum TrainingDayType {
   NOT_ASSIGNED
 }
 
+enum DietPlanStatus {
+  DRAFT
+  ACTIVE
+  SUPERSEDED
+  ARCHIVED
+}
+
+enum DietPlanObjective {
+  GENERAL_FITNESS
+  WEIGHT_MANAGEMENT
+  FAT_LOSS
+  MUSCLE_GAIN
+  STRENGTH_PERFORMANCE
+  HEALTHY_EATING
+  SPORTS_ATHLETIC
+  MEDICAL_SPECIAL
+  OTHER
+}
+
+enum DietDayType {
+  PLAN_AVAILABLE
+  REST_RECOVERY
+  NO_SPECIFIC_PLAN
+}
+
+enum MealType {
+  EARLY_MORNING
+  BREAKFAST
+  MID_MORNING
+  LUNCH
+  EVENING_HIGH_TEA
+  PRE_WORKOUT
+  POST_WORKOUT
+  DINNER
+  BEDTIME
+  SUPPLEMENT
+  HYDRATION
+  OTHER
+}
+
 enum WeightUnit {
   KG
   LB
@@ -121,6 +161,8 @@ model User {
   exercisesCreated     Exercise[]             @relation("ExerciseCreatedBy")
   trainingCardsCreated TrainingCard[]         @relation("TrainingCardCreatedBy")
   trainingCardsUpdated TrainingCard[]         @relation("TrainingCardUpdatedBy")
+  dietPlansCreated     DietPlan[]             @relation("DietPlanCreatedBy")
+  dietPlansUpdated     DietPlan[]             @relation("DietPlanUpdatedBy")
 
   @@map("users")
 }
@@ -310,6 +352,7 @@ model Member {
   fitnessAssessments  FitnessAssessment[]
   attendanceRecords   AttendanceRecord[]
   trainingCards       TrainingCard[]
+  dietPlans           DietPlan[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -474,23 +517,29 @@ model SchemaVersion {
 }
 
 model Exercise {
-  id           String       @id @default(uuid())
-  name         String
-  muscleGroups String?      @db.Text
-  equipment    String?
-  type         ExerciseType @default(STRENGTH)
-  imageUrl     String?
-  technique    String?      @db.Text
-  safetyNotes  String?      @db.Text
-  isActive     Boolean      @default(true)
-  createdById  String?
-  createdBy    User?        @relation("ExerciseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  cardExercises TrainingCardExercise[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id                String       @id @default(uuid())
+  slug              String?      @unique
+  name              String
+  bodyPart          String?
+  primaryMuscle     String?      @db.Text
+  secondaryMuscles  String?      @db.Text
+  muscleGroups      String?      @db.Text
+  equipment         String?      @db.Text
+  type              ExerciseType @default(STRENGTH)
+  imageUrl          String?
+  technique         String?      @db.Text
+  safetyNotes       String?      @db.Text
+  sourceUrl         String?
+  isActive          Boolean      @default(true)
+  createdById       String?
+  createdBy         User?        @relation("ExerciseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  cardExercises     TrainingCardExercise[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@index([name])
   @@index([isActive])
+  @@index([bodyPart])
   @@map("exercises")
 }
 
@@ -564,4 +613,92 @@ model TrainingCardSet {
 
   @@index([trainingCardExerciseId, setNumber])
   @@map("training_card_sets")
+}
+
+model DietPlan {
+  id                String            @id @default(uuid())
+  memberId          String
+  member            Member            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  name              String
+  objective         DietPlanObjective @default(GENERAL_FITNESS)
+  description       String?           @db.Text
+  hydrationGoal     String?
+  status            DietPlanStatus    @default(DRAFT)
+  version           Int               @default(1)
+  effectiveFrom     DateTime?
+  reviewDate        DateTime?
+  previousVersionId String?
+  previousVersion   DietPlan?         @relation("DietPlanVersionChain", fields: [previousVersionId], references: [id], onDelete: SetNull)
+  nextVersions      DietPlan[]        @relation("DietPlanVersionChain")
+  createdById       String
+  createdBy         User              @relation("DietPlanCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedById       String?
+  updatedBy         User?             @relation("DietPlanUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  days              DietPlanDay[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([memberId, status])
+  @@map("diet_plans")
+}
+
+model DietPlanDay {
+  id           String        @id @default(uuid())
+  dietPlanId   String
+  dietPlan     DietPlan      @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
+  weekday      Int
+  dayType      DietDayType   @default(PLAN_AVAILABLE)
+  notes        String?       @db.Text
+  displayOrder Int           @default(0)
+  meals        DietPlanMeal[]
+
+  @@unique([dietPlanId, weekday])
+  @@index([dietPlanId, weekday])
+  @@map("diet_plan_days")
+}
+
+model DietPlanMeal {
+  id              String             @id @default(uuid())
+  dayId           String
+  day             DietPlanDay        @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  mealType        MealType           @default(OTHER)
+  title           String?
+  approximateTime String?
+  timingNote      String?
+  notes           String?            @db.Text
+  displayOrder    Int                @default(0)
+  foods           DietPlanFoodItem[]
+
+  @@index([dayId, displayOrder])
+  @@map("diet_plan_meals")
+}
+
+model DietPlanFoodItem {
+  id           String                 @id @default(uuid())
+  mealId       String
+  meal         DietPlanMeal           @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  foodName     String
+  quantity     String?
+  unit         String?
+  preparation  String?
+  notes        String?                @db.Text
+  displayOrder Int                    @default(0)
+  alternatives DietFoodAlternative[]
+
+  @@index([mealId, displayOrder])
+  @@map("diet_plan_food_items")
+}
+
+model DietFoodAlternative {
+  id                    String           @id @default(uuid())
+  foodItemId            String
+  foodItem              DietPlanFoodItem @relation(fields: [foodItemId], references: [id], onDelete: Cascade)
+  alternativeFoodName   String
+  quantity              String?
+  unit                  String?
+  notes                 String?          @db.Text
+  displayOrder          Int              @default(0)
+
+  @@index([foodItemId, displayOrder])
+  @@map("diet_food_alternatives")
 }

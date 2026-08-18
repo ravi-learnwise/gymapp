@@ -11,7 +11,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "scrape:exercises": "ts-node --transpile-only scripts/scrape-simplyfitness-exercises.ts",
+    "import:exercises": "ts-node -r dotenv/config scripts/import-exercises.ts dotenv_config_path=../.env"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",
@@ -35,8 +37,10 @@
     "@nestjs/schematics": "^11.0.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.1",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.14.0",
     "@types/passport-jwt": "^4.0.1",
+    "cheerio": "^1.2.0",
     "dotenv": "^16.4.7",
     "prisma": "^6.6.0",
     "ts-node": "^10.9.2",

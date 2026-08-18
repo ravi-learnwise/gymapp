@@ -24,6 +24,21 @@ export class CreateExerciseDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  bodyPart?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  primaryMuscle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  secondaryMuscles?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   muscleGroups?: string;
 
   @ApiPropertyOptional()
@@ -58,6 +73,21 @@ export class UpdateExerciseDto {
   @IsString()
   @MinLength(2)
   name?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  bodyPart?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  primaryMuscle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  secondaryMuscles?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -106,4 +136,9 @@ export class ExerciseQueryDto {
   @IsBoolean()
   @Type(() => Boolean)
   activeOnly?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  bodyPart?: string;
 }

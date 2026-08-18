@@ -7,15 +7,31 @@ export type ExerciseType = 'STRENGTH' | 'CARDIO' | 'FLEXIBILITY' | 'BODYWEIGHT' 
 
 export type Exercise = {
   id: string;
+  slug: string | null;
   name: string;
+  bodyPart: string | null;
+  primaryMuscle: string | null;
+  secondaryMuscles: string | null;
   muscleGroups: string | null;
   equipment: string | null;
   type: ExerciseType;
   imageUrl: string | null;
   technique: string | null;
   safetyNotes: string | null;
+  sourceUrl: string | null;
   isActive: boolean;
 };
+
+export const BODY_PARTS = [
+  'Chest',
+  'Back',
+  'Shoulders',
+  'Biceps',
+  'Triceps',
+  'Abdominals',
+  'Legs',
+  'Calves',
+] as const;
 
 export type TrainingCardSet = {
   id: string;

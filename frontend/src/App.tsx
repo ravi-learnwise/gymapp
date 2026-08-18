@@ -26,6 +26,8 @@ import PaymentListPage from './pages/payments/PaymentListPage';
 import PaymentDetailPage from './pages/payments/PaymentDetailPage';
 import ReceiptPrintPage from './pages/payments/ReceiptPrintPage';
 import TrainingCardEditorPage from './pages/training/TrainingCardEditorPage';
+import MemberDietPlanPage from './pages/members/MemberDietPlanPage';
+import DietPlanEditorPage from './pages/diet/DietPlanEditorPage';
 
 export default function App() {
   return (
@@ -72,6 +74,9 @@ export default function App() {
           <Route path="/members/:id/training-card" element={<MemberTrainingCardPage />} />
           <Route path="/members/:id/training-card/new" element={<TrainingCardEditorPage />} />
           <Route path="/training-cards/:id/edit" element={<TrainingCardEditorPage />} />
+          <Route path="/members/:id/diet-plan" element={<MemberDietPlanPage />} />
+          <Route path="/members/:id/diet-plan/new" element={<DietPlanEditorPage />} />
+          <Route path="/diet-plans/:id/edit" element={<DietPlanEditorPage />} />
           <Route path="/payments/:id" element={<PaymentDetailPage />} />
           <Route path="/attendance" element={<AttendancePage />} />
         </Route>

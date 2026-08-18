@@ -23,14 +23,17 @@ import type { EnquiryStats } from '../types/enquiry';
 import type { ExpiringMembershipResponse } from '../types/member';
 
 import type { TrainingCard } from '../types/training-card';
+import type { DietPlan } from '../types/diet-plan';
 
 const PERIODS: ReportPeriod[] = ['daily', 'weekly', 'monthly', 'yearly'];
 
 function TrainerDashboard() {
   const [dueReviews, setDueReviews] = useState<TrainingCard[]>([]);
+  const [dietDueReviews, setDietDueReviews] = useState<DietPlan[]>([]);
 
   useEffect(() => {
     api<TrainingCard[]>('/training-cards/due-reviews').then(setDueReviews).catch(() => setDueReviews([]));
+    api<DietPlan[]>('/diet-plans/due-reviews').then(setDietDueReviews).catch(() => setDietDueReviews([]));
   }, []);
 
   return (
@@ -65,6 +68,19 @@ function TrainerDashboard() {
             </Link>
           ))}
         </div>
+        <div className="rounded-xl border border-line bg-white p-4">
+          <p className="text-sm font-medium text-ink">Diet plans due for review</p>
+          <p className="mt-1 text-3xl font-semibold tabular-nums">{dietDueReviews.length}</p>
+          {dietDueReviews.slice(0, 3).map((p) => (
+            <Link
+              key={p.id}
+              to={`/members/${p.memberId}/diet-plan`}
+              className="mt-2 block text-sm text-brand-600 hover:underline"
+            >
+              {p.member?.fullName ?? 'Member'} — {p.name}
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -77,6 +93,7 @@ export default function DashboardPage() {
   const [enquiryStats, setEnquiryStats] = useState<EnquiryStats | null>(null);
   const [expiring, setExpiring] = useState<ExpiringMembershipResponse | null>(null);
   const [dueReviews, setDueReviews] = useState<TrainingCard[]>([]);
+  const [dietDueReviews, setDietDueReviews] = useState<DietPlan[]>([]);
 
   useEffect(() => {
     if (user?.role === 'OWNER' || user?.role === 'MANAGER') {
@@ -96,6 +113,10 @@ export default function DashboardPage() {
       api<TrainingCard[]>('/training-cards/due-reviews')
         .then(setDueReviews)
         .catch(() => setDueReviews([]));
+
+      api<DietPlan[]>('/diet-plans/due-reviews')
+        .then(setDietDueReviews)
+        .catch(() => setDietDueReviews([]));
     }
   }, [user, period]);
 
@@ -208,6 +229,25 @@ export default function DashboardPage() {
                     >
                       {c.member?.fullName ?? 'Member'} — {c.name}
                       {c.reviewDate && ` (due ${new Date(c.reviewDate).toLocaleDateString()})`}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {dietDueReviews.length > 0 && (
+            <section className="page-section">
+              <SectionHeader title="Diet Plans Due for Review" icon={ClipboardCheck} />
+              <ul className="mt-4 space-y-2">
+                {dietDueReviews.slice(0, 5).map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      to={`/members/${p.memberId}/diet-plan`}
+                      className="text-sm text-brand-600 hover:underline"
+                    >
+                      {p.member?.fullName ?? 'Member'} — {p.name}
+                      {p.reviewDate && ` (due ${new Date(p.reviewDate).toLocaleDateString()})`}
                     </Link>
                   </li>
                 ))}

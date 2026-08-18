@@ -2,18 +2,23 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 3000);
   const apiPrefix = config.get<string>('API_PREFIX', 'api');
   const corsOrigin = config.get<string>('CORS_ORIGIN', 'http://localhost:5173');
 
-  app.setGlobalPrefix(apiPrefix);
-  app.enableCors({ origin: corsOrigin, credentials: true });
+  app.useStaticAssets(join(process.cwd(), 'uploads', 'exercises'), {
+    prefix: `/${apiPrefix}/media/exercises/`,
+  });
+
+  app.setGlobalPrefix(apiPrefix);  app.enableCors({ origin: corsOrigin, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

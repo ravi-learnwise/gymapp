@@ -85,6 +85,33 @@ export async function api<T>(
   return res.json();
 }
 
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  const headers: Record<string, string> = {};
+  const token = getAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  let res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers, body: formData });
+
+  if (res.status === 401 && getRefreshToken()) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      headers.Authorization = `Bearer ${getAccessToken()}`;
+      res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers, body: formData });
+    }
+  }
+
+  if (!res.ok) {
+    const err: ApiError = await res.json().catch(() => ({
+      message: res.statusText,
+      statusCode: res.status,
+    }));
+    const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+    throw new Error(msg || 'Upload failed');
+  }
+
+  return res.json();
+}
+
 // Public API calls (no auth token required)
 async function publicApi<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
