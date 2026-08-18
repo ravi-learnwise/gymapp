@@ -111,7 +111,7 @@ export default function DashboardPage() {
 
       {summary && (
         <>
-          {/* KPI cards — 6 uniform white cards */}
+          {/* KPI cards — soft tinted surfaces per metric */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard title="Active Members" value={summary.activeMembers} icon={Users} tone="blue" />
             <StatCard title="Pending Payments" value={summary.pendingPayments} icon={Wallet} tone="amber" />
@@ -119,7 +119,7 @@ export default function DashboardPage() {
               title="New Enquiries"
               value={enquiryStats?.newEnquiries ?? '—'}
               icon={MessageSquare}
-              tone="blue"
+              tone="cyan"
               note={enquiryStats ? 'Month to date' : undefined}
             />
             <StatCard
@@ -140,7 +140,7 @@ export default function DashboardPage() {
               title="Open Enquiries"
               value={enquiryStats?.openRemaining ?? '—'}
               icon={TrendingUp}
-              tone="slate"
+              tone="indigo"
               note={enquiryStats ? `${enquiryStats.dateFrom} → ${enquiryStats.dateTo}` : undefined}
             />
           </div>

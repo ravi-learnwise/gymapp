@@ -54,6 +54,22 @@
   --color-neutral-text: #344054;
   --color-neutral-border: #d0d5dd;
 
+  /* KPI card soft surfaces */
+  --color-kpi-blue: #f4f8ff;
+  --color-kpi-blue-border: #dbeafe;
+  --color-kpi-brand: #f0f5fa;
+  --color-kpi-brand-border: #d4e3f0;
+  --color-kpi-cyan: #f0fdfa;
+  --color-kpi-cyan-border: #ccfbf1;
+  --color-kpi-success: #ecfdf3;
+  --color-kpi-success-border: #abefc6;
+  --color-kpi-warning: #fffaeb;
+  --color-kpi-warning-border: #fedf89;
+  --color-kpi-danger: #fef3f2;
+  --color-kpi-danger-border: #fecdca;
+  --color-kpi-neutral: #f8f9fb;
+  --color-kpi-neutral-border: #e4e7ec;
+
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   --shadow-card: 0 1px 2px 0 rgb(16 24 40 / 0.05);
@@ -174,8 +190,48 @@ h4 {
 
 /* ── Cards ── */
 .stat-card {
-  @apply rounded-xl border border-line bg-white p-5;
+  @apply rounded-xl border p-5;
   box-shadow: var(--shadow-card);
+}
+
+.stat-card-tone-blue {
+  background-color: var(--color-kpi-blue);
+  border-color: var(--color-kpi-blue-border);
+}
+
+.stat-card-tone-brand {
+  background-color: var(--color-kpi-brand);
+  border-color: var(--color-kpi-brand-border);
+}
+
+.stat-card-tone-cyan {
+  background-color: var(--color-kpi-cyan);
+  border-color: var(--color-kpi-cyan-border);
+}
+
+.stat-card-tone-success {
+  background-color: var(--color-kpi-success);
+  border-color: var(--color-kpi-success-border);
+}
+
+.stat-card-tone-warning {
+  background-color: var(--color-kpi-warning);
+  border-color: var(--color-kpi-warning-border);
+}
+
+.stat-card-tone-danger {
+  background-color: var(--color-kpi-danger);
+  border-color: var(--color-kpi-danger-border);
+}
+
+.stat-card-tone-neutral {
+  background-color: var(--color-kpi-neutral);
+  border-color: var(--color-kpi-neutral-border);
+}
+
+.stat-card[class*='stat-card-tone'] .stat-card-icon {
+  background-color: rgb(255 255 255 / 0.72);
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.04);
 }
 
 .stat-card-icon {
