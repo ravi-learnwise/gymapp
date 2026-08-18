@@ -8,6 +8,8 @@ import {
 
   Get,
 
+  NotFoundException,
+
   Param,
 
   Patch,
