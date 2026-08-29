@@ -74,8 +74,28 @@ export type TrainingCard = {
   effectiveFrom: string | null;
   reviewDate: string | null;
   previousVersionId: string | null;
+  sourceTemplateId?: string | null;
   days: TrainingCardDay[];
   member?: { id: string; memberNumber: string; fullName: string };
+  createdBy?: { firstName: string | null; lastName: string | null };
+};
+
+export type TrainingPlanTemplateListItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  createdBy?: { firstName: string | null; lastName: string | null };
+  days: { weekday: number; dayType: TrainingDayType; _count: { exercises: number } }[];
+};
+
+export type TrainingPlanTemplate = {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  days: TrainingCardDay[];
   createdBy?: { firstName: string | null; lastName: string | null };
 };
 

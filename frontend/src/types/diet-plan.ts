@@ -79,6 +79,7 @@ export type DietPlan = {
   effectiveFrom: string | null;
   reviewDate: string | null;
   previousVersionId: string | null;
+  sourceTemplateId?: string | null;
   days: DietPlanDay[];
   member?: {
     id: string;
@@ -89,6 +90,29 @@ export type DietPlan = {
     medicalHistory?: string | null;
   };
   createdBy?: { firstName: string | null; lastName: string | null; role?: string };
+};
+
+export type DietPlanTemplateListItem = {
+  id: string;
+  name: string;
+  objective: DietPlanObjective;
+  description: string | null;
+  hydrationGoal: string | null;
+  isActive: boolean;
+  createdAt: string;
+  createdBy?: { firstName: string | null; lastName: string | null };
+  days: { weekday: number; dayType: DietDayType; _count: { meals: number } }[];
+};
+
+export type DietPlanTemplate = {
+  id: string;
+  name: string;
+  objective: DietPlanObjective;
+  description: string | null;
+  hydrationGoal: string | null;
+  isActive: boolean;
+  days: DietPlanDay[];
+  createdBy?: { firstName: string | null; lastName: string | null };
 };
 
 export { WEEKDAY_LABELS } from './training-card';

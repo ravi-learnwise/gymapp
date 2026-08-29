@@ -188,6 +188,11 @@ export class CreateDietPlanDto {
   @IsDateString()
   reviewDate?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sourceTemplateId?: string;
+
   @ApiPropertyOptional({ type: [DietPlanDayDto] })
   @IsOptional()
   @IsArray()
@@ -227,6 +232,11 @@ export class UpdateDietPlanDto {
   @IsOptional()
   @IsDateString()
   reviewDate?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sourceTemplateId?: string;
 
   @ApiPropertyOptional({ type: [DietPlanDayDto] })
   @IsOptional()

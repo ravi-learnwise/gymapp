@@ -1,103 +1,26 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Copy, Plus, Trash2 } from 'lucide-react';
-import CopyDayDialog from '../../components/diet/CopyDayDialog';
-import CopyMealDialog from '../../components/diet/CopyMealDialog';
-import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import DietWeekBuilder from '../../components/diet/DietWeekBuilder';
+import DietTemplatePicker from '../../components/diet/DietTemplatePicker';
+import {
+  dietDaysFromPlan,
+  dietDaysPayload,
+  emptyDietDays,
+  type DietMealDraft,
+} from '../../components/diet/diet-week';
 import Button from '../../components/ui/Button';
+import PublishWithTemplateDialog from '../../components/ui/PublishWithTemplateDialog';
+import SaveAsTemplateDialog from '../../components/ui/SaveAsTemplateDialog';
 import { api } from '../../lib/api';
+import { suggestTemplateName } from '../../lib/plan-templates';
 import type { Member } from '../../types/member';
 import {
-  DAY_TYPE_LABELS,
-  FOOD_UNITS,
-  isNonVegetarianFood,
-  MEAL_TYPE_LABELS,
-  MEAL_TYPES,
   OBJECTIVE_LABELS,
-  PREPARATION_OPTIONS,
   WEEKDAY_LABELS,
-  mealDisplayLabel,
-  type DietDayType,
   type DietPlan,
   type DietPlanObjective,
-  type MealType,
+  type DietPlanTemplate,
 } from '../../types/diet-plan';
-
-type AltDraft = {
-  alternativeFoodName: string;
-  quantity?: string;
-  unit?: string;
-  notes?: string;
-};
-
-type FoodDraft = {
-  id?: string;
-  foodName: string;
-  quantity?: string;
-  unit?: string;
-  preparation?: string;
-  notes?: string;
-  alternatives: AltDraft[];
-};
-
-type MealDraft = {
-  id?: string;
-  mealType: MealType;
-  title?: string;
-  approximateTime?: string;
-  timingNote?: string;
-  notes?: string;
-  foods: FoodDraft[];
-};
-
-type DayDraft = {
-  weekday: number;
-  dayType: DietDayType;
-  notes?: string;
-  meals: MealDraft[];
-};
-
-function emptyDays(): DayDraft[] {
-  return Array.from({ length: 7 }, (_, weekday) => ({
-    weekday,
-    dayType: 'PLAN_AVAILABLE' as DietDayType,
-    meals: [],
-  }));
-}
-
-function planToDays(plan: DietPlan): DayDraft[] {
-  const base = emptyDays();
-  for (const day of plan.days) {
-    base[day.weekday] = {
-      weekday: day.weekday,
-      dayType: day.dayType,
-      notes: day.notes ?? undefined,
-      meals: (day.meals ?? []).map((m) => ({
-        id: m.id,
-        mealType: m.mealType,
-        title: m.title ?? undefined,
-        approximateTime: m.approximateTime ?? undefined,
-        timingNote: m.timingNote ?? undefined,
-        notes: m.notes ?? undefined,
-        foods: (m.foods ?? []).map((f) => ({
-          id: f.id,
-          foodName: f.foodName,
-          quantity: f.quantity ?? undefined,
-          unit: f.unit ?? undefined,
-          preparation: f.preparation ?? undefined,
-          notes: f.notes ?? undefined,
-          alternatives: (f.alternatives ?? []).map((a) => ({
-            alternativeFoodName: a.alternativeFoodName,
-            quantity: a.quantity ?? undefined,
-            unit: a.unit ?? undefined,
-            notes: a.notes ?? undefined,
-          })),
-        })),
-      })),
-    };
-  }
-  return base;
-}
 
 export default function DietPlanEditorPage() {
   const { id } = useParams<{ id: string }>();
@@ -113,17 +36,19 @@ export default function DietPlanEditorPage() {
   const [hydrationGoal, setHydrationGoal] = useState('');
   const [reviewDate, setReviewDate] = useState('');
   const [effectiveFrom, setEffectiveFrom] = useState('');
-  const [days, setDays] = useState<DayDraft[]>(emptyDays());
+  const [days, setDays] = useState(emptyDietDays());
   const [activeTab, setActiveTab] = useState(new Date().getDay());
   const [member, setMember] = useState<Member | null>(null);
   const [existingId, setExistingId] = useState<string | null>(null);
   const [status, setStatus] = useState('DRAFT');
+  const [sourceTemplateId, setSourceTemplateId] = useState<string | null>(null);
+  const [previousVersionId, setPreviousVersionId] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
-  const [copyDayOpen, setCopyDayOpen] = useState(false);
-  const [copyMealTarget, setCopyMealTarget] = useState<{ index: number; label: string } | null>(null);
-  const [removeMealTarget, setRemoveMealTarget] = useState<number | null>(null);
   const [foodWarning, setFoodWarning] = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
 
   useEffect(() => {
     const mid = memberId ?? member?.id;
@@ -147,8 +72,10 @@ export default function DietPlanEditorPage() {
       setHydrationGoal(plan.hydrationGoal ?? '');
       setReviewDate(plan.reviewDate ? plan.reviewDate.slice(0, 10) : '');
       setEffectiveFrom(plan.effectiveFrom ? plan.effectiveFrom.slice(0, 10) : '');
-      setDays(planToDays(plan));
+      setDays(dietDaysFromPlan(plan));
       setStatus(plan.status);
+      setSourceTemplateId(plan.sourceTemplateId ?? null);
+      setPreviousVersionId(plan.previousVersionId);
       if (plan.member) {
         setMember({
           id: plan.member.id,
@@ -162,8 +89,26 @@ export default function DietPlanEditorPage() {
     });
   }, [planId, isNew]);
 
-  const currentDay = days[activeTab];
+  const startedFromScratch = !sourceTemplateId && !previousVersionId;
+  const weekHasContent = days.some((d) => d.meals.length > 0);
   const isVegetarian = member?.dietType?.toLowerCase().includes('vegetarian');
+
+  const applyTemplate = (tpl: DietPlanTemplate) => {
+    if (weekHasContent && !window.confirm('Replace the current week with this template?')) {
+      return;
+    }
+    setDays(dietDaysFromPlan(tpl));
+    setSourceTemplateId(tpl.id);
+    setObjective(tpl.objective);
+    setDescription(tpl.description ?? '');
+    setHydrationGoal(tpl.hydrationGoal ?? '');
+    if (member?.fullName) {
+      setName(`${tpl.name} for ${member.fullName}`);
+    } else {
+      setName(tpl.name);
+    }
+    setPickerOpen(false);
+  };
 
   const buildPayload = () => ({
     name,
@@ -172,35 +117,8 @@ export default function DietPlanEditorPage() {
     hydrationGoal: hydrationGoal || undefined,
     effectiveFrom: effectiveFrom || undefined,
     reviewDate: reviewDate || undefined,
-    days: days.map((d) => ({
-      weekday: d.weekday,
-      dayType: d.dayType,
-      notes: d.notes,
-      displayOrder: d.weekday,
-      meals: d.meals.map((meal, mi) => ({
-        mealType: meal.mealType,
-        title: meal.title,
-        approximateTime: meal.approximateTime,
-        timingNote: meal.timingNote,
-        notes: meal.notes,
-        displayOrder: mi,
-        foods: meal.foods.map((food, fi) => ({
-          foodName: food.foodName,
-          quantity: food.quantity,
-          unit: food.unit,
-          preparation: food.preparation,
-          notes: food.notes,
-          displayOrder: fi,
-          alternatives: food.alternatives.map((alt, ai) => ({
-            alternativeFoodName: alt.alternativeFoodName,
-            quantity: alt.quantity,
-            unit: alt.unit,
-            notes: alt.notes,
-            displayOrder: ai,
-          })),
-        })),
-      })),
-    })),
+    sourceTemplateId: sourceTemplateId || undefined,
+    days: dietDaysPayload(days),
   });
 
   const saveDraft = async () => {
@@ -229,29 +147,72 @@ export default function DietPlanEditorPage() {
     }
   };
 
-  const publish = async () => {
+  const publishMemberPlan = async () => {
+    let id = existingId;
+    if (!id && memberId) {
+      const created = await api<DietPlan>('/diet-plans', {
+        method: 'POST',
+        body: JSON.stringify({ memberId, ...buildPayload() }),
+      });
+      id = created.id;
+      setExistingId(created.id);
+      navigate(`/diet-plans/${created.id}/edit`, { replace: true });
+    } else if (id) {
+      await api(`/diet-plans/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(buildPayload()),
+      });
+    }
+    if (!id) throw new Error('Could not save plan');
+    await api(`/diet-plans/${id}/publish`, { method: 'POST', body: '{}' });
+    setStatus('ACTIVE');
+    return id;
+  };
+
+  const handlePublishClick = () => {
+    if (status !== 'DRAFT') return;
+    if (startedFromScratch) {
+      setPublishOpen(true);
+      return;
+    }
+    void runPublish(false, '');
+  };
+
+  const runPublish = async (saveAsTemplate: boolean, templateName: string) => {
+    setPublishOpen(false);
     setSaving(true);
     setMessage('');
     try {
-      let id = existingId;
-      if (!id && memberId) {
-        const created = await api<DietPlan>('/diet-plans', {
-          method: 'POST',
-          body: JSON.stringify({ memberId, ...buildPayload() }),
-        });
-        id = created.id;
-        setExistingId(created.id);
-        navigate(`/diet-plans/${created.id}/edit`, { replace: true });
-      } else if (id) {
-        await api(`/diet-plans/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify(buildPayload()),
-        });
+      const id = await publishMemberPlan();
+      if (saveAsTemplate) {
+        try {
+          const created = await api<DietPlanTemplate>('/diet-plan-templates', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: templateName,
+              objective,
+              description: description || undefined,
+              hydrationGoal: hydrationGoal || undefined,
+              days: dietDaysPayload(days),
+            }),
+          });
+          await api(`/diet-plans/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ sourceTemplateId: created.id }),
+          });
+          setSourceTemplateId(created.id);
+          setMessage('Published — now active for member. Also saved as a template.');
+        } catch (err) {
+          setMessage(
+            `Published for the member, but saving the template failed: ${
+              err instanceof Error ? err.message : 'unknown error'
+            }. Use Save as template to retry.`,
+          );
+          return;
+        }
+      } else {
+        setMessage('Published — now active for member');
       }
-      if (!id) return;
-      await api(`/diet-plans/${id}/publish`, { method: 'POST', body: '{}' });
-      setStatus('ACTIVE');
-      setMessage('Published — now active for member');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Publish failed');
     } finally {
@@ -259,10 +220,40 @@ export default function DietPlanEditorPage() {
     }
   };
 
+  const saveAsTemplate = async (templateName: string) => {
+    setSaveTemplateOpen(false);
+    setSaving(true);
+    setMessage('');
+    try {
+      const created = await api<DietPlanTemplate>('/diet-plan-templates', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: templateName,
+          objective,
+          description: description || undefined,
+          hydrationGoal: hydrationGoal || undefined,
+          days: dietDaysPayload(days),
+        }),
+      });
+      if (existingId) {
+        await api(`/diet-plans/${existingId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ sourceTemplateId: created.id }),
+        });
+        setSourceTemplateId(created.id);
+      }
+      setMessage('Saved as a diet plan template');
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Could not save template');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleCopyDay = async (targetWeekdays: number[], replaceExisting: boolean) => {
-    setCopyDayOpen(false);
     if (!existingId) {
       await saveDraft();
+      setMessage('Save draft first, then copy the day again');
       return;
     }
     try {
@@ -273,17 +264,18 @@ export default function DietPlanEditorPage() {
           body: JSON.stringify({ targetWeekdays, replaceExisting }),
         },
       );
-      setDays(planToDays(updated));
+      setDays(dietDaysFromPlan(updated));
       setMessage(`Copied ${WEEKDAY_LABELS[activeTab]} to selected days`);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Copy failed');
     }
   };
 
-  const handleCopyMeal = async (targetWeekdays: number[], replaceExisting: boolean) => {
-    if (!copyMealTarget) return;
-    const meal = currentDay.meals[copyMealTarget.index];
-    setCopyMealTarget(null);
+  const handleCopyMeal = async (
+    meal: DietMealDraft,
+    targetWeekdays: number[],
+    replaceExisting: boolean,
+  ) => {
     if (!meal.id) {
       setMessage('Save draft first before copying meals');
       return;
@@ -293,203 +285,35 @@ export default function DietPlanEditorPage() {
         method: 'POST',
         body: JSON.stringify({ targetWeekdays, replaceExisting }),
       });
-      setDays(planToDays(updated));
+      setDays(dietDaysFromPlan(updated));
       setMessage('Meal copied to selected days');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Copy meal failed');
     }
   };
 
-  const addMeal = (mealType: MealType) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: [
-                ...d.meals,
-                { mealType, foods: [] },
-              ],
-            }
-          : d,
-      ),
-    );
-  };
-
-  const removeMeal = (index: number) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? { ...d, meals: d.meals.filter((_, i) => i !== index) }
-          : d,
-      ),
-    );
-    setRemoveMealTarget(null);
-  };
-
-  const moveMeal = (index: number, dir: -1 | 1) => {
-    setDays((prev) =>
-      prev.map((d) => {
-        if (d.weekday !== activeTab) return d;
-        const next = [...d.meals];
-        const target = index + dir;
-        if (target < 0 || target >= next.length) return d;
-        [next[index], next[target]] = [next[target], next[index]];
-        return { ...d, meals: next };
-      }),
-    );
-  };
-
-  const updateMeal = (index: number, patch: Partial<MealDraft>) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: d.meals.map((m, i) => (i === index ? { ...m, ...patch } : m)),
-            }
-          : d,
-      ),
-    );
-  };
-
-  const addFood = (mealIndex: number) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: d.meals.map((m, i) =>
-                i === mealIndex
-                  ? { ...m, foods: [...m.foods, { foodName: '', alternatives: [] }] }
-                  : m,
-              ),
-            }
-          : d,
-      ),
-    );
-  };
-
-  const updateFood = (mealIndex: number, foodIndex: number, patch: Partial<FoodDraft>) => {
-    if (patch.foodName && isVegetarian && isNonVegetarianFood(patch.foodName)) {
-      setFoodWarning(
-        `Member is marked ${member?.dietType}. "${patch.foodName}" may be non-vegetarian — please verify.`,
-      );
-    }
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: d.meals.map((m, mi) =>
-                mi === mealIndex
-                  ? {
-                      ...m,
-                      foods: m.foods.map((f, fi) =>
-                        fi === foodIndex ? { ...f, ...patch } : f,
-                      ),
-                    }
-                  : m,
-              ),
-            }
-          : d,
-      ),
-    );
-  };
-
-  const removeFood = (mealIndex: number, foodIndex: number) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: d.meals.map((m, mi) =>
-                mi === mealIndex
-                  ? { ...m, foods: m.foods.filter((_, fi) => fi !== foodIndex) }
-                  : m,
-              ),
-            }
-          : d,
-      ),
-    );
-  };
-
-  const addAlternative = (mealIndex: number, foodIndex: number) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: d.meals.map((m, mi) =>
-                mi === mealIndex
-                  ? {
-                      ...m,
-                      foods: m.foods.map((f, fi) =>
-                        fi === foodIndex
-                          ? {
-                              ...f,
-                              alternatives: [
-                                ...f.alternatives,
-                                { alternativeFoodName: '' },
-                              ],
-                            }
-                          : f,
-                      ),
-                    }
-                  : m,
-              ),
-            }
-          : d,
-      ),
-    );
-  };
-
-  const updateAlternative = (
-    mealIndex: number,
-    foodIndex: number,
-    altIndex: number,
-    patch: Partial<AltDraft>,
-  ) => {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.weekday === activeTab
-          ? {
-              ...d,
-              meals: d.meals.map((m, mi) =>
-                mi === mealIndex
-                  ? {
-                      ...m,
-                      foods: m.foods.map((f, fi) =>
-                        fi === foodIndex
-                          ? {
-                              ...f,
-                              alternatives: f.alternatives.map((a, ai) =>
-                                ai === altIndex ? { ...a, ...patch } : a,
-                              ),
-                            }
-                          : f,
-                      ),
-                    }
-                  : m,
-              ),
-            }
-          : d,
-      ),
-    );
-  };
-
   const backLink = memberId ? `/members/${memberId}/diet-plan` : '/members';
-
-  const dayTypes = useMemo(
-    () => Object.entries(DAY_TYPE_LABELS) as [DietDayType, string][],
-    [],
-  );
 
   return (
     <div className="max-w-6xl">
       <Link to={backLink} className="text-sm text-brand-600 hover:underline">← Back</Link>
       <h2 className="mt-3 text-2xl">Diet Plan Builder</h2>
       <p className="text-sm text-ink-secondary">Status: {status}</p>
+
+      {isNew && !existingId && (
+        <section className="page-panel mt-6">
+          <h3 className="text-lg font-semibold text-ink">How do you want to start?</h3>
+          <p className="mt-1 text-sm text-ink-secondary">
+            Using a template is optional. You can still build the full week from scratch.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button variant="secondary" onClick={() => setPickerOpen(true)}>
+              Use a template
+            </Button>
+            <p className="self-center text-sm text-ink-muted">or keep editing the empty week below</p>
+          </div>
+        </section>
+      )}
 
       <div className="mt-4 grid gap-6 lg:grid-cols-3">
         <section className="page-panel lg:col-span-2">
@@ -545,170 +369,46 @@ export default function DietPlanEditorPage() {
         </aside>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-1">
-        {WEEKDAY_LABELS.map((label, i) => (
-          <button
-            key={label}
-            type="button"
-            className={`rounded-lg px-3 py-2 text-sm font-medium ${activeTab === i ? 'bg-brand-600 text-white' : 'bg-neutral-soft text-ink-secondary'}`}
-            onClick={() => setActiveTab(i)}
-          >
-            {label}
-            {days[i].meals.length > 0 && <span className="ml-1 opacity-75">({days[i].meals.length})</span>}
-          </button>
-        ))}
-      </div>
-
-      <section className="page-panel mt-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-semibold text-ink">{WEEKDAY_LABELS[activeTab]}</h3>
-          <Button variant="secondary" onClick={() => setCopyDayOpen(true)}>
-            <Copy className="h-4 w-4" />
-            Copy {WEEKDAY_LABELS[activeTab]} to other days
-          </Button>
-        </div>
-
-        <div className="mt-3">
-          <span className="form-label">Day type</span>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {dayTypes.map(([type, label]) => (
-              <button
-                key={type}
-                type="button"
-                className={`rounded-lg border px-3 py-2 text-sm ${currentDay.dayType === type ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-line'}`}
-                onClick={() =>
-                  setDays((prev) =>
-                    prev.map((d) => (d.weekday === activeTab ? { ...d, dayType: type } : d)),
-                  )
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {currentDay.dayType === 'NO_SPECIFIC_PLAN' ? (
-          <p className="mt-6 rounded-lg border border-dashed border-line py-8 text-center text-sm text-ink-muted">
-            No specific plan for this day — the member will see a clear rest-day message.
-          </p>
-        ) : (
-          <div className="mt-6 space-y-4">
-            {currentDay.meals.map((meal, mealIndex) => (
-              <div key={mealIndex} className="rounded-lg border border-line p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="grid flex-1 gap-3 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="text-xs font-medium text-ink-muted">Meal / intake</span>
-                      <select
-                        className="select-field mt-1 w-full"
-                        value={meal.mealType}
-                        onChange={(e) => updateMeal(mealIndex, { mealType: e.target.value as MealType })}
-                      >
-                        {MEAL_TYPES.map((t) => (
-                          <option key={t} value={t}>{MEAL_TYPE_LABELS[t]}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-ink-muted">Custom label (optional)</span>
-                      <input className="input-field mt-1 w-full" value={meal.title ?? ''} onChange={(e) => updateMeal(mealIndex, { title: e.target.value })} />
-                    </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-ink-muted">Approx. time</span>
-                      <input className="input-field mt-1 w-full" placeholder="~8:00 AM" value={meal.approximateTime ?? ''} onChange={(e) => updateMeal(mealIndex, { approximateTime: e.target.value })} />
-                    </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-ink-muted">Timing note</span>
-                      <input className="input-field mt-1 w-full" placeholder="30–60 min before workout" value={meal.timingNote ?? ''} onChange={(e) => updateMeal(mealIndex, { timingNote: e.target.value })} />
-                    </label>
-                  </div>
-                  <div className="flex shrink-0 gap-1">
-                    <button type="button" className="rounded p-1 hover:bg-canvas" onClick={() => moveMeal(mealIndex, -1)} aria-label="Move up"><ChevronUp className="h-4 w-4" /></button>
-                    <button type="button" className="rounded p-1 hover:bg-canvas" onClick={() => moveMeal(mealIndex, 1)} aria-label="Move down"><ChevronDown className="h-4 w-4" /></button>
-                    <button type="button" className="rounded p-1 text-brand-600 hover:bg-brand-50" onClick={() => setCopyMealTarget({ index: mealIndex, label: mealDisplayLabel(meal) })} aria-label="Copy meal"><Copy className="h-4 w-4" /></button>
-                    <button type="button" className="rounded p-1 text-danger hover:bg-danger-soft" onClick={() => setRemoveMealTarget(mealIndex)} aria-label="Remove meal"><Trash2 className="h-4 w-4" /></button>
-                  </div>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {meal.foods.map((food, foodIndex) => (
-                    <div key={foodIndex} className="rounded-md bg-canvas p-3">
-                      <div className="grid gap-2 sm:grid-cols-4">
-                        <input className="input-field sm:col-span-2" placeholder="Food name" value={food.foodName} onChange={(e) => updateFood(mealIndex, foodIndex, { foodName: e.target.value })} />
-                        <input className="input-field" placeholder="Qty" value={food.quantity ?? ''} onChange={(e) => updateFood(mealIndex, foodIndex, { quantity: e.target.value })} />
-                        <select className="select-field" value={food.unit ?? ''} onChange={(e) => updateFood(mealIndex, foodIndex, { unit: e.target.value })}>
-                          <option value="">Unit</option>
-                          {FOOD_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
-                        </select>
-                        <select className="select-field sm:col-span-2" value={food.preparation ?? ''} onChange={(e) => updateFood(mealIndex, foodIndex, { preparation: e.target.value })}>
-                          <option value="">Preparation</option>
-                          {PREPARATION_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-                        </select>
-                        <input className="input-field sm:col-span-2" placeholder="Notes" value={food.notes ?? ''} onChange={(e) => updateFood(mealIndex, foodIndex, { notes: e.target.value })} />
-                      </div>
-                      {food.alternatives.map((alt, altIndex) => (
-                        <div key={altIndex} className="mt-2 grid gap-2 border-l-2 border-brand-200 pl-3 sm:grid-cols-3">
-                          <input className="input-field" placeholder="Alternative food" value={alt.alternativeFoodName} onChange={(e) => updateAlternative(mealIndex, foodIndex, altIndex, { alternativeFoodName: e.target.value })} />
-                          <input className="input-field" placeholder="Qty" value={alt.quantity ?? ''} onChange={(e) => updateAlternative(mealIndex, foodIndex, altIndex, { quantity: e.target.value })} />
-                          <input className="input-field" placeholder="Unit" value={alt.unit ?? ''} onChange={(e) => updateAlternative(mealIndex, foodIndex, altIndex, { unit: e.target.value })} />
-                        </div>
-                      ))}
-                      <div className="mt-2 flex gap-3">
-                        <button type="button" className="text-xs text-brand-600 hover:underline" onClick={() => addAlternative(mealIndex, foodIndex)}>+ Alternative</button>
-                        <button type="button" className="text-xs text-danger hover:underline" onClick={() => removeFood(mealIndex, foodIndex)}>Remove food</button>
-                      </div>
-                    </div>
-                  ))}
-                  <button type="button" className="flex items-center gap-1 text-sm text-brand-600 hover:underline" onClick={() => addFood(mealIndex)}>
-                    <Plus className="h-4 w-4" /> Add food
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            <div className="flex flex-wrap gap-2">
-              {MEAL_TYPES.slice(0, 6).map((t) => (
-                <button key={t} type="button" className="rounded-lg border border-line px-3 py-1.5 text-xs hover:bg-canvas" onClick={() => addMeal(t)}>
-                  + {MEAL_TYPE_LABELS[t]}
-                </button>
-              ))}
-              <button type="button" className="rounded-lg border border-line px-3 py-1.5 text-xs hover:bg-canvas" onClick={() => addMeal('OTHER')}>
-                + Other intake
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
+      <DietWeekBuilder
+        days={days}
+        onDaysChange={setDays}
+        activeTab={activeTab}
+        onActiveTabChange={setActiveTab}
+        isVegetarian={isVegetarian}
+        dietTypeLabel={member?.dietType}
+        onFoodWarning={setFoodWarning}
+        onCopyDayRemote={handleCopyDay}
+        onCopyMealRemote={handleCopyMeal}
+      />
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Button variant="secondary" disabled={saving} onClick={saveDraft}>Save draft</Button>
         {status === 'DRAFT' && (
-          <Button disabled={saving} onClick={publish}>Publish</Button>
+          <Button disabled={saving} onClick={handlePublishClick}>Publish</Button>
         )}
+        <Button variant="ghost" disabled={saving} onClick={() => setSaveTemplateOpen(true)}>
+          Save as template
+        </Button>
       </div>
       {message && <p className="mt-3 text-sm text-ink-secondary">{message}</p>}
 
-      <CopyDayDialog
-        open={copyDayOpen}
-        sourceWeekday={activeTab}
-        onConfirm={handleCopyDay}
-        onCancel={() => setCopyDayOpen(false)}
+      <DietTemplatePicker
+        open={pickerOpen}
+        onSelect={applyTemplate}
+        onCancel={() => setPickerOpen(false)}
       />
-      <CopyMealDialog
-        open={!!copyMealTarget}
-        mealLabel={copyMealTarget?.label ?? ''}
-        sourceWeekday={activeTab}
-        onConfirm={handleCopyMeal}
-        onCancel={() => setCopyMealTarget(null)}
+      <PublishWithTemplateDialog
+        open={publishOpen}
+        planKind="diet"
+        suggestedTemplateName={suggestTemplateName(name, member?.fullName)}
+        onConfirm={runPublish}
+        onCancel={() => setPublishOpen(false)}
       />
-      <ConfirmDialog
-        open={removeMealTarget !== null}
-        title="Remove meal?"
-        message="Remove this intake occasion and all its food items?"
-        confirmLabel="Remove"
-        onConfirm={() => removeMealTarget !== null && removeMeal(removeMealTarget)}
-        onCancel={() => setRemoveMealTarget(null)}
+      <SaveAsTemplateDialog
+        open={saveTemplateOpen}
+        suggestedName={suggestTemplateName(name, member?.fullName)}
+        onConfirm={saveAsTemplate}
+        onCancel={() => setSaveTemplateOpen(false)}
       />
     </div>
   );

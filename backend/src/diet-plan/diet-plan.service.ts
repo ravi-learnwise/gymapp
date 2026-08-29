@@ -148,6 +148,7 @@ export class DietPlanService {
         hydrationGoal: dto.hydrationGoal,
         effectiveFrom: dto.effectiveFrom ? new Date(dto.effectiveFrom) : undefined,
         reviewDate: dto.reviewDate ? new Date(dto.reviewDate) : undefined,
+        sourceTemplateId: dto.sourceTemplateId,
         version: (latest?.version ?? 0) + 1,
         status: DietPlanStatus.DRAFT,
         createdById: user.id,
@@ -160,10 +161,18 @@ export class DietPlanService {
 
   async update(id: string, dto: UpdateDietPlanDto, user: AuthUser) {
     const existing = await this.findOne(id, user);
-    if (existing.status !== DietPlanStatus.DRAFT) {
-      throw new BadRequestException('Only draft plans can be edited');
-    }
     await this.assertWriteAccess(existing.memberId, user);
+
+    if (existing.status !== DietPlanStatus.DRAFT) {
+      if (dto.sourceTemplateId === undefined) {
+        throw new BadRequestException('Only draft plans can be edited');
+      }
+      return this.prisma.dietPlan.update({
+        where: { id },
+        data: { sourceTemplateId: dto.sourceTemplateId, updatedById: user.id },
+        include: planInclude,
+      });
+    }
 
     if (dto.days) {
       await this.prisma.dietPlanDay.deleteMany({ where: { dietPlanId: id } });
@@ -186,6 +195,7 @@ export class DietPlanService {
         hydrationGoal: dto.hydrationGoal,
         effectiveFrom: dto.effectiveFrom ? new Date(dto.effectiveFrom) : undefined,
         reviewDate: dto.reviewDate ? new Date(dto.reviewDate) : undefined,
+        sourceTemplateId: dto.sourceTemplateId,
         updatedById: user.id,
       },
       include: planInclude,

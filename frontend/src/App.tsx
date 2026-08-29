@@ -10,6 +10,10 @@ import ProgramsPage from './pages/config/ProgramsPage';
 import DiscountsPage from './pages/config/DiscountsPage';
 import OffersPage from './pages/config/OffersPage';
 import ExerciseLibraryPage from './pages/config/ExerciseLibraryPage';
+import TrainingPlanTemplateListPage from './pages/config/TrainingPlanTemplateListPage';
+import TrainingPlanTemplateEditorPage from './pages/config/TrainingPlanTemplateEditorPage';
+import DietPlanTemplateListPage from './pages/config/DietPlanTemplateListPage';
+import DietPlanTemplateEditorPage from './pages/config/DietPlanTemplateEditorPage';
 import UsersPage, { ProfilePage } from './pages/UsersPage';
 import EnquiryListPage from './pages/enquiries/EnquiryListPage';
 import EnquiryFormPage from './pages/enquiries/EnquiryFormPage';
@@ -77,6 +81,12 @@ export default function App() {
           <Route path="/members/:id/diet-plan" element={<MemberDietPlanPage />} />
           <Route path="/members/:id/diet-plan/new" element={<DietPlanEditorPage />} />
           <Route path="/diet-plans/:id/edit" element={<DietPlanEditorPage />} />
+          <Route path="/config/training-templates" element={<TrainingPlanTemplateListPage />} />
+          <Route path="/config/training-templates/new" element={<TrainingPlanTemplateEditorPage />} />
+          <Route path="/config/training-templates/:id/edit" element={<TrainingPlanTemplateEditorPage />} />
+          <Route path="/config/diet-templates" element={<DietPlanTemplateListPage />} />
+          <Route path="/config/diet-templates/new" element={<DietPlanTemplateEditorPage />} />
+          <Route path="/config/diet-templates/:id/edit" element={<DietPlanTemplateEditorPage />} />
           <Route path="/payments/:id" element={<PaymentDetailPage />} />
           <Route path="/attendance" element={<AttendancePage />} />
         </Route>

@@ -141,6 +141,11 @@ export class CreateTrainingCardDto {
   @IsDateString()
   reviewDate?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sourceTemplateId?: string;
+
   @ApiPropertyOptional({ type: [TrainingCardDayDto] })
   @IsOptional()
   @IsArray()
@@ -165,6 +170,11 @@ export class UpdateTrainingCardDto {
   @IsOptional()
   @IsDateString()
   reviewDate?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sourceTemplateId?: string;
 
   @ApiPropertyOptional({ type: [TrainingCardDayDto] })
   @IsOptional()

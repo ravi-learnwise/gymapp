@@ -127,6 +127,7 @@ export class TrainingCardService {
         name: dto.name,
         description: dto.description,
         reviewDate: dto.reviewDate ? new Date(dto.reviewDate) : undefined,
+        sourceTemplateId: dto.sourceTemplateId,
         version: (latest?.version ?? 0) + 1,
         status: TrainingCardStatus.DRAFT,
         createdById: user.id,
@@ -139,10 +140,18 @@ export class TrainingCardService {
 
   async update(id: string, dto: UpdateTrainingCardDto, user: AuthUser) {
     const existing = await this.findOne(id, user);
-    if (existing.status !== TrainingCardStatus.DRAFT) {
-      throw new BadRequestException('Only draft cards can be edited');
-    }
     await this.assertWriteAccess(existing.memberId, user);
+
+    if (existing.status !== TrainingCardStatus.DRAFT) {
+      if (dto.sourceTemplateId === undefined) {
+        throw new BadRequestException('Only draft cards can be edited');
+      }
+      return this.prisma.trainingCard.update({
+        where: { id },
+        data: { sourceTemplateId: dto.sourceTemplateId, updatedById: user.id },
+        include: cardInclude,
+      });
+    }
 
     if (dto.days) {
       await this.prisma.trainingCardDay.deleteMany({ where: { trainingCardId: id } });
@@ -196,6 +205,7 @@ export class TrainingCardService {
         name: dto.name,
         description: dto.description,
         reviewDate: dto.reviewDate ? new Date(dto.reviewDate) : undefined,
+        sourceTemplateId: dto.sourceTemplateId,
         updatedById: user.id,
       },
       include: cardInclude,
