@@ -19,6 +19,8 @@ import EnquiryListPage from './pages/enquiries/EnquiryListPage';
 import EnquiryFormPage from './pages/enquiries/EnquiryFormPage';
 import EnquiryDetailPage from './pages/enquiries/EnquiryDetailPage';
 import EnrollmentWizardPage from './pages/enrollment/EnrollmentWizardPage';
+import DirectMemberPage from './pages/members/DirectMemberPage';
+import MemberImportPage from './pages/members/MemberImportPage';
 import MemberListPage from './pages/members/MemberListPage';
 import MemberDetailPage from './pages/members/MemberDetailPage';
 import AddMembershipPage from './pages/members/AddMembershipPage';
@@ -70,6 +72,8 @@ export default function App() {
             <Route path="/payments" element={<PaymentListPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/members/expiring" element={<ExpiringMembershipsPage />} />
+            <Route path="/members/new" element={<DirectMemberPage />} />
+            <Route path="/members/import" element={<MemberImportPage />} />
           </Route>
 
           <Route path="/members" element={<MemberListPage />} />

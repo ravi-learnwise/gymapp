@@ -1,5 +1,6 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Plus, Upload } from 'lucide-react';
 import DataTable, { type DataTableColumn } from '../../components/DataTable/DataTable';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -141,9 +142,19 @@ export default function MemberListPage() {
           </p>
         </div>
         {(user?.role === 'OWNER' || user?.role === 'MANAGER') && (
-          <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
-            Expiring memberships →
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/members/import" className="btn btn-secondary">
+              <Upload className="h-4 w-4" />
+              Import Excel
+            </Link>
+            <Link to="/members/new" className="btn btn-primary">
+              <Plus className="h-4 w-4" />
+              Add Member
+            </Link>
+            <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
+              Expiring memberships →
+            </Link>
+          </div>
         )}
       </div>
 
