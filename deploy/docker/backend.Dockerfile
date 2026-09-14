@@ -15,7 +15,6 @@ RUN pnpm install --frozen-lockfile --filter backend...
 # --- Build ---
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/node_modules ./backend/node_modules
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY deploy/docker/.npmrc ./.npmrc
 COPY backend ./backend
