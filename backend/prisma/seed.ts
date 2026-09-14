@@ -101,7 +101,11 @@ async function main() {
     });
   }
 
-  const manifestPath = path.join(__dirname, '..', 'data', 'simplyfitness-exercises.json');
+  const backendRoot =
+    path.basename(path.dirname(__dirname)) === 'dist'
+      ? path.join(__dirname, '..', '..')
+      : path.join(__dirname, '..');
+  const manifestPath = path.join(backendRoot, 'data', 'simplyfitness-exercises.json');
   if (fs.existsSync(manifestPath)) {
     const { imported, missingImages } = await importSimplyFitnessExercises(prisma, manifestPath);
     console.log(`Imported ${imported} SimplyFitness exercises`);

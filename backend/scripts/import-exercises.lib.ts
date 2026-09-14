@@ -3,7 +3,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { ScrapedExercise } from './exercise-import.types';
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT =
+  path.basename(path.dirname(__dirname)) === 'dist'
+    ? path.resolve(__dirname, '..', '..')
+    : path.resolve(__dirname, '..');
 const DEFAULT_MANIFEST = path.join(ROOT, 'data', 'simplyfitness-exercises.json');
 const UPLOADS_DIR = path.join(ROOT, 'uploads', 'exercises');
 

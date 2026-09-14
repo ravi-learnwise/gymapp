@@ -42,7 +42,7 @@ docker compose --env-file .env.production up -d --build
 | http://localhost/api/health | Health check — expect `"phase":4` |
 | http://localhost/api/docs | Swagger (optional) |
 
-**First deploy:** set `SEED_ON_START=true` in `.env.production` to create demo accounts, then set it back to `false` and run `docker compose --env-file .env.production up -d`.
+**First deploy:** set `SEED_ON_START=true` in `.env.production` to create demo accounts (the API image runs compiled `node dist/prisma/seed.js`, not `ts-node`). Then set it back to `false` and run `docker compose --env-file .env.production up -d`.
 
 **Stop:**
 
