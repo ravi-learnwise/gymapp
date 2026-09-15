@@ -8,7 +8,7 @@ type JwtPayload = {
   sub: string;
   email: string;
   role: AuthUser['role'];
-  type: 'access' | 'refresh';
+  type: 'access' | 'refresh' | 'member_access' | 'member_refresh';
 };
 
 @Injectable()
@@ -22,6 +22,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   validate(payload: JwtPayload): AuthUser {
+    if (payload.type === 'member_access' || payload.type === 'member_refresh') {
+      throw new Error('Invalid token type');
+    }
     if (payload.type !== 'access') {
       throw new Error('Invalid token type');
     }

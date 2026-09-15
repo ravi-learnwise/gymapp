@@ -125,6 +125,11 @@ enum WeightUnit {
   LB
 }
 
+enum AttendanceSource {
+  STAFF
+  MEMBER
+}
+
 enum ExerciseType {
   STRENGTH
   CARDIO
@@ -348,6 +353,7 @@ model Member {
   sportsParticipation String?      @db.Text
   fitnessGoals        String?      @db.Text
   isActive            Boolean      @default(true)
+  firebaseUid         String?      @unique
   sourceEnquiryId     String?      @unique
   sourceEnquiry       Enquiry?     @relation(fields: [sourceEnquiryId], references: [id], onDelete: SetNull)
   enrollment          Enrollment?
@@ -362,6 +368,7 @@ model Member {
 
   @@index([mobileNumber])
   @@index([fullName])
+  @@index([email])
   @@map("members")
 }
 
@@ -495,17 +502,18 @@ model FitnessAssessment {
 }
 
 model AttendanceRecord {
-  id             String    @id @default(uuid())
+  id             String           @id @default(uuid())
   memberId       String
-  member         Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member         Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
   checkIn        DateTime
   checkOut       DateTime?
   sessionMinutes Int?
   batch          String?
-  recordedById   String
-  recordedBy     User      @relation("AttendanceRecordedBy", fields: [recordedById], references: [id], onDelete: Restrict)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  source         AttendanceSource @default(STAFF)
+  recordedById   String?
+  recordedBy     User?            @relation("AttendanceRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([memberId])
   @@index([checkIn])

@@ -93,6 +93,7 @@ export class AttendanceService {
         memberId: dto.memberId,
         checkIn: dto.checkIn ? new Date(dto.checkIn) : new Date(),
         batch: dto.batch,
+        source: 'STAFF',
         recordedById: user.id,
       },
       include: recordInclude,

@@ -70,7 +70,7 @@ export default function MemberDetailPage() {
             <dl className="mt-3 space-y-2 text-sm">
               <Row label="Mobile" value={member.mobileNumber} />
               <Row label="Alt. Contact" value={member.alternateContact} />
-              <Row label="Email" value={member.email} />
+              <Row label="Email (app login)" value={member.email} />
               <Row label="Gender" value={member.gender ? GENDER_LABELS[member.gender as Gender] : null} />
               <Row label="Profession" value={member.profession} />
               <Row label="Address" value={member.address} />

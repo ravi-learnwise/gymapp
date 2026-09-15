@@ -192,7 +192,7 @@ export default function DirectMemberPage() {
               {field('Full Name', 'fullName', 'text', true)}
               {field('Mobile Number', 'mobileNumber', 'tel', true)}
               {field('Existing Member ID', 'existingMemberId')}
-              {field('Email', 'email', 'email')}
+              {field('Email (Gmail for app login)', 'email', 'email')}
               {field('Alternate Contact', 'alternateContact', 'tel')}
               {field('Age', 'age', 'number')}
               <div>
