@@ -45,7 +45,7 @@ export default function MemberAssessmentsSection({ memberId, canEdit }: Props) {
   };
 
   return (
-    <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+    <div className="mt-6 rounded-xl border border-line bg-white p-5">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold">Fitness Assessments</h3>
         {canEdit && (
@@ -72,11 +72,11 @@ export default function MemberAssessmentsSection({ memberId, canEdit }: Props) {
             ['thigh', 'Thigh (cm)'],
           ].map(([key, label]) => (
             <label key={key} className="block text-sm">
-              <span className="text-slate-600">{label}</span>
+              <span className="text-ink-secondary">{label}</span>
               <input
                 type="number"
                 step="0.1"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-line-strong px-3 py-2"
                 value={form[key as keyof CreateAssessmentInput] ?? ''}
                 onChange={(e) =>
                   setForm({ ...form, [key]: e.target.value ? Number(e.target.value) : undefined })
@@ -85,33 +85,33 @@ export default function MemberAssessmentsSection({ memberId, canEdit }: Props) {
             </label>
           ))}
           <label className="block text-sm sm:col-span-2">
-            <span className="text-slate-600">Medical History</span>
+            <span className="text-ink-secondary">Medical History</span>
             <textarea
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-line-strong px-3 py-2"
               rows={2}
               value={form.medicalHistory ?? ''}
               onChange={(e) => setForm({ ...form, medicalHistory: e.target.value || undefined })}
             />
           </label>
           <label className="block text-sm sm:col-span-2">
-            <span className="text-slate-600">Fitness Goals</span>
+            <span className="text-ink-secondary">Fitness Goals</span>
             <textarea
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-line-strong px-3 py-2"
               rows={2}
               value={form.fitnessGoals ?? ''}
               onChange={(e) => setForm({ ...form, fitnessGoals: e.target.value || undefined })}
             />
           </label>
           <label className="block text-sm sm:col-span-2">
-            <span className="text-slate-600">Notes</span>
+            <span className="text-ink-secondary">Notes</span>
             <textarea
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-line-strong px-3 py-2"
               rows={2}
               value={form.notes ?? ''}
               onChange={(e) => setForm({ ...form, notes: e.target.value || undefined })}
             />
           </label>
-          {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
+          {error && <p className="text-sm text-danger sm:col-span-2">{error}</p>}
           <div className="sm:col-span-2">
             <button
               type="submit"
@@ -131,11 +131,11 @@ export default function MemberAssessmentsSection({ memberId, canEdit }: Props) {
               <span className="font-medium">
                 {new Date(a.assessedAt).toLocaleString()}
               </span>
-              <span className="text-slate-500">
+              <span className="text-ink-secondary">
                 by {trainerName(a.assessedBy)}
               </span>
             </div>
-            <div className="mt-2 grid gap-1 text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-2 grid gap-1 text-ink-secondary sm:grid-cols-2 lg:grid-cols-4">
               {a.height != null && <span>Height: {a.height} cm</span>}
               {a.weight != null && <span>Weight: {a.weight} kg</span>}
               {a.bmi != null && <span>BMI: {a.bmi}</span>}
@@ -147,16 +147,16 @@ export default function MemberAssessmentsSection({ memberId, canEdit }: Props) {
               {a.thigh != null && <span>Thigh: {a.thigh} cm</span>}
             </div>
             {a.fitnessGoals && (
-              <p className="mt-2 text-slate-600">Goals: {a.fitnessGoals}</p>
+              <p className="mt-2 text-ink-secondary">Goals: {a.fitnessGoals}</p>
             )}
             {a.medicalHistory && (
-              <p className="mt-1 text-slate-600">Medical: {a.medicalHistory}</p>
+              <p className="mt-1 text-ink-secondary">Medical: {a.medicalHistory}</p>
             )}
-            {a.notes && <p className="mt-1 text-slate-500 italic">{a.notes}</p>}
+            {a.notes && <p className="mt-1 text-ink-secondary italic">{a.notes}</p>}
           </li>
         ))}
         {!assessments.length && (
-          <li className="text-slate-400">No assessments recorded yet</li>
+          <li className="text-ink-muted">No assessments recorded yet</li>
         )}
       </ul>
     </div>

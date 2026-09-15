@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PaymentStatus, Prisma } from '@prisma/client';
+import { PaymentMode, PaymentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreatePaymentCommitmentDto,
@@ -359,10 +359,54 @@ export class PaymentService {
     });
   }
 
-  private async generateReceiptNumber(): Promise<string> {
+  /** Records the first payment against a commitment inside an existing transaction. */
+  async recordInitialPayment(
+    tx: Prisma.TransactionClient,
+    commitmentId: string,
+    dto: { amount: number; paymentMode: PaymentMode; paymentDate?: Date; notes?: string },
+    userId: string,
+  ) {
+    const commitment = await tx.paymentCommitment.findUnique({ where: { id: commitmentId } });
+    if (!commitment) throw new NotFoundException('Payment commitment not found');
+
+    const finalAmount = toNumber(commitment.finalAmount);
+    const currentPaid = toNumber(commitment.amountPaid);
+    const newPaid = currentPaid + dto.amount;
+
+    if (newPaid > finalAmount + 0.01) {
+      throw new BadRequestException(
+        `Payment exceeds pending amount (₹${(finalAmount - currentPaid).toFixed(2)} remaining)`,
+      );
+    }
+
+    const receiptNumber = await this.generateReceiptNumber(tx);
+    const pendingAmount = Math.max(0, finalAmount - newPaid);
+    const status = derivePaymentStatus(newPaid, finalAmount);
+
+    const transaction = await tx.paymentTransaction.create({
+      data: {
+        commitmentId,
+        receiptNumber,
+        amount: dto.amount,
+        paymentMode: dto.paymentMode,
+        paymentDate: dto.paymentDate ?? new Date(),
+        notes: dto.notes,
+        recordedById: userId,
+      },
+    });
+
+    await tx.paymentCommitment.update({
+      where: { id: commitmentId },
+      data: { amountPaid: newPaid, pendingAmount, status },
+    });
+
+    return { ...transaction, status, amountPaid: newPaid, pendingAmount };
+  }
+
+  private async generateReceiptNumber(db: Prisma.TransactionClient | PrismaService = this.prisma): Promise<string> {
     const year = new Date().getFullYear();
     const prefix = `RCP-${year}-`;
-    const last = await this.prisma.paymentTransaction.findFirst({
+    const last = await db.paymentTransaction.findFirst({
       where: { receiptNumber: { startsWith: prefix } },
       orderBy: { receiptNumber: 'desc' },
     });

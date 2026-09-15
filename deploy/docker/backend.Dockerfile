@@ -15,7 +15,6 @@ RUN pnpm install --frozen-lockfile --filter backend...
 # --- Build ---
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/node_modules ./backend/node_modules
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY deploy/docker/.npmrc ./.npmrc
 COPY backend ./backend
@@ -35,6 +34,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/package.json ./backend/package.json
 COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY --from=builder /app/backend/data ./backend/data
+COPY --from=builder /app/backend/uploads ./backend/uploads
 COPY deploy/docker/backend-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

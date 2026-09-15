@@ -77,7 +77,7 @@ export default function DiscountsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Category name"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-line-strong px-3 py-2 text-sm"
           />
           <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm text-white">
             Add
@@ -105,7 +105,7 @@ export default function DiscountsPage() {
                     <input
                       value={editForm.name}
                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      className="w-full rounded border border-slate-300 px-3 py-2 text-sm font-medium"
+                      className="w-full rounded border border-line-strong px-3 py-2 text-sm font-medium"
                     />
                   </td>
                   <td>
@@ -114,7 +114,7 @@ export default function DiscountsPage() {
                       onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                       placeholder="Description"
                       rows={2}
-                      className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                      className="w-full rounded border border-line-strong px-3 py-2 text-sm"
                     />
                   </td>
                   <td>
@@ -124,7 +124,7 @@ export default function DiscountsPage() {
                       value={editForm.percentage}
                       onChange={(e) => setEditForm({ ...editForm, percentage: e.target.value })}
                       placeholder="% off"
-                      className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                      className="w-full rounded border border-line-strong px-3 py-2 text-sm"
                     />
                   </td>
                   <td>{d.isActive ? 'Active' : 'Inactive'}</td>
@@ -132,7 +132,7 @@ export default function DiscountsPage() {
                     <td className="list-table-actions">
                       <div className="flex justify-end gap-2">
                         <button onClick={() => save(d.id)} className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm text-white">Save</button>
-                        <button onClick={() => setEditingId(null)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">Cancel</button>
+                        <button onClick={() => setEditingId(null)} className="rounded-lg border border-line-strong px-3 py-1.5 text-sm">Cancel</button>
                       </div>
                     </td>
                   )}
@@ -140,10 +140,10 @@ export default function DiscountsPage() {
               ) : (
                 <>
                   <td className="font-medium">{d.name}</td>
-                  <td className="text-slate-600">{d.description || '—'}</td>
+                  <td className="text-ink-secondary">{d.description || '—'}</td>
                   <td>{d.percentage ? `${Number(d.percentage)}%` : '—'}</td>
                   <td>
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${d.isActive ? 'badge badge-success' : 'badge badge-danger'}`}>
                       {d.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>

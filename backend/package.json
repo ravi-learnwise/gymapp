@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && tsc -p tsconfig.seed.json",
     "dev": "nest start --watch",
     "start": "node dist/main",
     "start:prod": "node dist/main",
@@ -11,7 +11,10 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "scrape:exercises": "ts-node --transpile-only scripts/scrape-simplyfitness-exercises.ts",
+    "import:exercises": "ts-node -r dotenv/config scripts/import-exercises.ts dotenv_config_path=../.env",
+    "fix:exercise-bodyparts": "ts-node --transpile-only scripts/fix-exercise-bodyparts.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.12",
@@ -25,6 +28,8 @@
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "exceljs": "^4.4.0",
+    "firebase-admin": "^14.4.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
@@ -35,8 +40,10 @@
     "@nestjs/schematics": "^11.0.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.1",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.14.0",
     "@types/passport-jwt": "^4.0.1",
+    "cheerio": "^1.2.0",
     "dotenv": "^16.4.7",
     "prisma": "^6.6.0",
     "ts-node": "^10.9.2",

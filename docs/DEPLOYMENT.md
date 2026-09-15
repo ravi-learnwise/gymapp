@@ -42,7 +42,7 @@ docker compose --env-file .env.production up -d --build
 | http://localhost/api/health | Health check — expect `"phase":4` |
 | http://localhost/api/docs | Swagger (optional) |
 
-**First deploy:** set `SEED_ON_START=true` in `.env.production` to create demo accounts, then set it back to `false` and run `docker compose --env-file .env.production up -d`.
+**First deploy:** set `SEED_ON_START=true` in `.env.production` to create demo accounts (the API image runs compiled `node dist/prisma/seed.js`, not `ts-node`). Then set it back to `false` and run `docker compose --env-file .env.production up -d`.
 
 **Stop:**
 
@@ -113,6 +113,7 @@ See [`.env.production.example`](../.env.production.example).
 | `CORS_ORIGIN` | Yes | Public site URL |
 | `HTTP_PORT` | No | Default `80` |
 | `SEED_ON_START` | No | `true` once for demo accounts |
+| `FIREBASE_SERVICE_ACCOUNT` | Member app | Firebase Admin service account JSON (single line) |
 
 ## Operations
 
@@ -152,6 +153,7 @@ When you have paying subscribers:
 | `api` exits on start | `docker compose logs api` — DB not ready or bad credentials |
 | 502 / proxy errors | Wait for `api`; ensure `db` healthcheck passes |
 | Login fails | Run once with `SEED_ON_START=true` |
+| Member app login 503 | Set `FIREBASE_SERVICE_ACCOUNT` and rebuild `api` |
 | Out of memory | Use t3.small |
 
 ## Related docs

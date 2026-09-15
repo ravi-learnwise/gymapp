@@ -107,14 +107,14 @@ export default function EnrollmentWizardPage() {
   if (!enquiryId) {
     return (
       <div>
-        <p className="text-red-600">Missing enquiryId. Start enrollment from an enquiry detail page.</p>
+        <p className="text-danger">Missing enquiryId. Start enrollment from an enquiry detail page.</p>
         <Link to="/enquiries" className="text-brand-600 hover:underline">← Enquiries</Link>
       </div>
     );
   }
 
   if (!prefill) {
-    return <p className="text-slate-500">{error || 'Loading enrollment data…'}</p>;
+    return <p className="text-ink-secondary">{error || 'Loading enrollment data…'}</p>;
   }
 
   const { enquiry } = prefill;
@@ -125,7 +125,7 @@ export default function EnrollmentWizardPage() {
         ← Back to Enquiry
       </Link>
       <h2 className="mt-2 text-2xl">Enrollment Wizard</h2>
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-ink-secondary">
         {enquiry.enquiryNumber} · {enquiry.fullName}
       </p>
 
@@ -135,7 +135,7 @@ export default function EnrollmentWizardPage() {
           <li
             key={label}
             className={`flex-1 rounded-lg px-2 py-2 text-center text-xs font-medium ${
-              i === step ? 'bg-brand-600 text-white' : i < step ? 'bg-brand-100 text-brand-800' : 'bg-slate-100 text-slate-500'
+              i === step ? 'bg-brand-600 text-white' : i < step ? 'bg-brand-100 text-brand-800' : 'bg-neutral-soft text-ink-secondary'
             }`}
           >
             {label}
@@ -143,13 +143,13 @@ export default function EnrollmentWizardPage() {
         ))}
       </ol>
 
-      {error && step < 3 && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && step < 3 && <p className="mt-4 text-sm text-danger">{error}</p>}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-6">
         {step === 0 && (
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
+          <section className="rounded-xl border border-line bg-white p-5">
             <h3 className="font-semibold">Enquiry Data (read-only)</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-ink-secondary">
               All enquiry information is carried forward — no retyping required.
             </p>
             <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
@@ -185,7 +185,7 @@ export default function EnrollmentWizardPage() {
         )}
 
         {step === 1 && (
-          <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+          <section className="rounded-xl border border-line bg-white p-5 space-y-4">
             <h3 className="font-semibold">Additional Health Profile</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm">
@@ -201,7 +201,7 @@ export default function EnrollmentWizardPage() {
                 Weight (kg)
                 <input type="number" step="0.1" value={health.weight} onChange={(e) => setHealth({ ...health, weight: e.target.value })} className="mt-1 w-full rounded-lg border px-3 py-2" />
               </label>
-              <div className="sm:col-span-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+              <div className="sm:col-span-2 rounded-lg bg-canvas px-3 py-2 text-sm">
                 BMI: <strong>{bmi ?? '—'}</strong> {bmi && (bmi < 18.5 ? '(Underweight)' : bmi < 25 ? '(Normal)' : bmi < 30 ? '(Overweight)' : '(Obese)')}
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function EnrollmentWizardPage() {
         )}
 
         {step === 2 && (
-          <section className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+          <section className="rounded-xl border border-line bg-white p-5 space-y-4">
             <h3 className="font-semibold">Program Details</h3>
             <label className="block text-sm">
               Program *
@@ -270,16 +270,16 @@ export default function EnrollmentWizardPage() {
               </label>
               <label className="block text-sm">
                 End Date (auto)
-                <input type="date" readOnly value={endDate} className="mt-1 w-full rounded-lg border bg-slate-50 px-3 py-2" />
+                <input type="date" readOnly value={endDate} className="mt-1 w-full rounded-lg border bg-canvas px-3 py-2" />
               </label>
             </div>
           </section>
         )}
 
         {step === 3 && (
-          <section className="rounded-xl border border-slate-200 bg-white p-5">
+          <section className="rounded-xl border border-line bg-white p-5">
             <h3 className="font-semibold">Confirm Enrollment</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-ink-secondary">
               This will create a member record, activate membership, and mark the enquiry as Converted.
             </p>
             <dl className="mt-4 space-y-2 text-sm">
@@ -300,7 +300,7 @@ export default function EnrollmentWizardPage() {
               />
               <Field label="BMI" value={bmi?.toString()} />
             </dl>
-            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-3 text-sm text-danger">{error}</p>}
           </section>
         )}
 
@@ -342,8 +342,8 @@ export default function EnrollmentWizardPage() {
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-800">{value || '—'}</dd>
+      <dt className="text-ink-secondary">{label}</dt>
+      <dd className="font-medium text-ink">{value || '—'}</dd>
     </div>
   );
 }

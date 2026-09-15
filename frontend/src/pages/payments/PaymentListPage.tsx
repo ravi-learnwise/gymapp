@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import DataTable, { type DataTableColumn } from '../../components/DataTable/DataTable';
 import { api } from '../../lib/api';
+import StatusBadge, { paymentStatusVariant } from '../../components/ui/StatusBadge';
 import {
   formatCurrency,
-  PAYMENT_STATUS_COLORS,
   PAYMENT_STATUS_LABELS,
   type PaymentCommitmentSummary,
   type PaymentStats,
@@ -65,7 +65,7 @@ export default function PaymentListPage() {
             <Link to={`/payments/${row.original.id}`} className="font-medium text-brand-600 hover:underline">
               {row.original.member.fullName}
             </Link>
-            <p className="text-xs text-slate-400">{row.original.member.memberNumber}</p>
+            <p className="text-xs text-ink-muted">{row.original.member.memberNumber}</p>
           </div>
         ),
       },
@@ -76,9 +76,9 @@ export default function PaymentListPage() {
         meta: { fixed: true, label: 'Status' },
         enableSorting: true,
         cell: ({ row }) => (
-          <span className={`rounded-full px-2 py-0.5 text-xs ${PAYMENT_STATUS_COLORS[row.original.status]}`}>
+          <StatusBadge variant={paymentStatusVariant(row.original.status)}>
             {PAYMENT_STATUS_LABELS[row.original.status]}
-          </span>
+          </StatusBadge>
         ),
       },
       {
@@ -129,7 +129,7 @@ export default function PaymentListPage() {
   return (
     <div>
       <h2 className="text-2xl">Payments</h2>
-      <p className="text-sm text-slate-500">Payment commitments and outstanding balances</p>
+      <p className="text-sm text-ink-secondary">Payment commitments and outstanding balances</p>
 
       {stats && (
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -166,7 +166,7 @@ export default function PaymentListPage() {
           className="flex-1 rounded-lg border px-3 py-2 text-sm"
           onKeyDown={(e) => e.key === 'Enter' && applySearch()}
         />
-        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
           Search
         </button>
       </div>
@@ -191,8 +191,8 @@ export default function PaymentListPage() {
 
 function StatCard({ label, value, highlight }: { label: string; value: string | number; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white'}`}>
-      <p className="text-sm text-slate-500">{label}</p>
+    <div className={`stat-card p-4 ${highlight ? 'border-warning-border' : ''}`}>
+      <p className="text-sm text-ink-secondary">{label}</p>
       <p className="mt-1 text-xl">{value}</p>
     </div>
   );

@@ -1,5 +1,6 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Plus, Upload } from 'lucide-react';
 import DataTable, { type DataTableColumn } from '../../components/DataTable/DataTable';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -41,8 +42,10 @@ export default function MemberListPage() {
     setParams(qs);
   };
 
-  const columns = useMemo<DataTableColumn<Member>[]>(
-    () => [
+  const isTrainer = user?.role === 'TRAINER';
+
+  const columns = useMemo<DataTableColumn<Member>[]>(() => {
+    const cols: DataTableColumn<Member>[] = [
       {
         id: 'fullName',
         accessorKey: 'fullName',
@@ -67,18 +70,35 @@ export default function MemberListPage() {
           </Link>
         ),
       },
-      {
+    ];
+    if (!isTrainer) {
+      cols.push({
         id: 'mobileNumber',
         accessorKey: 'mobileNumber',
         header: 'Mobile',
         meta: { label: 'Mobile' },
         enableSorting: true,
-      },
+      });
+    }
+    cols.push(
       {
         id: 'program',
         header: 'Program',
         meta: { label: 'Program' },
-        cell: ({ row }) => row.original.memberships?.[0]?.program.name ?? '—',
+        cell: ({ row }) => {
+          const count = row.original.memberships?.length ?? 0;
+          const name = row.original.memberships?.[0]?.program.name ?? '—';
+          return (
+            <span>
+              {name}
+              {count > 1 && (
+                <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs text-brand-800">
+                  +{count - 1}
+                </span>
+              )}
+            </span>
+          );
+        },
       },
       {
         id: 'trainer',
@@ -93,7 +113,7 @@ export default function MemberListPage() {
         cell: ({ row }) => {
           const status = row.original.memberships?.[0]?.status;
           return (
-            <span className={`rounded-full px-2 py-0.5 text-xs ${status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-600'}`}>
+            <span className={`rounded-full px-2 py-0.5 text-xs ${status === 'ACTIVE' ? 'badge badge-success' : 'bg-neutral-soft text-ink-secondary'}`}>
               {status ?? '—'}
             </span>
           );
@@ -108,23 +128,33 @@ export default function MemberListPage() {
           return end ? new Date(end).toLocaleDateString() : '—';
         },
       },
-    ],
-    [],
-  );
+    );
+    return cols;
+  }, [isTrainer]);
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl">Members</h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-secondary">
             {user?.role === 'TRAINER' ? 'Members assigned to you' : 'All gym members'}
           </p>
         </div>
         {(user?.role === 'OWNER' || user?.role === 'MANAGER') && (
-          <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
-            Expiring memberships →
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/members/import" className="btn btn-secondary">
+              <Upload className="h-4 w-4" />
+              Import Excel
+            </Link>
+            <Link to="/members/new" className="btn btn-primary">
+              <Plus className="h-4 w-4" />
+              Add Member
+            </Link>
+            <Link to="/members/expiring" className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
+              Expiring memberships →
+            </Link>
+          </div>
         )}
       </div>
 
@@ -146,7 +176,7 @@ export default function MemberListPage() {
           <option value="EXPIRED">Expired</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
-        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-slate-50">
+        <button type="button" onClick={applySearch} className="rounded-lg border px-4 py-2 text-sm hover:bg-canvas">
           Search
         </button>
       </div>

@@ -8,7 +8,7 @@ echo "Running database migrations..."
 
 if [ "${SEED_ON_START:-false}" = "true" ]; then
   echo "Seeding database (SEED_ON_START=true)..."
-  ../node_modules/.bin/prisma db seed
+  node dist/prisma/seed.js
 fi
 
 echo "Starting API..."

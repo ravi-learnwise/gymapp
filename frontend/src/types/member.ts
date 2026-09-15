@@ -108,6 +108,7 @@ export type Trainer = {
 export type ProgramWithDurations = {
   id: string;
   name: string;
+  enrollmentType?: 'INDEPENDENT' | 'ADD_ON';
   durations: { id: string; label: string; months: number; price: string; isActive: boolean }[];
 };
 

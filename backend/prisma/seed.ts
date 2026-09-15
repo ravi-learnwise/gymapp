@@ -1,6 +1,8 @@
 import { PrismaClient, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-
+import * as fs from 'fs';
+import * as path from 'path';
+import { importSimplyFitnessExercises } from '../scripts/import-exercises.lib';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -99,10 +101,24 @@ async function main() {
     });
   }
 
+  const backendRoot =
+    path.basename(path.dirname(__dirname)) === 'dist'
+      ? path.join(__dirname, '..', '..')
+      : path.join(__dirname, '..');
+  const manifestPath = path.join(backendRoot, 'data', 'simplyfitness-exercises.json');
+  if (fs.existsSync(manifestPath)) {
+    const { imported, missingImages } = await importSimplyFitnessExercises(prisma, manifestPath);
+    console.log(`Imported ${imported} SimplyFitness exercises`);
+    if (missingImages) console.warn(`${missingImages} missing image files`);
+  } else {
+    console.warn(
+      'No simplyfitness-exercises.json — run: npm run scrape:exercises && npm run import:exercises',
+    );
+  }
   await prisma.schemaVersion.upsert({
     where: { id: 1 },
-    update: { version: 'phase-4' },
-    create: { version: 'phase-4' },
+    update: { version: 'phase-v2' },
+    create: { version: 'phase-v2' },
   });
 
   console.log('\nSeed accounts:');

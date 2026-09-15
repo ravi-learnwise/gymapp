@@ -2,15 +2,15 @@ import { PAYMENT_MODE_LABELS, formatCurrency, type PaymentMode, type Receipt } f
 
 export default function ReceiptSlip({ receipt }: { receipt: Receipt }) {
   return (
-    <div id="receipt-slip" className="receipt-slip mx-auto max-w-md bg-white p-8 text-slate-900">
+    <div id="receipt-slip" className="receipt-slip mx-auto max-w-md bg-white p-8 text-ink">
       <div className="text-center">
         <h1 className="text-lg">{receipt.gym.name}</h1>
-        {receipt.gym.address && <p className="mt-1 text-xs text-slate-500">{receipt.gym.address}</p>}
-        {receipt.gym.gstNumber && <p className="text-xs text-slate-500">GST: {receipt.gym.gstNumber}</p>}
+        {receipt.gym.address && <p className="mt-1 text-xs text-ink-secondary">{receipt.gym.address}</p>}
+        {receipt.gym.gstNumber && <p className="text-xs text-ink-secondary">GST: {receipt.gym.gstNumber}</p>}
       </div>
-      <hr className="my-4 border-slate-200" />
+      <hr className="my-4 border-line" />
       <p className="text-center font-semibold">Payment Receipt</p>
-      <p className="text-center text-sm text-slate-500">{receipt.receiptNumber}</p>
+      <p className="text-center text-sm text-ink-secondary">{receipt.receiptNumber}</p>
       <dl className="mt-4 space-y-2 text-sm">
         <Row label="Member" value={`${receipt.member.fullName} (${receipt.member.memberNumber})`} />
         <Row label="Mobile" value={receipt.member.mobileNumber} />
@@ -24,8 +24,8 @@ export default function ReceiptSlip({ receipt }: { receipt: Receipt }) {
         <Row label="Balance" value={formatCurrency(receipt.pendingAmount)} />
         {Number(receipt.gstAmount) > 0 && <Row label="GST" value={formatCurrency(receipt.gstAmount)} />}
       </dl>
-      {receipt.notes && <p className="mt-4 text-xs text-slate-500">Note: {receipt.notes}</p>}
-      <p className="mt-6 text-center text-xs text-slate-400">Thank you for your payment</p>
+      {receipt.notes && <p className="mt-4 text-xs text-ink-secondary">Note: {receipt.notes}</p>}
+      <p className="mt-6 text-center text-xs text-ink-muted">Thank you for your payment</p>
     </div>
   );
 }
@@ -33,7 +33,7 @@ export default function ReceiptSlip({ receipt }: { receipt: Receipt }) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
+      <dt className="text-ink-secondary">{label}</dt>
       <dd className="text-right font-medium">{value}</dd>
     </div>
   );

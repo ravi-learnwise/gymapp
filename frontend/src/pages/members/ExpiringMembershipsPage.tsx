@@ -75,7 +75,7 @@ export default function ExpiringMembershipsPage() {
         header: 'Days Left',
         meta: { fixed: true, label: 'Days Left' },
         cell: ({ row }) => (
-          <span className={row.original.daysRemaining <= 7 ? 'font-medium text-amber-700' : ''}>
+          <span className={row.original.daysRemaining <= 7 ? 'font-medium text-warning' : ''}>
             {row.original.daysRemaining}
           </span>
         ),
@@ -95,7 +95,7 @@ export default function ExpiringMembershipsPage() {
     <div>
       <Link to="/dashboard" className="text-sm text-brand-600 hover:underline">← Dashboard</Link>
       <h2 className="mt-2 text-2xl">Expiring Memberships</h2>
-      <p className="text-sm text-slate-500">Active memberships approaching renewal date</p>
+      <p className="text-sm text-ink-secondary">Active memberships approaching renewal date</p>
 
       {data && (
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -105,10 +105,10 @@ export default function ExpiringMembershipsPage() {
               type="button"
               onClick={() => setBucket(b.key)}
               className={`rounded-lg border px-4 py-3 text-left ${
-                bucket === b.key ? 'border-brand-500 bg-brand-50' : 'border-slate-200 bg-white hover:bg-slate-50'
+                bucket === b.key ? 'border-brand-500 bg-brand-50' : 'border-line bg-white hover:bg-canvas'
               }`}
             >
-              <p className="text-xs text-slate-500">{b.label}</p>
+              <p className="text-xs text-ink-secondary">{b.label}</p>
               <p className="text-xl">
                 {b.key === '7' && data.summary.within7}
                 {b.key === '15' && data.summary.within15}

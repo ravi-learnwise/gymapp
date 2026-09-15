@@ -8,9 +8,9 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
 };
 
 export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
-  PAID: 'bg-green-100 text-green-800',
-  PARTIAL: 'bg-amber-100 text-amber-800',
-  PENDING: 'bg-red-100 text-red-800',
+  PAID: 'badge badge-success',
+  PARTIAL: 'badge badge-warning',
+  PENDING: 'badge badge-danger',
 };
 
 export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {

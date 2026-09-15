@@ -51,7 +51,8 @@ cd G:\vibe-coding\projects\gymapp
 ```
 gymapp/
 ├── backend/           NestJS API + Prisma
-├── frontend/          React SPA
+├── frontend/          React SPA (staff CRM)
+├── mobile/            Flutter member app (Android first; API: https://gymapp.learnwise.in)
 ├── deploy/
 │   ├── docker/        Dockerfiles, nginx, entrypoint (AWS production)
 │   ├── nginx/         Local UAT config

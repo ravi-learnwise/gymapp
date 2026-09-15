@@ -32,7 +32,7 @@ export default function UsersPage() {
   return (
     <div className="w-full min-w-0">
       <h2 className="text-2xl">User Management</h2>
-      <form onSubmit={create} className="list-table-toolbar grid max-w-lg gap-3 rounded-xl border border-slate-200 bg-white p-4">
+      <form onSubmit={create} className="list-table-toolbar grid max-w-lg gap-3 rounded-xl border border-line bg-white p-4">
         <h3 className="font-medium">Add user</h3>
         <input
           placeholder="Email"
@@ -78,7 +78,7 @@ export default function UsersPage() {
             <tr key={u.id}>
               <td className="font-medium">{u.email}</td>
               <td>
-                <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold capitalize text-slate-700">
+                <span className="inline-flex rounded-full bg-neutral-soft px-2 py-0.5 text-xs font-semibold capitalize text-ink">
                   {u.role.toLowerCase()}
                 </span>
               </td>
@@ -118,8 +118,8 @@ export function ProfilePage() {
   return (
     <div>
       <h2 className="text-2xl">My Profile</h2>
-      <p className="text-sm text-slate-500">{user?.email} · {user?.role}</p>
-      {message && <p className="mt-2 text-sm text-green-600">{message}</p>}
+      <p className="text-sm text-ink-secondary">{user?.email} · {user?.role}</p>
+      {message && <p className="mt-2 text-sm text-success">{message}</p>}
 
       <form onSubmit={saveProfile} className="mt-6 max-w-md space-y-3">
         <h3 className="font-medium">Profile details</h3>

@@ -14,6 +14,9 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { PaymentModule } from './payment/payment.module';
+import { TrainingCardModule } from './training-card/training-card.module';
+import { DietPlanModule } from './diet-plan/diet-plan.module';
+import { MemberAppModule } from './member-app/member-app.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -31,6 +34,9 @@ import { RolesGuard } from './common/guards/roles.guard';
     EnquiryModule,
     EnrollmentModule,
     PaymentModule,
+    TrainingCardModule,
+    DietPlanModule,
+    MemberAppModule,
     AssessmentModule,
     AttendanceModule,
     DashboardModule,

@@ -24,6 +24,8 @@ type Props<T> = {
   page?: number;
   pages?: number;
   onPageChange?: (page: number) => void;
+  total?: number;
+  pageSize?: number;
   emptyMessage?: string;
 };
 
@@ -46,6 +48,8 @@ export default function DataTable<T>({
   page,
   pages,
   onPageChange,
+  total,
+  pageSize = 20,
   emptyMessage = 'No records found',
 }: Props<T>) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
@@ -90,12 +94,12 @@ export default function DataTable<T>({
           <button
             type="button"
             onClick={() => setShowPicker(!showPicker)}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50"
+            className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-brand-50"
           >
             Columns
           </button>
           {showPicker && (
-            <div className="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+            <div className="absolute right-0 z-10 mt-1 w-48 rounded-lg border border-line bg-white p-2 shadow-lg">
               {toggleColumns.map((col) => (
                 <label key={col.id} className="flex items-center gap-2 px-2 py-1 text-sm">
                   <input
@@ -111,9 +115,9 @@ export default function DataTable<T>({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-slate-50 text-left text-slate-600">
+      <div className="overflow-hidden rounded-xl border border-line bg-white data-table-wrap">
+        <table className="data-table w-full">
+          <thead className="data-table-head">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => {
@@ -124,7 +128,7 @@ export default function DataTable<T>({
                       {header.isPlaceholder ? null : (
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1 ${canSort ? 'hover:text-slate-900' : ''}`}
+                          className={`inline-flex items-center gap-1 ${canSort ? 'hover:text-ink' : ''}`}
                           onClick={() => handleHeaderClick(header.column.id, canSort)}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
@@ -141,7 +145,7 @@ export default function DataTable<T>({
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b border-slate-100 hover:bg-slate-50">
+              <tr key={row.id} className="data-table-row">
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-4 py-3">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -151,7 +155,7 @@ export default function DataTable<T>({
             ))}
             {!data.length && (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={columns.length} className="data-table-empty">
                   {emptyMessage}
                 </td>
               </tr>
@@ -160,23 +164,34 @@ export default function DataTable<T>({
         </table>
       </div>
 
-      {pages != null && pages > 1 && onPageChange && page != null && (
-        <div className="mt-3 flex items-center justify-between text-sm">
-          <span className="text-slate-500">Page {page} of {pages}</span>
-          <div className="flex gap-2">
+      {(pages != null && pages > 0 && onPageChange && page != null) && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4 text-sm">
+          <div className="text-ink-muted">
+            {total != null && total > 0 ? (
+              <>
+                Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
+                <span className="mx-2">·</span>
+              </>
+            ) : null}
+            {pageSize} per page
+          </div>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               disabled={page <= 1}
               onClick={() => onPageChange(page - 1)}
-              className="rounded border px-3 py-1 disabled:opacity-40"
+              className="btn btn-secondary !h-9 !px-3 disabled:opacity-40"
             >
               Previous
             </button>
+            <span className="px-2 text-ink-muted">
+              Page {page} of {Math.max(pages, 1)}
+            </span>
             <button
               type="button"
               disabled={page >= pages}
               onClick={() => onPageChange(page + 1)}
-              className="rounded border px-3 py-1 disabled:opacity-40"
+              className="btn btn-secondary !h-9 !px-3 disabled:opacity-40"
             >
               Next
             </button>
